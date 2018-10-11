@@ -51,5 +51,6 @@ function diameter(path)
     output_filename = strcat(foldername, '\bf_diamater.csv');
     csvwrite(output_filename,output_tl);
     imwrite(imadjust(pic_ref),strcat(foldername, '\ref.jpg'))
+    imwrite(imadjust(BW), strcat(foldername, '\ref_mast.jpg'))
 
 end
