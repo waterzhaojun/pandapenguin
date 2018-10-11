@@ -27,7 +27,7 @@ function diameter(path)
     [p2r,p2c]=find(BW_rotated == 22);
     [p3r,p3c]=find(BW_rotated == 33);
     bf_corp = bf_mov_rotated(min(p1r, p2r):p3r, p1c:max(p2c, p3c),:);
-    imshow(bf_corp(:,:,1)/60);
+    imshow(imadjust(bf_corp(:,:,1)));
     % to adjust angel, but if you do the right track sequence, it is not
     % necessary
     %line1 = std(double(bf_mov(:,floor(end/2),1)));
