@@ -1,5 +1,8 @@
-function diameter(path)
+function diameter(path, haslabel)
 
+    if nargin < 2
+        haslabel = true;
+    end
     % step 1: draw roi
     % path = 'C:\2pdata\DL128\181009_DL128\181009_DL128_run2\DL128_181009_001_redChl.tif';
 
@@ -20,6 +23,9 @@ function diameter(path)
     % step 2: rotate the image and crop the edge ----------------------------
     xm = xi(2)-xi(1);
     ym = yi(2)-yi(1);
+    
+    % The following part is a tricky one, after rotate the angle point
+    % might disappear.
     angel = 90-asin(xm/sqrt(xm^2+ym^2))*180/pi;
     bf_mov_rotated = imrotate(bf_mov,angel);
     BW_rotated = imrotate(BW, angel);
@@ -27,7 +33,7 @@ function diameter(path)
     [p2r,p2c]=find(BW_rotated == 22);
     [p3r,p3c]=find(BW_rotated == 33);
     bf_corp = bf_mov_rotated(min(p1r, p2r):p3r, p1c:max(p2c, p3c),:);
-    imshow(imadjust(bf_corp(:,:,1)));
+    imshow(imadjust(bf_corp(:,:,1)/255));
     % to adjust angel, but if you do the right track sequence, it is not
     % necessary
     %line1 = std(double(bf_mov(:,floor(end/2),1)));
@@ -41,7 +47,11 @@ function diameter(path)
     output_tl = [];
     for i = 1:size(bf_corp,3)
         output_topo(:,i) = mean(bf_corp(:,:,i), 1);
-        output_tl = [output_tl,findEdge(output_topo(:,i))];
+        if haslabel
+            output_tl = [output_tl,findEdge(output_topo(:,i))];
+        else
+            output_tl = [output_tl,findEdge_nonlabel(output_topo(:,i))];
+        end
     end
 
     output_topo = uint8(2* output_topo);
