@@ -1,4 +1,9 @@
-# vessel_diameter_measurement
+# pandapenguin
+This repo contains multiple tools for two photon experiment and data analysis in headache lab.
+
+
+================================================================================
+### 1. vessel_diameter_measurement
 scripts used for 2P experiment vessel diameter measurement
 
 
@@ -10,3 +15,8 @@ the algorithem to find the blood vessal edge.
 
 findedge_nonlabel.m
 the algorithem to find the not dyed blood vessal edge.
+
+
+================================================================================
+### 2. astrocyte calcium signal analysis
+Tools used to process astrocyte calcium signal. The tools are mainly designed for astrocyte in rat animal as the signal noise ratio is much lower than mouse. 
