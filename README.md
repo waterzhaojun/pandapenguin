@@ -1,5 +1,5 @@
 # pandapenguin
-This repo contains multiple tools for two photon experiment and data analysis in headache lab.
+This repo contains multiple tools for two photon experiment and data analysis.
 
 
 ================================================================================
