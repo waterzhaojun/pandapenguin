@@ -1,0 +1,14 @@
+{
+  "fn_extract": "mxFromSbx", 
+
+  "fn_crop": "trimMatrix",
+
+  "fn_denoise": "denoise",
+  "check_denoise": 1,
+  "denoise_sample_size": 50,
+
+  "fn_downsample": "downsample",
+  "downsample_size": 2,
+  "output_fq": 1
+
+}
