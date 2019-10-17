@@ -2,10 +2,17 @@
   "fn_extract": "mxFromSbx", 
 
   "fn_crop": "trimMatrix",
+  "edge": [80,80,10,10],
 
-  "fn_denoise": "denoise",
   "check_denoise": 1,
+  "fn_denoise": "denoise",
+  "denoise_pmt":0,
   "denoise_sample_size": 50,
+
+  "check_registeration": 1,
+  "fn_registration": "dft_190928",
+  "registerPmt": 0,
+  "registeration_ref_ext": "_registration_ref",
 
   "fn_downsample": "downsample",
   "downsample_size": 2,

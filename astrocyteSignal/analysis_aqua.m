@@ -5,8 +5,7 @@ startup;  % initialize
 preset = 1;
 [p0, f01,f02] = fileparts(filepath);  % folder name
 f0 = [f01, f02];  % file name
-ftb = [p0, '\FeatureTable.xlsx'];      % FeatureTable Path
-fmov = [p0, '\Movie.tif'];             % Movie Path
+
 aqua_parameters = [fileparts(p0), '\aqua_parameters.json'];
 
 opts = load_config(aqua_parameters);
@@ -107,6 +106,8 @@ for ii=1:nFt
     end
 end
 featureTable = table(ftsTb,'RowNames',ftsName);
+
+ftb = [p0, '\FeatureTable.xlsx'];      % FeatureTable Path
 writetable(featureTable,ftb,'WriteVariableNames',0,'WriteRowNames',1);
 
 
@@ -150,6 +151,8 @@ for tt=1:opts.sz(3)
     datxCol(:,:,3) = bPlane.*reCon + datxCol(:,:,3);
     ov1(:,:,:,tt) = datxCol;
 end
+
+fmov = [p0, '\Movie.tif'];             % Movie Path
 io.writeTiffSeq(fmov,ov1,8);
 
 
