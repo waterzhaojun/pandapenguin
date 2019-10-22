@@ -1,10 +1,22 @@
-function tif = loadTifStack(path)
-
-    fileName = path;
-    tiffInfo = imfinfo(fileName);  %# Get the TIFF file information
-    tif = zeros(tiffInfo(1).Height, tiffInfo(1).Width, length(tiffInfo));    %# Preallocate the cell array
-    for iFrame = 1:length(tiffInfo)
-        tif(:,:,iFrame) = imread(fileName,'Index',iFrame,'Info',tiffInfo);
+function FinalImage = loadTifStack(path)
+    % need to edit to load color image.
+    InfoImage = imfinfo(path);  %# Get the TIFF file information
+    mImage = InfoImage(1).Width;
+    nImage = InfoImage(1).Height;
+    NumberImages = length(InfoImage);
+    nChannel = InfoImage(1).SamplesPerPixel;
+    FinalImage = zeros(nImage, mImage, NumberImages, 'uint16');
+    
+    FileID = tifflib('open', path, 'r');
+    rps = tifflib('getField', FileID, Tiff.TagID.RowsPerStrip);
+    for i = 1:NumberImages
+        tifflib('setDirectory', FileID, i);
+        rps = min(rps, nImages);
+        for r = 1:rps:nImages
+            row_inds = r:min(nImage, r+rps-1);
+            stripNum = tifflib('computeStrip', FileID, r);
+            FinalImage(row_inds, :, i) = tifflib('readEncodedStrip', FileID, stripNum);
+        end
     end
-
+    tifflib('close', FileID);
 end

@@ -6,7 +6,7 @@ preset = 1;
 [p0, f01,f02] = fileparts(filepath);  % folder name
 f0 = [f01, f02];  % file name
 
-aqua_parameters = [fileparts(p0), '\aqua_parameters.json'];
+aqua_parameters = [fileparts(p0), '\aqua_parameters.yml'];
 
 opts = load_config(aqua_parameters);
 
