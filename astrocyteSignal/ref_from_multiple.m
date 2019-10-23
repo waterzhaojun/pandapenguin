@@ -2,7 +2,7 @@ function ref = ref_from_multiple(animal, date, runs, method, configpath)
 
 gap = 4;
 
-if strcmp(method, 'single')
+if strcmp(method, 'single') % each run build their own ref pic
     for i = 1:length(runs)
         p = load_parameters(animal, date, runs(i), configpath);
         registerPmt = p.config.registerPmt + 1;
@@ -15,7 +15,7 @@ if strcmp(method, 'single')
         ref = uint16(ref);
         imwrite(ref, outputpath, 'tiff');
     end
-elseif strcmp(method, 'multiple')
+elseif strcmp(method, 'multiple') % all runs build one ref pic
     for i = 1:length(runs)
         p = load_parameters(animal, date, runs(i), configpath);
         registerPmt = p.config.registerPmt + 1;
