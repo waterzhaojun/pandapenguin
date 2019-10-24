@@ -1,4 +1,4 @@
-function analysis_aqua_folder(folder)
+function analysis_aqua_folder(animal, date, runs, )
 
     %p = [folder, '\', 'aqua_parameters.yml'];
 
@@ -13,6 +13,10 @@ function analysis_aqua_folder(folder)
         tmpflags = ~cellfun(@isempty, regexp({tmp.name}, '.*_pretreated.tif'));
         file = tmp(tmpflags);
         analysis_aqua([file.folder, '\', file.name]);
+        
+        
     end
+    
+    
 
 end

@@ -1,0 +1,60 @@
+# Step 0
+frameRate: 1 # Temporal resolution. Second per frame
+spatialRes: 1 # Spatial resolution. um per pixel
+regMaskGap: 4 # Exclude pixels shorter than this distance to border
+
+# Step 1: Signal -- Active voxels
+thrARScl: 10 # Intensity threshold scaling factor. 
+# when I set to 14, some obverous event missed.
+smoXY: 2 # Smoothing (sigma) As I already smoothed the movie previously, there is no difference between 1 and 4
+minSize: 10 # Minimum size (pixels)
+
+# Step 2: Voxel -- Super voxels
+zThr: 2 # Voxels temporal cut threshold
+thrExtZ: 1 # Growing z threshold
+
+# Step 3: Event -- Super events and events
+cRise: 2 # Rising time uncertainty
+cDelay: 2 # Slowest delay in propagation
+gtwSmo: 2 # Propagation smoothness
+
+# Step 4: Clean -- False positive control  # Z score threshold (default is 2)
+
+# Step 5: Merge -- Merging
+ignoreMerge: 1 # Ignore merging. 1 means check
+mergeEventDiscon: 0 # Maximum distance
+mergeEventCorr: 0 # Minimum correlation
+mergeEventMaxTimeDif: 2 # Maximum time difference
+
+# Step 6: Recon -- Reconstruct after merging # Temporally extend events (defualt is 0 means uncheck)
+
+# Step 7: Fea -- Feature extraction
+ignoreTau: 1 # Ignore delay Tau
+
+
+maxStp: 11
+thrTWScl: 2
+usePG: 1
+cut: 200
+movAvgWin: 25
+extendSV: 1
+legacyModeActRun: 1
+getTimeWindowExt: 50
+seedNeib: 1
+seedRemoveNeib: 2
+thrSvSig: 4
+superEventdensityFirst: 1
+gtwGapSeedRatio: 4
+gtwGapSeedMin: 5
+cOver: 0.2000
+minShow1: 0.2000
+minShowEvtGUI: 0
+
+correctTrend: 1
+extendEvtRe: 0
+gapExt: 5
+varEst: 0.0200
+fgFluo: 0
+bgFluo: 0
+northx: 0
+northy: 1
