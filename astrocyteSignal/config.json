@@ -16,6 +16,9 @@
 
   "fn_downsample": "downsample",
   "downsample_size": 2,
-  "output_fq": 1
+  "output_fq": 1,
 
+  "related_setting_file": {
+    "aqua_parameter_file":"D:\\Jun\\pandapenguin\\astrocyteSignal\\aqua_parameters.yml" 
+  }
 }

@@ -1,12 +1,16 @@
-function analysis_aqua(filepath)
+function analysis_aqua(parameters)
 
 startup;  % initialize
 
 preset = 1;
+
+filepath = parameters.pretreated_mov;
+
 [p0, f01,f02] = fileparts(filepath);  % folder name
 f0 = [f01, f02];  % file name
 
-aqua_parameters = [fileparts(p0), '\aqua_parameters.yml'];
+%aqua_parameters = [fileparts(p0), '\aqua_parameters.yml'];
+aqua_parameters = parameters.config.related_setting_file.aqua_parameter_file;
 
 opts = load_config(aqua_parameters);
 
@@ -170,7 +174,7 @@ if 0
     [ov1,lblMapS] = plt.regionMapWithData(evtLstE,datOrg,0.5,datRE); zzshow(ov1);
 end
 
-
+copyfile(parameters.config.related_setting_file.aqua_parameter_file, parameters.dirname);
 
 
 end
