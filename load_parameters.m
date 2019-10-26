@@ -4,19 +4,26 @@ function p = load_parameters(animalid, date, run, configPath, pmt)
     p.animal = animalid;
     p.date = date;
     p.run = run;
-    p.config = load_config(configPath);
     
     if nargin<5, pmt = 0; end
-    p.pmt = pmt;
     
-    % the following part need to define based on each person's code.
+    p.pmt = pmt;
     path = sbxPath(animalid, date, run, 'sbx'); 
     inf = sbxInfo(path, true);
-    
     tmp = sbxDir(animalid, date, run);
     p.dirname = tmp.runs{1}.path;
     p.basicname = strtok(path, '.');
-    p.refname = [p.basicname, p.config.registeration_ref_ext, '.tif'];
+    p.config_path = [p.dirname, 'config.yml'];
+    
+    
+    if nargin<4, configPath = ''; end
+    if ~strcmp(configPath, ''), copyfile(configPath, p.dirname); end
+    
+    p.config = ReadYaml(p.config_path);
+
+    % the following part need to define based on each person's code.
+    
+    p.refname = [p.basicname, p.config.registration_ref_ext, '.tif'];
     p.pretreated_mov = [p.basicname, '_pretreated.tif'];
     p.scanrate = 15;
     p.keep_frames = floor((inf.max_idx+1)/(inf.scanmode*15.5)/60)*60*floor(inf.scanmode*15.5);

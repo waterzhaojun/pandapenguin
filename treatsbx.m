@@ -13,17 +13,17 @@ function mx=treatsbx(parameters)
     if config.check_denoise
         mx = feval(config.fn_denoise, mx, parameters);
         pname = [pname, '_denoise'];
-        mx2tif(mx, [pname, '.tif'], 0, floor(parameters.scanrate/1), config.denoise_sample_size);
+        if config.output_denoised_sample
+            mx2tif(mx, [pname, '.tif'], config.output_sample_channel, floor(parameters.scanrate/1), config.denoise_sample_size);
+        end
     end
     
     % step: crop.
     mx = feval(config.fn_crop, mx, parameters);
     
     % step: registeration.
-    if config.check_registeration
+    if config.check_registration
         mx = feval(config.fn_registration, mx, parameters);
-        % pname = [pname, '_registeration'];
-        % mx2tif(mx, [pname, '.tif'], 0);
     end
     
     % step: downsample.

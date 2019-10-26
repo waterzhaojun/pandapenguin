@@ -9,10 +9,16 @@ filepath = parameters.pretreated_mov;
 [p0, f01,f02] = fileparts(filepath);  % folder name
 f0 = [f01, f02];  % file name
 
+p1 = [p0, '\run', num2str(parameters.run), '_AQuA'];
+if ~exist(p1, 'dir')
+    mkdir(p1);
+end
+
+
 %aqua_parameters = [fileparts(p0), '\aqua_parameters.yml'];
 aqua_parameters = parameters.config.related_setting_file.aqua_parameter_file;
 
-opts = load_config(aqua_parameters);
+opts = ReadYaml(aqua_parameters);
 
 
 [datOrg,opts] = burst.prep1(p0,f0,[],opts);  % read data
@@ -111,7 +117,7 @@ for ii=1:nFt
 end
 featureTable = table(ftsTb,'RowNames',ftsName);
 
-ftb = [p0, '\FeatureTable.xlsx'];      % FeatureTable Path
+ftb = [p1, '\FeatureTable.xlsx'];      % FeatureTable Path
 writetable(featureTable,ftb,'WriteVariableNames',0,'WriteRowNames',1);
 
 
@@ -156,7 +162,7 @@ for tt=1:opts.sz(3)
     ov1(:,:,:,tt) = datxCol;
 end
 
-fmov = [p0, '\Movie.tif'];             % Movie Path
+fmov = [p1, '\Movie.tif'];             % Movie Path
 io.writeTiffSeq(fmov,ov1,8);
 
 
@@ -174,7 +180,7 @@ if 0
     [ov1,lblMapS] = plt.regionMapWithData(evtLstE,datOrg,0.5,datRE); zzshow(ov1);
 end
 
-copyfile(parameters.config.related_setting_file.aqua_parameter_file, parameters.dirname);
+copyfile(parameters.config.related_setting_file.aqua_parameter_file, p1);
 
 
 end

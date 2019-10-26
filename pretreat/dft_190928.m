@@ -4,7 +4,7 @@ if nargin < 3, ref = ''; end
 
 % Navg = 90;
 upscale = 10; 
-refPmt = parameters.config.registerPmt;
+refPmt = parameters.config.registratePmt;
 
 if ndims(mx) == 3
     [r,c,f] = size(mx);

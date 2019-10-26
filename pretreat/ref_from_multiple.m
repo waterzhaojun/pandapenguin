@@ -37,10 +37,6 @@ elseif strcmp(method, 'multiple') % all runs build one ref pic
         imwrite(ref, outputpath, 'tiff');
     end
 end
-       
-    
-
-
 
 
 end
