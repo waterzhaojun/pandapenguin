@@ -1,10 +1,14 @@
-function p = load_parameters(animalid, date, run, configPath, pmt)
+function p = load_parameters(animalid, date, run, configPath, pmt, copy_config_file)
+    % This function is only used to pretreat.
+    % To make sure copy config.yml to your treat folder, you need both set 
+    % copy_config_file to 1 and give a path instead of the same folder. 
     
     p = {};
     p.animal = animalid;
     p.date = date;
     p.run = run;
     
+    if nargin<6, copy_config_file = 0; end
     if nargin<5, pmt = 0; end
     
     p.pmt = pmt;
@@ -17,7 +21,11 @@ function p = load_parameters(animalid, date, run, configPath, pmt)
     
     
     if nargin<4, configPath = ''; end
-    if ~strcmp(configPath, ''), copyfile(configPath, p.dirname); end
+    
+    
+    if copy_config_file & ~strcmp(configPath, '')
+        copyfile(configPath, p.dirname); 
+    end
     
     p.config = ReadYaml(p.config_path);
 

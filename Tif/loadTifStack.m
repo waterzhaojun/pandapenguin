@@ -1,4 +1,4 @@
-function FinalImage = loadTifStack(path)
+ function FinalImage = loadTifStack(path)
     % need to edit to load color image.
     InfoImage = imfinfo(path);  %# Get the TIFF file information
     mImage = InfoImage(1).Width;
