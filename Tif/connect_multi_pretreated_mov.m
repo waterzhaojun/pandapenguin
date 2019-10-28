@@ -14,7 +14,7 @@ for i = 1:length(runs)
     
 end
 
-% mx = uint16(mx);
+mx = uint16(mx);
     
     
 end

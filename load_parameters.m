@@ -1,15 +1,12 @@
-function p = load_parameters(animalid, date, run, configPath, pmt, copy_config_file)
-    % This function is only used to pretreat.
-    % To make sure copy config.yml to your treat folder, you need both set 
-    % copy_config_file to 1 and give a path instead of the same folder. 
+function p = load_parameters(animalid, date, run, pmt)
+    
     
     p = {};
     p.animal = animalid;
     p.date = date;
     p.run = run;
     
-    if nargin<6, copy_config_file = 0; end
-    if nargin<5, pmt = 0; end
+    if nargin<4, pmt = 0; end
     
     p.pmt = pmt;
     path = sbxPath(animalid, date, run, 'sbx'); 
@@ -17,16 +14,8 @@ function p = load_parameters(animalid, date, run, configPath, pmt, copy_config_f
     tmp = sbxDir(animalid, date, run);
     p.dirname = tmp.runs{1}.path;
     p.basicname = strtok(path, '.');
-    p.config_path = [p.dirname, 'config.yml'];
     
-    
-    if nargin<4, configPath = ''; end
-    
-    
-    if copy_config_file & ~strcmp(configPath, '')
-        copyfile(configPath, p.dirname); 
-    end
-    
+    p.config_path = tmp.runs{1}.config;
     p.config = ReadYaml(p.config_path);
 
     % the following part need to define based on each person's code.

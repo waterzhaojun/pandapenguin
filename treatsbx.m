@@ -9,6 +9,7 @@ function mx=treatsbx(parameters)
     % The output is a 4 demension matrix by width, height, channel, frame.
     mx = feval(config.fn_extract, parameters);
     disp(size(mx));
+    
     % step: denoise. 
     if config.check_denoise
         mx = feval(config.fn_denoise, mx, parameters);
@@ -23,7 +24,7 @@ function mx=treatsbx(parameters)
     
     % step: registeration.
     if config.check_registration
-        mx = feval(config.fn_registration, mx, parameters);
+        mx = registration_adapter(mx, parameters);
     end
     
     % step: downsample.

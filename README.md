@@ -1,5 +1,10 @@
 # pandapenguin
 This repo contains multiple tools for two photon experiment and data analysis.
+In the root folder, it contains the functions almost necessary all kinds of two photon experiments.
+For each experiment, you need first of all copy a config.yml to each experiment folder (run). This file defines whether the signal need denoise, registration, and which function you need to use, and also some fundmental paramerters related with these steps. You can either copy manually or use build_config function to copy config.yml to a series of runs.
+If you need to do registration, you need to run build_registration_ref to create ref.tif for each experiment run. 
+After you copy config.yml to experiment folder and make some revise, and possiblly finished build ref for registration, you can use load_parameters to load parameters for pretreatment by running treatsbx. This will output a XXX_XXX_XXX_pretreated.tif. This file will be ready to do further analysis.
+besides the fundamental function, all pretreat functions are in pretreat folder.
 
 
 ================================================================================

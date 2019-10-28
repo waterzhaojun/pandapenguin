@@ -1,10 +1,9 @@
-function [regMovie, shift] = dft_190928(mx, parameters, ref)
+function [regMovie, shift] = dft_190928(mx, refIm, shift_file_name, refPmt)
 % Register movies
 if nargin < 3, ref = ''; end
 
 % Navg = 90;
 upscale = 10; 
-refPmt = parameters.config.registratePmt;
 
 if ndims(mx) == 3
     [r,c,f] = size(mx);
@@ -17,14 +16,6 @@ if ch == 1
     refPmt = 1;
 elseif ch > 1
     refPmt = refPmt +1; % Please confirm here that pmt = 0 is the first layer of dim 3
-end
-
-
-% Which frames should be averaged to form the reference image?
-if strcmp(ref, '')
-    refIm = imread(parameters.refname);
-else
-    refIm = read(ref);
 end
 
 
@@ -45,12 +36,15 @@ for z = 1:f
     shift(z,5) = output(2);
     regMovie(:,:,refPmt,z) = abs( ifft2(fftIndReg) );
 end
-save([parameters.basicname, '_registeration_shift.mat'], 'shift');
+
+if ~strcmp(shift_file_name, '')
+    save(shift_file_name, 'shift');
+end
+%save([file_basicname, '_registeration_shift.mat'], 'shift');
 % if has more than 1 pmts, use the main channel register paratmers to
 % register the other channels.
 % For this part. I didn't test with a two channel mx.
 for otherCh = 1:ch
-    
     
     if otherCh ~= refPmt
         disp(sprintf('start to register channel %i...', otherCh));

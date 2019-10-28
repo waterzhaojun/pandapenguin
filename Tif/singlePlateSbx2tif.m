@@ -27,7 +27,7 @@ function output = singlePlateSbx2tif(animalID, dateID, run, pmt, bint, outputTif
     %x = squeeze(x(pmt+1, :, :,:));
     %x = intmax('uint16') - permute(x, [1 3 2 4]);
     
-    edges = sbxRemoveEdges(path);
+    edges = sbxRemoveEdges();
     
     if pmt == 0
             fnm = 'greenChl'; 

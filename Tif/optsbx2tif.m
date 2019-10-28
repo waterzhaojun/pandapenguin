@@ -30,7 +30,7 @@ function output = optsbx2tif(animalID, dateID, run, pmt, layers, outputTif)
     %x = squeeze(x(pmt+1, :, :,:));
     %x = intmax('uint16') - permute(x, [1 3 2 4]);
     
-    edges = sbxRemoveEdges(path);
+    edges = sbxRemoveEdges();
     
     depth = floor(length(inf.otwave)*layers);
     if depth(1) == 0, depth(1) = 1; end
