@@ -1,0 +1,16 @@
+# This file suppose to set before run csd_analysis function
+
+animal: RAS004 # animal id
+date: 190920 # date of experiment
+runs: # runs included
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+
+csd_run: 3 # the run that did CSD
+
+  # pre_peak_duration and post_peak_duration is used when analysis the CSD wave duraiton and speed
+pre_peak_duration: 10 # unit is sec
+post_peak_duration: 5 # unit is sec
