@@ -1,4 +1,4 @@
-function [regMovie, refPic, xyshift] = dft_190928(mx, ref_idx, ref_file_name, shift_file_name, refPmt, upscale)
+function [regMovie, superRef, superRef_xyshift] = dft_190928(mx, ref_idx, ref_file_name, shift_file_name, refPmt, upscale)
 % This dft version don't use predefined ref. It always use own refpic by
 % mean of a part of the mx. If give a reg_file_name instead of '', it will
 % save the regPic. If five a shift_file_name instead of '', it will save
@@ -61,7 +61,12 @@ for i = 2:length(ref_idx)
             regMovie(:,:,j,sid:eid) = apply_shift(mx(:,:,j,sid:eid), shift(sid:eid,:));
         end
     end
-    disp(['Finished piece ', num2str(i-1)]);
+    disp(['Finished piece ', num2str(i-1), ' of ' num2str(length(ref_idx)-1)]);
+end
+
+if ~strcmp(shift_file_name, '')
+    ref_before_superReg=ref;
+    save(shift_file_name, 'ref_before_superReg', '-append');
 end
 
 %We need super ref for second registration. Right now ref is registered but
@@ -101,9 +106,6 @@ for i = 1:size(ref,4)
     superShift(sid:eid,4) = output(1); 
     superShift(sid:eid,5) = output(2);
     
-    %for j = 1:ch
-    %    regMovie(:,:,j,sid:eid) = apply_shift(regMovie(:,:,j,sid:eid), superShift(sid:eid, :));
-    %end
 end
 
 
@@ -113,18 +115,18 @@ for i = 1:ch
 end
 
 % Now all step finished
-refPic = uint16(squeeze(mean(regMovie(:,:,refPmt,:), 4)));
+superRef = uint16(squeeze(mean(regMovie(:,:,refPmt,:), 4)));
 regMovie = uint16(regMovie);
 % this is used for crop ref, not for reg.
-xyshift=[shift(:,1)+superShift(:,1), shift(:,2)+superShift(:,2)]; 
-xyshift=[abs(min(xyshift(:,1))), max(xyshift(:,2)), abs(min(xyshift(:,2))), max(xyshift(:,2))]*upscale;
+superRef_xyshift=[shift(:,1)+superShift(:,1), shift(:,2)+superShift(:,2)]; 
+superRef_xyshift=[min(superRef_xyshift(:,1)), max(superRef_xyshift(:,2)), min(superRef_xyshift(:,2)), max(superRef_xyshift(:,2))]*upscale;
 
 if ~strcmp(shift_file_name, '')
-    save(shift_file_name, 'shift', 'superShift');
+    save(shift_file_name, 'shift', 'superShift', 'ref', 'superRef', 'superRef_xyshift', '-append');
 end
 
 if ~strcmp(ref_file_name, '')
-    imwrite(refPic, ref_file_name);
+    imwrite(superRef, ref_file_name);
 end
 
 fprintf('  Done.   ');

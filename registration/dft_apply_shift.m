@@ -1,5 +1,7 @@
-function shiftmx = apply_shift(mx, shift)
+function shiftmx = dft_apply_shift(mx, shift)
 % mx and shift should have the same length.
+% This function is used to registrate the channel not regPmt channel by
+% giving the shift from main regPmt channel.
 [r,c,ch,f] = size(mx);
 if ch ~= 1
     error('mx ch should be 1');

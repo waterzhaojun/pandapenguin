@@ -20,7 +20,7 @@ if ref_idx(end) ~= f
     ref_idx = [ref_idx, f];
 end
 
-save(parameters.config.registrateParaPath, 'ref_idx');
+save(parameters.registration_parameter_path, 'ref_idx');
 
 
 

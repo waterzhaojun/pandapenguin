@@ -19,7 +19,7 @@ output_sample_channel: 0 # It is not useful when there are more than 1 channels.
 check_registration: 1 # whether registrate the matrix. 0 for no, 1 for yes.
 fn_registration: dft_190928 # registration function
 registratePmt: 0 # which pmt to registrate. usually only need one channel to be registrated for multiple pmts.
-registrateParaPath: registration_parameters.m # define parameters used in registration. It include time points for seperate registration pieces. some shift output will also save here.
+registratePara_ext: _registration_parameters # define parameters used in registration. It include time points for seperate registration pieces. some shift output will also save here.
 # When seperate whole movie, how many frames each peice contains. This is important for build ref. 
 # You don't want your ref too noisy or shaky. It should based on your movie quality and shakeness.
 # When you define this size, the max piece size will automatically set to 1.5*piece_size. So the least size will be 0.5*piece_size
