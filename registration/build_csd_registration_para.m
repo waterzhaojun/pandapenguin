@@ -7,11 +7,14 @@ csdcharacter = csd_character(csdarray);
 
 f = size(mx,4);
 
-piece_size = parameters.config.piece_size
+piece_size = parameters.config.piece_size;
 max_piece_size = 1.5 * piece_size;
 
-ref_idx = [0, csdcharacter.csd_start_point, csdcharacter.csd_end_point];
-endidx = csdcharacter.csd_end_point;
+ref_idx = [0, csdcharacter.csd_start_point, csdcharacter.peakidx, csdcharacter.csd_end_point];
+for i = 1:60
+    ref_idx = [ref_idx, ref_idx(end) + 15*2];
+end
+endidx = ref_idx(end);
 while endidx + max_piece_size < f
     ref_idx = [ref_idx, endidx + piece_size];
     endidx = endidx + piece_size;

@@ -10,6 +10,8 @@ function cleanmx = dft_clean_edge(mx, shift, upscale)
 % on one channel, so one channels shift can be used for all channels
 % cropping.
 
+% mx and shift do not need to have the same length.
+
 [r,c,ch,f] = size(mx);
 r_start = abs(min(shift(:,2))*upscale);
 r_end = max(shift(:,2))*upscale;

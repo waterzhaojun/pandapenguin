@@ -4,7 +4,7 @@ function [regMx, shift]=dft_piece_registration(refs, upscale)
 % several ref pics as main ref pic, then registrate the others by it.
 % the refs should have a clean edge, otherwise it might caught problem.
 
-if dims(refs) <4
+if length(size(refs)) <4
     error('refs should have 4 dims.');
 end
 
@@ -33,10 +33,10 @@ for i = 1:f
     shift(i,3) = norm(output(3:4)); 
     shift(i,4) = output(1); 
     shift(i,5) = output(2);
-    regMx(:,:,1,z) = abs( ifft2(fftIndReg) ); 
+    regMx(:,:,1,i) = abs( ifft2(fftIndReg) ); 
 end
 
-
+regMx = uint16(regMx);
 
 
 end

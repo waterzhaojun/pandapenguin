@@ -1,6 +1,6 @@
-function [regMx, shift]=dft_trunk_registration(mx, upscale)
+function [regMx, shift, ref]=dft_trunk_registration(mx, upscale)
 
-[r,c,ch,f] = size(mx,4);    
+[r,c,ch,f] = size(mx);    
 if ch ~= 1
     error('only support 1 channel registration');
 end
@@ -20,5 +20,7 @@ for z = 1:f
     regMx(:,:,1,z) = abs( ifft2(fftIndReg) ); 
 end
 
+ref = uint16(squeeze(mean(regMx, 4)));
+regMx = uint16(regMx);
 
 end

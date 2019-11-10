@@ -21,7 +21,8 @@ function p = load_parameters(animalid, date, run, pmt)
     % the following part need to define based on each person's code.
     
     p.refname = [p.basicname, p.config.registration_ref_ext, '.tif'];
-    p.registration_parameter_path = [p.basicname, p.config.registratePara_ext, '.mat'];
+    p.registration_parameter_path = [p.basicname, p.config.registrated_parameters_ext, '.mat'];
+    p.registration_mx_path = [p.basicname, p.config.registrated_matrix_ext, '.mat'];
     p.pretreated_mov = [p.basicname, '_pretreated.tif'];
     p.scanrate = 15;
     p.keep_frames = floor((inf.max_idx+1)/(inf.scanmode*15.5)/60)*60*floor(inf.scanmode*15.5);

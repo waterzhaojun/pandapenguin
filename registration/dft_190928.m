@@ -1,14 +1,12 @@
-function [regMovie, superRef, superRef_xyshift] = dft_190928(mx, ref_idx, ref_file_name, shift_file_name, refPmt, upscale)
+function [regMovie, shift, superShift, ref_clean, superRef] = dft_190928(mx, ref_idx, refPmt, upscale)
 % This dft version don't use predefined ref. It always use own refpic by
 % mean of a part of the mx. If give a reg_file_name instead of '', it will
 % save the regPic. If five a shift_file_name instead of '', it will save
 % the shift parameters in the mat file.
 % This dft register movie by multiple pieces.
 
-if nargin < 6, upscale = 10; end
-if nargin < 5, refPmt = 0; end
-if nargin < 4, shift_file_name = ''; end
-if nargin < 3, ref_file_name = ''; end
+if nargin < 4, upscale = 10; end
+if nargin < 3, refPmt = 0; end
 
 if ndims(mx) == 3
     [r,c,f] = size(mx);
@@ -38,96 +36,41 @@ for i = 2:length(ref_idx)
     sid = ref_idx(i-1)+1;
     eid = ref_idx(i);
     mxpiece = mx(:,:,refPmt,sid:eid);
-    refFT = fft2(squeeze(mean(mxpiece, 4))); % this is temp ref
-
-    for z = 1:size(mxpiece, 4)
-        indFT = fft2( mxpiece(:,:,1,z) );
-        [output, fftIndReg] = dftregistration( refFT, indFT, upscale );
-        shift(sid-1+z,1) = output(4); 
-        shift(sid-1+z,2) = output(3); 
-        shift(sid-1+z,3) = norm(output(3:4)); 
-        shift(sid-1+z,4) = output(1); 
-        shift(sid-1+z,5) = output(2);
-        regMovie(:,:,refPmt,sid-1+z) = abs( ifft2(fftIndReg) ); %have to move this step later
-    end
-    
-    % then output a real piece ref.
-    ref(:,:,1, i-1) = squeeze(mean(regMovie(:, :, refPmt, sid:eid), 4));
-    %superref = prod(ref>0, 4);
-    
-    % then apply shift to other channel.
-    for j = 1:ch
-        if j ~= refPmt
-            regMovie(:,:,j,sid:eid) = apply_shift(mx(:,:,j,sid:eid), shift(sid:eid,:));
-        end
-    end
+    [regMovie(:,:,refPmt,sid:eid), shift(sid:eid, :), ref(:,:,1,i-1)] = dft_trunk_registration(mxpiece, upscale);
     disp(['Finished piece ', num2str(i-1), ' of ' num2str(length(ref_idx)-1)]);
 end
-
-if ~strcmp(shift_file_name, '')
-    ref_before_superReg=ref;
-    save(shift_file_name, 'ref_before_superReg', '-append');
+    
+% then apply shift to other channel.
+for j = 1:ch
+    if j ~= refPmt
+        regMovie(:,:,j,:) = apply_shift(mx(:,:,j,:), shift);
+    end
 end
+
 
 %We need super ref for second registration. Right now ref is registered but
 %is not super ref as it has edge problem. We need to fix it.
-r_shift_min = abs(min(shift(:,2))*upscale);
-r_shift_max = max(shift(:,2))*upscale;
-c_shift_min = abs(min(shift(:,1))*upscale);
-c_shift_max = max(shift(:,1))*upscale;
-ref = ref(r_shift_min:end-r_shift_max, c_shift_min:end-c_shift_max, 1, :);
-%Now the regMovie has edges. But the ref we want shouldn't have edge.
-%before build super ref, we have to crop the edge first.
-%regMovie = uint16(regMovie);
-%ref = uint16(ref);
 
-% Super ref: Perform registration to refs
-errMx = zeros(size(ref,4));
-for i = 1:size(ref,4)
-    refFT = fft2(ref(:,:,1,i));
-    for j = 1:size(ref,4)
-        indFT = fft2(ref(:,:,1,j));
-        [output, tmp] = dftregistration( refFT, indFT, upscale );
-        errMx(i,j) = output(1);
-    end
-end
+ref_clean = dft_clean_edge(ref, shift, upscale); % I am not sure the crop is correct.
 
-[tmp,refidx] = min(mean(errMx,2));
-superref = fft2(ref(:,:,1,refidx));
-superShift = nan(f, 5);
-for i = 1:size(ref,4)
-    indFT = fft2(ref(:,:,1,i));
-    [output, tmp] = dftregistration(superref, indFT, upscale );
-    sid = ref_idx(i)+1;
-    eid = ref_idx(i+1);
-    superShift(sid:eid,1) = output(4); 
-    superShift(sid:eid,2) = output(3); 
-    superShift(sid:eid,3) = norm(output(3:4)); 
-    superShift(sid:eid,4) = output(1); 
-    superShift(sid:eid,5) = output(2);
-    
-end
+[ref_clean, superShift] = dft_piece_registration(ref_clean, upscale);
+superShift = dft_expand_shift(superShift, ref_idx);
 
 
 % Now apply the superShift to regMovie
 for i = 1:ch
-    regMovie(:,:,i,:) = apply_shift(regMovie(:,:,i,:), superShift);
+    regMovie(:,:,i,:) = dft_apply_shift(regMovie(:,:,i,:), superShift);
 end
 
 % Now all step finished
 superRef = uint16(squeeze(mean(regMovie(:,:,refPmt,:), 4)));
+ref_clean = uint16(ref_clean);
 regMovie = uint16(regMovie);
 % this is used for crop ref, not for reg.
-superRef_xyshift=[shift(:,1)+superShift(:,1), shift(:,2)+superShift(:,2)]; 
-superRef_xyshift=[min(superRef_xyshift(:,1)), max(superRef_xyshift(:,2)), min(superRef_xyshift(:,2)), max(superRef_xyshift(:,2))]*upscale;
+% superRef_xyshift=[shift(:,1)+superShift(:,1), shift(:,2)+superShift(:,2)]; 
+% superRef_xyshift=[min(superRef_xyshift(:,1)), max(superRef_xyshift(:,2)), min(superRef_xyshift(:,2)), max(superRef_xyshift(:,2))]*upscale;
 
-if ~strcmp(shift_file_name, '')
-    save(shift_file_name, 'shift', 'superShift', 'ref', 'superRef', 'superRef_xyshift', '-append');
-end
 
-if ~strcmp(ref_file_name, '')
-    imwrite(superRef, ref_file_name);
-end
 
 fprintf('  Done.   ');
 
