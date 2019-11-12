@@ -1,4 +1,4 @@
-function mx = registration_adapter(mx, parameters)
+function registed_mx = registration_adapter(mx, parameters)
 
 
 % Which frames should be averaged to form the reference image?
@@ -10,7 +10,7 @@ regp = load(parameters.registration_parameter_path);
 [registed_mx, shift, superShife, registed_ref, super_ref] = feval(config.fn_registration, mx, regp.ref_idx, config.registratePmt);
 if any(strcmp({'all', 'mx'}, parameters.config.save_registrated_matrix_and_parameters))
     disp('save the registrated matrix');
-    save([parameters.basicname, parameters.config.save_registrated_matrix_ext, '.mat'], 'registed_mx');
+    save([parameters.basicname, parameters.config.registrated_matrix_ext, '.mat'], 'registed_mx', '-v7.3');
 end
 if any(strcmp({'all', 'p'}, parameters.config.save_registrated_matrix_and_parameters))
     disp('save the registrated parameters');
