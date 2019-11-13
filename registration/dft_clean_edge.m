@@ -13,10 +13,10 @@ function cleanmx = dft_clean_edge(mx, shift, upscale)
 % mx and shift do not need to have the same length.
 
 [r,c,ch,f] = size(mx);
-r_start = abs(min(shift(:,2))*upscale);
-r_end = max(shift(:,2))*upscale;
-c_start = abs(min(shift(:,1))*upscale);
-c_end = max(shift(:,1))*upscale;
+r_start = abs(min(shift(:,2) .* (shift(:,2)<0))) * upscale;
+r_end = max(shift(:,2) .* (shift(:,2)>0)) * upscale;
+c_start = abs(min(shift(:,1) .* (shift(:,1)<0))) * upscale;
+c_end = max(shift(:,1) .* (shift(:,1)>0)) * upscale;
 cleanmx = mx( r_start : end-r_end, c_start:end-c_end, :, :);
 
 end

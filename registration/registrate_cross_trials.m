@@ -7,17 +7,17 @@ for i = 1:length(runs)
     shiftPara = load(p.registration_parameter_path);
     
     if i == 1
-        tmp = load(p.registration_mx_path);
-        mx = tmp.registed_mx;
         tmp = shiftPara.super_ref;
-        ref = reshape(tmp, [size(tmp),1]);
+        ref = reshape(tmp, [size(tmp),1,1]);
+        l1shift = shiftPara.superShife;
     else
-        tmp = load(p.registration_mx_path);
-        mx = cat(4, mx, tmp.registed_mx);
-        ref(:,:,i) = shiftPara.super_ref;;
+        ref(:,:,1,i) = shiftPara.super_ref;;
+        l1shift = cat(1, l1shift, shiftPara.superShife);
     end
 end
 
+% ref = dft_clean_edge(ref, l1shift, upscale); % For some reason, if do
+% this step, the decreased size ref can't reg well.
 [reged_ref, ref_shift] = dft_piece_registration(ref, upscale);
 
 for i = 1:length(runs)
