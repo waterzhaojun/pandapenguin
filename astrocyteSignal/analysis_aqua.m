@@ -6,11 +6,14 @@ preset = 1;
 
 filepath = parameters.pretreated_mov;
 
-[p0, f01,f02] = fileparts(filepath);  % folder name
+[p0, f01, f02] = fileparts(filepath);  % folder name
 f0 = [f01, f02];  % file name
 
 p1 = [p0, '\run', num2str(parameters.run), '_AQuA'];
 if ~exist(p1, 'dir')
+    mkdir(p1);
+else
+    rmdir(p1, 's');
     mkdir(p1);
 end
 

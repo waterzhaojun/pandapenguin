@@ -1,4 +1,19 @@
-function csd_analysis(csd_ana_setting_path, output_folderpath)
+function csd_analysis(animal, date, run, pmt, csdrun, csd_ana_setting_path, output_folderpath)
+
+% analysis csd trial
+csdp = load_parameters(animal, date, csdrun, pmt);
+csdmx = load(csdp.registration_mx_path);
+csdmx = csdmx.registed_mx;
+csdarray = squeeze(mean(csdmx(:,:, csdp.pmt+1,:), [1,2]));
+character = csd_character(csdarray);
+
+post_csd_mx = uint16(csdmx(:,:,csdp.pmt+1,character.csd_end_point:end));
+tmpp = csdp;
+tmpp.pretreated_mov = [csdp.basicname, '_postcsdmov.tif'];
+tmpp.run = '_postcsd';
+mx2tif(post_csd_mx, tmpp.pretreated_mov);
+analysis_aqua(tmpp);
+
 
 p = anaSettingAdapter(csd_ana_setting_path);
 length_list = [];

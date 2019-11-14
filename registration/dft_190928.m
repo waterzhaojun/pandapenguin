@@ -51,7 +51,7 @@ end
 %We need super ref for second registration. Right now ref is registered but
 %is not super ref as it has edge problem. We need to fix it.
 
-ref_clean = dft_clean_edge(ref, shift, upscale); % I am not sure the crop is correct.
+ref_clean = dft_clean_edge(ref, shift); % I am not sure the crop is correct.
 
 [ref_clean, superShift] = dft_piece_registration(ref_clean, upscale);
 superShift = dft_expand_shift(superShift, ref_idx);
