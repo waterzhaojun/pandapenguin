@@ -8,8 +8,10 @@ character = csd_character(csdarray);
 
 shiftp = load(p.registration_parameter_path);
 
-mx = dft_clean_edge(mx, shiftp.shift + shiftp.superShife);
 mx = mx(:,:,p.pmt+1,character.csd_end_point:end);
+part_shift = shiftp.shift(character.csd_end_point:end, :) + shiftp.superShife(character.csd_end_point:end, :);
+mx = dft_clean_edge(mx, part_shift);
+
 mx = uint16(downsample(mx, p));
 
 p.pretreated_mov = [p.basicname, '_postcsdmov.tif'];

@@ -51,9 +51,12 @@ end
 %We need super ref for second registration. Right now ref is registered but
 %is not super ref as it has edge problem. We need to fix it.
 
-ref_clean = dft_clean_edge(ref, shift); % I am not sure the crop is correct.
+ref_clean = dft_clean_edge(ref, shift); 
 
-[ref_clean, superShift] = dft_piece_registration(ref_clean, upscale);
+idxes_for_reg_superref =  needed_idx_to_correct(ref_idx);
+disp(idxes_for_reg_superref);
+
+[ref_clean, superShift] = dft_piece_registration(ref_clean, upscale, idxes_for_reg_superref);
 superShift = dft_expand_shift(superShift, ref_idx);
 
 
@@ -76,3 +79,20 @@ fprintf('  Done.   ');
 
 end
 
+function v = dd(array, num)
+
+v = sum(arrayfun(@(x) (x-num)^2, array));
+
+end
+function idx = needed_idx_to_correct(ref_idx) 
+% need to make a better way to calculate midnum. not just use mean.
+
+diss = ref_idx(2:end) - ref_idx(1:end-1);
+
+standard = max(diss)/5;
+%uni = sort(unique(diss));
+%midnum = mean(uni);
+
+idx = find(diss > standard);
+
+end

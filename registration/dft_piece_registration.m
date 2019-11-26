@@ -1,4 +1,4 @@
-function [regMx, shift]=dft_piece_registration(refs, upscale)
+function [regMx, shift]=dft_piece_registration(refs, upscale, possible_refidx_list)
 
 % This function is mainly used to registrate ref pic by pick up one from
 % several ref pics as main ref pic, then registrate the others by it.
@@ -11,17 +11,22 @@ end
 [r,c,ch,f] = size(refs);
 if ch >1, error('ref should only have one channel'); end
 
-errMx = zeros(f);
-for i = 1:f
-    refFT = fft2(refs(:,:,1,i));
-    for j = 1:f
-        indFT = fft2(refs(:,:,1,j));
+if nargin <3, possible_refidx_list = [1:f]; end
+
+errMx = zeros(length(possible_refidx_list));
+for i = 1:length(possible_refidx_list)
+    refFT = fft2(refs(:,:,1,possible_refidx_list(i)));
+    for j = 1:length(possible_refidx_list)
+        indFT = fft2(refs(:,:,1,possible_refidx_list(j)));
         [output, tmp] = dftregistration( refFT, indFT, upscale );
         errMx(i,j) = output(1);
     end
 end
 
-[tmp,refidx] = min(mean(errMx,2));
+[tmp,tmpi] = min(mean(errMx,2));
+refidx = possible_refidx_list(tmpi);
+
+fprintf(['Use ', num2str(refidx), ' as super reference']);
 refFt = fft2(refs(:,:,1,refidx));
 shift = nan(f, 5);
 regMx = zeros(r,c,1,f);

@@ -19,9 +19,9 @@ function output = denoise(matrix,parameters)
         % add wiener filter
         for i = 1:f
             output(:,:,i) = wiener2(output(:,:,i), [wiener_size, wiener_size]);
-            if rem(i, 100) == 0
-                disp([num2str(i), ' of ', num2str(f), ' is applied wiener filter.']);
-            end
+            %if rem(i, 100) == 0
+            %    disp([num2str(i), ' of ', num2str(f), ' is applied wiener filter.']);
+            %end
         end
         output = reshape(output, [r,c,ch,f]);
     else
