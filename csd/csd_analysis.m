@@ -4,16 +4,32 @@ function csd_analysis(animal, date, run, pmt, csdrun, csd_ana_setting_path, outp
 csdp = load_parameters(animal, date, csdrun, pmt);
 csdmx = load(csdp.registration_mx_path);
 csdmx = csdmx.registed_mx;
-csdarray = squeeze(mean(csdmx(:,:, csdp.pmt+1,:), [1,2]));
+csdarray = get_csd_array(csdmx);
 character = csd_character(csdarray);
 
-post_csd_mx = uint16(csdmx(:,:,csdp.pmt+1,character.csd_end_point:end));
+% analysis A1
+tmpmx = uint16(csdmx(:,:,csdp.pmt+1,1:character.csd_start_point));
 tmpp = csdp;
-tmpp.pretreated_mov = [csdp.basicname, '_postcsdmov.tif'];
-tmpp.run = '_postcsd';
-mx2tif(post_csd_mx, tmpp.pretreated_mov);
+tmpp.pretreated_mov = [csdp.basicname, '_csd_A1_mov.tif'];
+tmpp.run = '_csdA1';
+mx2tif(tmpmx, tmpp.pretreated_mov);
 analysis_aqua(tmpp);
 
+% analysis C
+tmpmx = uint16(csdmx(:,:,csdp.pmt+1, character.csd_start_point:character.csd_end_point));
+tmpp = csdp;
+tmpp.pretreated_mov = [csdp.basicname, '_csd_C_mov.tif'];
+tmpp.run = '_csdC';
+mx2tif(tmpmx, tmpp.pretreated_mov);
+analysis_aqua(tmpp);
+
+% analysis A2
+tmpmx = uint16(csdmx(:,:,csdp.pmt+1, character.csd_end_point:character.a2_endpoint));
+tmpp = csdp;
+tmpp.pretreated_mov = [csdp.basicname, '_csd_A2_mov.tif'];
+tmpp.run = '_csdA2';
+mx2tif(tmpmx, tmpp.pretreated_mov);
+analysis_aqua(tmpp);
 
 p = anaSettingAdapter(csd_ana_setting_path);
 length_list = [];
@@ -121,5 +137,12 @@ function startpoint = csd_end_point(array)
     startpoint = find(array > baseline*0.9);
     startpoint = startpoint(1);
 
+
+end
+
+function a=get_csd_array(mx)
+
+mx= normalize(double(mx), 4);
+a = squeeze(mean(mx, [1,2]));
 
 end

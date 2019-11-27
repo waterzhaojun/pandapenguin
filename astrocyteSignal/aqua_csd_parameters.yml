@@ -4,21 +4,22 @@ spatialRes: 1 # Spatial resolution. um per pixel
 regMaskGap: 4 # Exclude pixels shorter than this distance to border
 
 # Step 1: Signal -- Active voxels
-thrARScl: 10 # Intensity threshold scaling factor. 
+thrARScl: 80 # Intensity threshold scaling factor. 
 # when I set to 14, some obverous event missed.
 smoXY: 2 # Smoothing (sigma) As I already smoothed the movie previously, there is no difference between 1 and 4
-minSize: 10 # Minimum size (pixels)
+minSize: 60 # Minimum size (pixels)
 
 # Step 2: Voxel -- Super voxels
-zThr: 2 # Voxels temporal cut threshold. It is explained in step 4 as delta tw.
-thrExtZ: 1 # Growing z threshold. z is representing correlation, explained in step 4.
+zThr: 15 # Voxels temporal cut threshold. It is explained in step 4 as delta tw.
+thrExtZ: 80 # Growing z threshold. z is representing correlation, explained in step 4.
+
 
 # Step 3: Event -- Super events and events
 cRise: 2 # Rising time uncertainty. Explained in step 5. super voxels can not consider as one event if rising time bigger than threshold.
 cDelay: 2 # Slowest delay in propagation
 gtwSmo: 2 # Propagation smoothness
 
-# Step 4: Clean -- False positive control  # Z score threshold (default is 2). It is explained in  step 4 as z-score threshold for correlation.
+# Step 4: Clean -- False positive control  # Z score threshold (default is 2). It is explained in step 4 as z-score threshold for correlation.
 
 # Step 5: Merge -- Merging
 ignoreMerge: 1 # Ignore merging. 1 means check
