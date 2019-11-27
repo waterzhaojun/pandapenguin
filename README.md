@@ -17,7 +17,8 @@ To use this function, some preparation is needed.
 
 3. load_parameters.m: give the animalid, date, run, pmt(This parameter define which pmt data you want to load. If you leave it blank, it will only load pmt 0 which is green. If you recorded multiple pmts, better set it to [0,1] as it will registrate both channel at the same time)
 
-4. treatsbx.m: run give parameters to treatsbx.m, This is the step to do pretreatment.
+4. treatsbx.m: run give parameters to treatsbx.m, This is the step to do pretreatment. It finally output a movie named xxx_pretreated.tif. If we did registration, This movie will have noisy edge. This movie is just a reference, we can't use it for analysis. I need to search xxx_registrated_mx.mat and xxx_registrated_parameters.mat to get a clean movie based on which piece you want. So the best way is if exist xxx_registrated_mx.mat and xxx_registrated_parameters.mat, read them and clean_edge and downsample if necessary, if not exist, read xxx_pretreated.tif.
+
 5. After pretreatment, you can go to your project folder to run specific analysis method to get the result.
 
 ================================================================================

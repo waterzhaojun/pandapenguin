@@ -4,30 +4,42 @@ function csd_analysis(animal, date, run, pmt, csdrun, csd_ana_setting_path, outp
 csdp = load_parameters(animal, date, csdrun, pmt);
 csdmx = load(csdp.registration_mx_path);
 csdmx = csdmx.registed_mx;
-csdarray = get_csd_array(csdmx);
+csd_reg_p = load(csdp.registration_parameter_path);
+csdmx_cropped = dft_clean_edge(csdmx, csd_reg_p.shift + csd_reg_p.superShife);
+csdarray = get_csd_array(csdmx_cropped);
 character = csd_character(csdarray);
 
 % analysis A1
 tmpmx = uint16(csdmx(:,:,csdp.pmt+1,1:character.csd_start_point));
+tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(1:character.csd_start_point, :), ...
+    + csd_reg_p.superShife(1:character.csd_start_point, :));
 tmpp = csdp;
+tmpmx = downsample(tmpmx, tmpp);
 tmpp.pretreated_mov = [csdp.basicname, '_csd_A1_mov.tif'];
-tmpp.run = '_csdA1';
+tmpp.run = [num2str(csdp.run), '_csdA1'];
 mx2tif(tmpmx, tmpp.pretreated_mov);
 analysis_aqua(tmpp);
 
 % analysis C
 tmpmx = uint16(csdmx(:,:,csdp.pmt+1, character.csd_start_point:character.csd_end_point));
+tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(character.csd_start_point:character.csd_end_point, :)...
+    + csd_reg_p.superShife(character.csd_start_point:character.csd_end_point, :));
 tmpp = csdp;
+tmpmx = downsample(tmpmx, tmpp);
 tmpp.pretreated_mov = [csdp.basicname, '_csd_C_mov.tif'];
-tmpp.run = '_csdC';
+tmpp.run = [num2str(csdp.run), '_csdC'];
 mx2tif(tmpmx, tmpp.pretreated_mov);
+tmpp.config.related_setting_file.aqua_parameter_file = 'D:\\Jun\\pandapenguin\\astrocyteSignal\\aqua_csd_parameters.yml';
 analysis_aqua(tmpp);
 
 % analysis A2
 tmpmx = uint16(csdmx(:,:,csdp.pmt+1, character.csd_end_point:character.a2_endpoint));
+tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(character.csd_end_point:character.a2_endpoint, :)...
+    + csd_reg_p.superShife(character.csd_end_point:character.a2_endpoint, :));
 tmpp = csdp;
+tmpmx = downsample(tmpmx, tmpp);
 tmpp.pretreated_mov = [csdp.basicname, '_csd_A2_mov.tif'];
-tmpp.run = '_csdA2';
+tmpp.run = [num2str(csdp.run), '_csdA2'];
 mx2tif(tmpmx, tmpp.pretreated_mov);
 analysis_aqua(tmpp);
 
