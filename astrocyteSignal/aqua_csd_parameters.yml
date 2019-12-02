@@ -4,14 +4,14 @@ spatialRes: 1 # Spatial resolution. um per pixel
 regMaskGap: 4 # Exclude pixels shorter than this distance to border
 
 # Step 1: Signal -- Active voxels
-thrARScl: 80 # Intensity threshold scaling factor. 
+thrARScl: 35 # Intensity threshold scaling factor. 
 # when I set to 14, some obverous event missed.
 smoXY: 2 # Smoothing (sigma) As I already smoothed the movie previously, there is no difference between 1 and 4
-minSize: 60 # Minimum size (pixels)
+minSize: 30 # Minimum size (pixels)
 
 # Step 2: Voxel -- Super voxels
 zThr: 15 # Voxels temporal cut threshold. It is explained in step 4 as delta tw.
-thrExtZ: 80 # Growing z threshold. z is representing correlation, explained in step 4.
+thrExtZ: 40 # Growing z threshold. z is representing correlation, explained in step 4.
 
 
 # Step 3: Event -- Super events and events
@@ -28,6 +28,7 @@ mergeEventCorr: 0 # Minimum correlation
 mergeEventMaxTimeDif: 2 # Maximum time difference
 
 # Step 6: Recon -- Reconstruct after merging # Temporally extend events (defualt is 0 means uncheck)
+extendEvtRe: 0 # Not sure it is this parameter
 
 # Step 7: Fea -- Feature extraction
 ignoreTau: 1 # Ignore delay Tau
@@ -52,7 +53,6 @@ minShow1: 0.2000
 minShowEvtGUI: 0
 
 correctTrend: 1
-extendEvtRe: 0
 gapExt: 5
 varEst: 0.0200
 fgFluo: 0
