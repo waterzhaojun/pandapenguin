@@ -7,7 +7,7 @@ function mx=treatsbx(parameters)
     
     % step: based on the animal id, date, and run, extract sbx file.
     % The output is a 4 demension matrix by width, height, channel, frame.
-    mx = feval(config.fn_extract, parameters);
+    mx = mxFromSbx(parameters); %feval(config.fn_extract, parameters);
     disp(size(mx));
     
     % step: denoise. 

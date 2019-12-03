@@ -6,9 +6,9 @@ function p = load_parameters(animalid, date, run, pmt)
     p.date = date;
     p.run = run;
     
-    if nargin<4, pmt = 0; end
+    if nargin<4, pmt = 0; end % if you recorded 2 channels, you have to set it to [0,1] when do pretreat.
     
-    p.pmt = pmt;
+    p.pmt = pmt; % pmt is not used if you just pretreat the mx. But if you need to analyse some channel, it is important to set.
     path = sbxPath(animalid, date, run, 'sbx'); 
     inf = sbxInfo(path, true);
     tmp = sbxDir(animalid, date, run);

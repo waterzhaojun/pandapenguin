@@ -19,19 +19,16 @@ function output = denoise(matrix,parameters)
         % add wiener filter
         for i = 1:f
             output(:,:,i) = wiener2(output(:,:,i), [wiener_size, wiener_size]);
-            %if rem(i, 100) == 0
-            %    disp([num2str(i), ' of ', num2str(f), ' is applied wiener filter.']);
-            %end
         end
         output = reshape(output, [r,c,ch,f]);
     else
         % disp('go 2');
-        output = matrix;
-        dpmts = parameters.denoise_pmt;
+        output = zeros([r,c,ch,f]);
+        dpmts = cell2mat(parameters.config.denoise_pmt);
         for dp = 1:length(dpmts)
-            tmp = imgaussfilt3(squeeze(output(:,:,dpmts(dp)+1,:)), sigma, 'FilterSize', [sdgaussfilter_size,sdgaussfilter_size,sdgaussfilter_frames]);
+            tmp = imgaussfilt3(squeeze(matrix(:,:,dpmts(dp)+1,:)), sigma, 'FilterSize', [sdgaussfilter_size,sdgaussfilter_size,sdgaussfilter_frames]);
             for i=1:f
-                output(:,:,dpmts(dp)+1,:) = wiener2(tmp(:,:,i), [wiener_size, wiener_size]);
+                output(:,:,dpmts(dp)+1,f) = wiener2(tmp(:,:,i), [wiener_size, wiener_size]);
             end
         end
     end
