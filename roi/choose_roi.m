@@ -61,6 +61,10 @@ while true
             fname = [fname, '_endfeet.tif'];
             disp('selected a endfeet mask');
             break
+        case 'k'
+            fname = ['background.tif'];
+            disp('selected a background mask');
+            break
     end
 end
 
