@@ -2,7 +2,7 @@ function build_csd_registration_para(parameters)
 
 mx = mxFromSbx(parameters);
 mx = trimMatrix(mx, parameters);
-csdarray = squeeze(mean(mx, [1,2]));
+csdarray = squeeze(mean(mean(mx, 1),2));
 csdcharacter = csd_character(csdarray);
 
 f = size(mx,4);

@@ -1,4 +1,4 @@
-function [regMovie, shift, superShift, ref_clean, superRef] = dft_190928(mx, ref_idx, refPmt, upscale)
+function [regMovie, shift, superShift, ref_clean, ref_unclean, superRef] = dft_190928(mx, ref_idx, refPmt, upscale)
 % This dft version don't use predefined ref. It always use own refpic by
 % mean of a part of the mx. If give a reg_file_name instead of '', it will
 % save the regPic. If five a shift_file_name instead of '', it will save
@@ -50,7 +50,7 @@ end
 
 %We need super ref for second registration. Right now ref is registered but
 %is not super ref as it has edge problem. We need to fix it.
-
+ref_unclean = uint16(ref);
 ref_clean = dft_clean_edge(ref, shift); 
 
 idxes_for_reg_superref =  needed_idx_to_correct(ref_idx);
