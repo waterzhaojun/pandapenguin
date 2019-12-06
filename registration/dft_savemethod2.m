@@ -1,5 +1,6 @@
-function [output, fftIndReg] = dft_savemethod_partreg2(x, ref, upscale)
-
+function [output, fftIndReg] = dft_savemethod2(x, ref, upscale)
+% This method do a series of registration by take part of img horizantally
+% then compare to get closest shift.
 if nargin < 3, upscale = 10; end
 
 [r,c] = size(x);
@@ -20,22 +21,18 @@ for i = 2:length(idx)-1
     [output(i-1,:), tmp] = dftregistration( refFT, indFT, upscale );
 
 end
-[tmp,smallidx] = min(output(:,4));
+[tmp,smallidx] = min(output(:,1));
 output = output(smallidx,:);
 
-fftIndReg = fftIndReg(:,:,smallidx);
-
-shiftmx = zeros(size(mx));
 Nr = ifftshift( -fix(r/2):ceil(r/2)-1 ); % adapted from dftregistration
 Nc = ifftshift( -fix(c/2):ceil(c/2)-1 ); % adapted from dftregistration
 [Nc,Nr] = meshgrid(Nc,Nr); % adapted from dftregistration
-% Register one color, then apply that registration to the other color
-for z = 1:f
-    tmpFT = fft2( mx(:,:,1,z) );
-    fftDepReg = tmpFT.*exp(1i*2*pi*(-shift(z,2)*Nr/r-shift(z,1)*Nc/c)); % adapted from dftregistration
-    fftDepReg = fftDepReg*exp(1i*shift(z,5)); % adapted from dftregistration
-    shiftmx(:,:,1,z) = abs( ifft2(fftDepReg) );
-end
+
+tmpFT = fft2(x);
+fftDepReg = tmpFT.*exp(1i*2*pi*(-output(3)*Nr/r-output(4)*Nc/c)); % adapted from dftregistration
+fftIndReg = fftDepReg*exp(1i*output(2)); % adapted from dftregistration
+% fftIndReg = abs( ifft2(fftDepReg) );
+
 
 
 end

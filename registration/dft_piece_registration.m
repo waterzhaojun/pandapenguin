@@ -35,7 +35,7 @@ for i = 1:f
     [output, fftIndReg] = dftregistration(refFt, indFT, upscale );
     if abs(output(4)) > 0.1 * c
         disp(['frame ', num2str(i), ' has problem, need to use save method to registe']);
-        [output, fftIndReg] = dft_savemethod_partreg2(refFt, indFT, upscale );
+        [output, fftIndReg] = dft_savemethod2(refs(:,:,1,refidx), refs(:,:,1,i), upscale );
     end
     shift(i,1) = output(4); 
     shift(i,2) = output(3); 
