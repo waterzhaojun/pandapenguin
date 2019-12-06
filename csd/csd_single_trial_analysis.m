@@ -17,9 +17,9 @@ character = csd_character(csdarray);
 [duration, tidycsdmx] = process(mx(:,:,:,character.csd_start_point:character.csd_end_point), p);
 speed = size(mx, 2) * p.scanrate/ duration;
 mx2tif(tidycsdmx, [foldername, 'csdMov.tif']);
-A1_duration = character.csd_start_point;
-C_duration = character.csd_end_point - character.csd_start_point;
-A2_duration = character.a2_endpoint - character.csd_end_point;
+A1_duration = character.csd_start_point/p.scanrate;
+C_duration = (character.csd_end_point - character.csd_start_point)/p.scanrate;
+A2_duration = (character.a2_endpoint - character.csd_end_point)/p.scanrate;
 peakidx = character.peakidx;
 csd_start_point = character.csd_start_point;
 csd_end_point = character.csd_end_point;
@@ -37,8 +37,8 @@ csd_reg_p = load(p.registration_parameter_path);
 
 % analysis A1
 tmpmx = uint16(csdmx(:,:,p.pmt+1,1:csd_start_point));
-tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(1:csd_start_point, :), ...
-    + csd_reg_p.superShife(1:csd_start_point, :));
+tmpmx = dft_clean_edge(tmpmx, {csd_reg_p.shift(1:csd_start_point, :), ...
+    csd_reg_p.superShife(1:csd_start_point, :)});
 tmpp = p;
 tmpmx = downsample(tmpmx, tmpp);
 tmpp.pretreated_mov = [p.basicname, '_csd_A1_mov.tif'];
@@ -49,20 +49,20 @@ movefile(tmpp.pretreated_mov, foldername);
 movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
 
 % analysis C. Now we decide not to use AQuA analyse CSD wave part.
-% tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_start_point:csd_end_point));
-% tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(csd_start_point:csd_end_point, :)...
-%     + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
-% tmpp = p;
-% tmpmx = downsample(tmpmx, tmpp, 'shift', csd_reg_p.shift(csd_start_point:csd_end_point, :)...
-%     + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
-% tmpmx = remove_blank_frame(tmpmx);
-% tmpp.pretreated_mov = [p.basicname, '_csd_C_mov.tif'];
-% tmpp.run = [num2str(p.run), '_csdC'];
-% mx2tif(tmpmx, tmpp.pretreated_mov);
-% tmpp.config.related_setting_file.aqua_parameter_file = 'D:\\Jun\\pandapenguin\\astrocyteSignal\\aqua_csd_parameters.yml';
-% analysis_aqua(tmpp);
-% movefile(tmpp.pretreated_mov, foldername);
-% movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
+tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_start_point:csd_end_point));
+tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(csd_start_point:csd_end_point, :)...
+    + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
+tmpp = p;
+tmpmx = downsample(tmpmx, tmpp, 'shift', csd_reg_p.shift(csd_start_point:csd_end_point, :)...
+    + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
+tmpmx = remove_blank_frame(tmpmx);
+tmpp.pretreated_mov = [p.basicname, '_csd_C_mov.tif'];
+tmpp.run = [num2str(p.run), '_csdC'];
+mx2tif(tmpmx, tmpp.pretreated_mov);
+tmpp.config.related_setting_file.aqua_parameter_file = 'D:\\Jun\\pandapenguin\\astrocyteSignal\\aqua_csd_parameters.yml';
+analysis_aqua(tmpp);
+movefile(tmpp.pretreated_mov, foldername);
+movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
 
 % analysis A2
 tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_end_point:A2_endpoint));
