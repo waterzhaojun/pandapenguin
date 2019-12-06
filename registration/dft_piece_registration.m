@@ -33,10 +33,6 @@ regMx = zeros(r,c,1,f);
 for i = 1:f
     indFT = fft2(refs(:,:,1,i));
     [output, fftIndReg] = dftregistration(refFt, indFT, upscale );
-    if abs(output(4)) > 0.1 * c
-        disp(['frame ', num2str(i), ' has problem, need to use save method to registe']);
-        [output, fftIndReg] = dft_savemethod2(refs(:,:,1,refidx), refs(:,:,1,i), upscale );
-    end
     shift(i,1) = output(4); 
     shift(i,2) = output(3); 
     shift(i,3) = norm(output(3:4)); 
@@ -44,6 +40,9 @@ for i = 1:f
     shift(i,5) = output(2);
     regMx(:,:,1,i) = abs( ifft2(fftIndReg) ); 
 end
+
+[shift, CSDframes] = CorrectCSDshift(shift);
+regMx(:,:,1,CSDframes) = dft_apply_shift(refs(:,:,1,CSDframes), shift(CSDframes, :));
 
 regMx = uint16(regMx);
 

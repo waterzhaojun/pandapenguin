@@ -20,6 +20,9 @@ for z = 1:f
     regMx(:,:,1,z) = abs( ifft2(fftIndReg) ); 
 end
 
+[shift, CSDframes] = CorrectCSDshift(shift);
+regMx(:,:,1,CSDframes) = dft_apply_shift(mx(:,:,1,CSDframes), shift(CSDframes, :));
+
 ref = uint16(squeeze(mean(regMx, 4)));
 regMx = uint16(regMx);
 
