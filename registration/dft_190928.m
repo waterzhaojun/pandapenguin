@@ -51,19 +51,29 @@ end
 %We need super ref for second registration. Right now ref is registered but
 %is not super ref as it has edge problem. We need to fix it.
 ref_unclean = uint16(ref);
-ref_clean = dft_clean_edge(ref, shift); 
-
-idxes_for_reg_superref =  needed_idx_to_correct(ref_idx);
-disp(idxes_for_reg_superref);
-
-[ref_clean, superShift] = dft_piece_registration(ref_clean, upscale, idxes_for_reg_superref);
-superShift = dft_expand_shift(superShift, ref_idx);
 
 
-% Now apply the superShift to regMovie
-for i = 1:ch
-    regMovie(:,:,i,:) = dft_apply_shift(regMovie(:,:,i,:), superShift);
+if length(ref_idx) > 2
+    disp('use piece registration');
+    ref_clean = dft_clean_edge(ref, {shift}); 
+    
+    idxes_for_reg_superref =  needed_idx_to_correct(ref_idx);
+    disp(idxes_for_reg_superref);
+
+    [ref_clean, superShift] = dft_piece_registration(ref_clean, upscale, idxes_for_reg_superref);
+    superShift = dft_expand_shift(superShift, ref_idx);
+
+
+    % Now apply the superShift to regMovie
+    for i = 1:ch
+        regMovie(:,:,i,:) = dft_apply_shift(regMovie(:,:,i,:), superShift);
+    end
+else
+    disp('not use piece registration');
+    ref_clean = ref_unclean;
+    superShift = zeros(size(shift));
 end
+    
 
 % Now all step finished
 superRef = uint16(squeeze(mean(regMovie(:,:,refPmt,:), 4)));
@@ -79,11 +89,11 @@ fprintf('  Done.   ');
 
 end
 
-function v = dd(array, num)
-
-v = sum(arrayfun(@(x) (x-num)^2, array));
-
-end
+% function v = dd(array, num)
+% 
+% v = sum(arrayfun(@(x) (x-num)^2, array));
+% 
+% end
 function idx = needed_idx_to_correct(ref_idx) 
 % need to make a better way to calculate midnum. not just use mean.
 

@@ -9,7 +9,7 @@ corrShift = shift(:,[1:2,5]);
 shiftthreshold = 3;
 
 CSDframes = find( sum( abs(zscore( shift(:,1:2) )) > shiftthreshold, 2) ); % <=============use shiftthreshold
-fprintf('\nFound %i CSD-related frames. ', numel(CSDframes) );
+fprintf('\nFound %i CSD-related frames from %i. ', numel(CSDframes), length(shift));
 
 if numel(CSDframes) > 0
     goodFrame = 1:size(shift,1);  goodFrame( CSDframes ) = [];

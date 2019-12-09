@@ -48,10 +48,24 @@ analysis_aqua(tmpp);
 movefile(tmpp.pretreated_mov, foldername);
 movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
 
+
+% analysis A2
+tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_end_point:A2_endpoint));
+tmpmx = dft_clean_edge(tmpmx, {csd_reg_p.shift(csd_end_point:A2_endpoint, :),...
+    csd_reg_p.superShife(csd_end_point:A2_endpoint, :)});
+tmpp = p;
+tmpmx = downsample(tmpmx, tmpp);
+tmpp.pretreated_mov = [p.basicname, '_csd_A2_mov.tif'];
+tmpp.run = [num2str(p.run), '_csdA2'];
+mx2tif(tmpmx, tmpp.pretreated_mov);
+analysis_aqua(tmpp);
+movefile(tmpp.pretreated_mov, foldername);
+movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
+
 % analysis C. Now we decide not to use AQuA analyse CSD wave part.
 tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_start_point:csd_end_point));
-tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(csd_start_point:csd_end_point, :)...
-    + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
+tmpmx = dft_clean_edge(tmpmx, {csd_reg_p.shift(csd_start_point:csd_end_point, :),...
+    csd_reg_p.superShife(csd_start_point:csd_end_point, :)});
 tmpp = p;
 tmpmx = downsample(tmpmx, tmpp, 'shift', csd_reg_p.shift(csd_start_point:csd_end_point, :)...
     + csd_reg_p.superShife(csd_start_point:csd_end_point, :));
@@ -64,18 +78,7 @@ analysis_aqua(tmpp);
 movefile(tmpp.pretreated_mov, foldername);
 movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
 
-% analysis A2
-tmpmx = uint16(csdmx(:,:,p.pmt+1, csd_end_point:A2_endpoint));
-tmpmx = dft_clean_edge(tmpmx, csd_reg_p.shift(csd_end_point:A2_endpoint, :)...
-    + csd_reg_p.superShife(csd_end_point:A2_endpoint, :));
-tmpp = p;
-tmpmx = downsample(tmpmx, tmpp);
-tmpp.pretreated_mov = [p.basicname, '_csd_A2_mov.tif'];
-tmpp.run = [num2str(p.run), '_csdA2'];
-mx2tif(tmpmx, tmpp.pretreated_mov);
-analysis_aqua(tmpp);
-movefile(tmpp.pretreated_mov, foldername);
-movefile([tmpp.dirname, 'run', tmpp.run, '_AQuA'], foldername);
+
 
 %==============================================================
 % p = anaSettingAdapter(csd_ana_setting_path); don't need to use this yml

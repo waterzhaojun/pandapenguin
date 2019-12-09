@@ -41,8 +41,8 @@ for i = 1:f
     regMx(:,:,1,i) = abs( ifft2(fftIndReg) ); 
 end
 
-[shift, CSDframes] = CorrectCSDshift(shift);
-regMx(:,:,1,CSDframes) = dft_apply_shift(refs(:,:,1,CSDframes), shift(CSDframes, :));
+%[shift, CSDframes] = CorrectCSDshift(shift);
+%regMx(:,:,1,CSDframes) = dft_apply_shift(refs(:,:,1,CSDframes), shift(CSDframes, :));
 
 regMx = uint16(regMx);
 
