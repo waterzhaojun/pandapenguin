@@ -1,4 +1,5 @@
 function analysis_aqua(parameters)
+% parameters give 3 varible: movie path, run, parameter path 
 
 startup;  % initialize
 

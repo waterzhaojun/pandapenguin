@@ -7,11 +7,11 @@ regMaskGap: 4 # Exclude pixels shorter than this distance to border
 thrARScl: 35 # Intensity threshold scaling factor. 
 # when I set to 14, some obverous event missed.
 smoXY: 2 # Smoothing (sigma) As I already smoothed the movie previously, there is no difference between 1 and 4
-minSize: 30 # Minimum size (pixels)
+minSize: 20 # Minimum size (pixels)
 
 # Step 2: Voxel -- Super voxels
-zThr: 15 # Voxels temporal cut threshold. It is explained in step 4 as delta tw.
-thrExtZ: 40 # Growing z threshold. z is representing correlation, explained in step 4.
+zThr: 20 # Voxels temporal cut threshold. It is explained in step 4 as delta tw.
+thrExtZ: 35 # Growing z threshold. z is representing correlation, explained in step 4.
 
 
 # Step 3: Event -- Super events and events
