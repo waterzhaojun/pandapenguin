@@ -1,0 +1,48 @@
+# ================================================================================================================
+# extract matrix from sbx file ===================================================================================
+# ================================================================================================================
+fn_extract: mxFromSbx # function to extract matrix from sbx file
+
+# ================================================================================================================
+# crop the matrix edges ==========================================================================================
+# ================================================================================================================
+fn_crop: trimMatrix # function to crop the matrix edge
+edge: [80,80,10,10] # parameters to define edge
+
+# ================================================================================================================
+# denoise ========================================================================================================
+# ================================================================================================================
+check_denoise: 0 # whether denoise the matrix. 0 represent no, 1 represent yes.
+fn_denoise: denoise # function to denoise
+denoise_pmt: # which channel need to denoise. It only useful when there are two pmt used.
+  - 0 # pmt 0. If you also want pmt 1, and another line below. start with -
+output_denoised_sample: 0 # whether output a sample when finished denoise
+denoise_sample_size: 50 # the denoised sample size, which means how many frames.
+output_sample_channel: 0 # It is not useful when there are more than 1 channels. 
+# If there is only one pmt, you may set it to 1 to output red mov, or 2 to green mov, or 0 to keep it gray.
+
+# ================================================================================================================
+# registration ===================================================================================================
+# ================================================================================================================
+check_registration: 0 # whether registrate the matrix. 0 for no, 1 for yes.
+fn_registration: dft_190928 # registration function
+registratePmt: 0 # which pmt to registrate. usually only need one channel to be registrated for multiple pmts.
+# When seperate whole movie, how many frames each peice contains. This is important for build ref. 
+# You don't want your ref too noisy or shaky. It should based on your movie quality and shakeness.
+# When you define this size, the max piece size will automatically set to 1.5*piece_size. So the least size will be 0.5*piece_size
+piece_size: 1800 
+registration_ref_ext: _registration_ref # registration reference pic extension name. this part is following the main sbx name. If you do multi step registration, this is the superRef but not crop the edge, which means it is the mean of registed mx.
+save_registrated_matrix_and_parameters: all # after registration, whether save the matrix and parameters. all for save both, mx for save only matrix, p for save only parameters. other words for not save.
+registrated_matrix_ext: _registrated_mx # If save, the file extetion name
+registrated_parameters_ext: _registrated_parameters # define parameters used in registration. It include time points for seperate registration pieces. some shift output will also save here.
+
+# ================================================================================================================
+# downsample ======================================================================================================
+# ================================================================================================================
+fn_downsample: downsample # downsample function
+downsample_size: 1 # width and height downsample rate. 2 means decrease width and height to half.
+output_fq: 1 # final output move frequency. 1 means 1 f/s.
+
+# other related file used to setting the treatment steps
+related_setting_file: 
+  aqua_parameter_file: D:\\Jun\\pandapenguin\\astrocyteSignal\\aqua_parameters.yml # parameters used for AQuA
