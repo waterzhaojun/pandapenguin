@@ -1,188 +1,167 @@
-function diameter_v2(mx, mask, find_edge_method)
-    % All output analysis folders will be saved on date_animalid folder
-    % labeled by bvid. You can go back to the folder to reanalyse the data
-    % by giving the bvid. If you leave it blank, it will produce a new
-    % folder.
+function diameter_v2(animalID, dateID, runs, pmt, bvid, fbin, find_edge_method)
 
-    % unlike other treatment, we will for sure only use one color to label
-    % blood vessel, so at here mx only need to have one channel. So I use 3
-    % demension mx here. 
-    if length(ndims(mx)) ~= 3
-        error('only 3 dimension matrix work here');
-    end
+% pmt is in which pmt channel the blood vessel being recorded.
+%
+% This function is to use the pretreated tif, which can be already
+% downsampled. If you want to further downsample the frames, set fbin a number.
+%
+% If don't give a bvid, it will create a new id for analysis. If you want
+% to recalculate the exist bv by pre decided mask, set bvid an id num.
 
-    % Prepare data matrix ================================================
-    
-    if nargin < 3, find_edge_method = 'kmean_slope'; end
-    
-    path = sbxPath(animalID, dateID, run, 'sbx'); 
-    inf = sbxInfo(path, true);
 
-    % if ~isfield(inf, 'volscan') && length(inf.otwave)>1
-    if length(inf.otwave)>1
-        bint = length(inf.otwave); 
-    else
-        bint = 1;
-    end
-    
+if nargin < 7, find_edge_method = 'kmean_slope'; end
+if nargin < 6, fbin = 1; end
+if nargin < 5, bvid = false; end
+if nargin < 4, pmt = 0; end
 
-    N = inf.max_idx + 1; 
-    nr = inf.sz(1);
-    nc = inf.sz(2);
-    nf = floor(N/bint);
-    
-    disp('start to load data');
-    x = fread(inf.fid, inf.nsamples/2*N, 'uint16=>uint16');
-    maxvalue = double(intmax(class(x)));
-    
-    disp('start to reshape data');
-    
-    if bint > 1
-        x = reshape(x(1:inf.nchan*inf.sz(2)*inf.recordsPerBuffer*bint*nf), ...
-            [inf.nchan inf.sz(2) inf.recordsPerBuffer bint nf]);
-        x = mean(x, 4); %
-        x = squeeze(x);
-    else
-        x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer nf]);
-    end
-    
-    x = 65535-x;
-    % x = uint8(x/255);
-    
-    if length(size(x)) == 3
-        x = reshape(x, [1, size(x)]);
-    end
-    display(['If you see this point, the data load is good. Has ', num2str(size(x, 4)), ' frames']);
-    
-    % Prepare folder to store each blood vessel data =====================
-    disp('start to prepare the subfolder');
-    folderpath = sbxDir(animalID, dateID, run);
-    folderpath = folderpath.runs{1}.path;
-    if bvid
-        current_bv_folder = [folderpath, 'bv_', num2str(bvid)];
-    else
-        num_of_bv= length(dir([folderpath 'bv_*']))+1;
-        current_bv_folder = [folderpath, 'bv_', num2str(num_of_bv)];
-        mkdir(current_bv_folder);
-    end
-    
-    % Build reference picture ============================================
-    disp('start to build reference pic');
-    ref_path = [current_bv_folder, '\ref.tif'];
-    if isfile(ref_path)
-        pic_ref = imread(ref_path);
-    else
-        idx_for_ref = int16(linspace(1,nf,100));
-        pic_ref = squeeze(max(x(pmt+1,:,:,idx_for_ref), [], 4));
-        pic_ref = permute(pic_ref, [2,1]);
-        pic_ref = uint8(pic_ref/255); % It is not necessary to transfer to uint8, but it will decrease file size.
-        imwrite(pic_ref, ref_path);
-    end
+% set a result struct =================================================
+root = sbxDir(animalID, dateID);
+root = root.date_mouse;
 
-    % get mask information ===============================================
-    % when draw the rectangle, should draw clockwise with starting from left
-    % side of vessel. Should as vertical to vessel as possible.
-    maskpath = [current_bv_folder,  '\vesselmask.mat'];
-    if isfile(maskpath)
-        tmp = load(maskpath);
-        BW = tmp.BW;
-        angle = tmp.angle;
-    else
-        [BW,angle] = bwangle(pic_ref);
-        save(maskpath, 'BW', 'angle');
-    end
-    
-    ref_with_mask_path = [current_bv_folder, '\ref_with_mask.jpg'];
-    if ~isfile(ref_with_mask_path)
-        create_ref_pic(ref_with_mask_path, pic_ref, BW);
-    end
+if bvid
+    current_bv_folder = [root, 'bv_', num2str(bvid)];
+else
+    num_of_bv= length(dir([root 'bv_*']))+1;
+    current_bv_folder = [root, 'bv_', num2str(num_of_bv), '\'];
+    mkdir(current_bv_folder);
+end
 
-    % calculate the diameter frame by frame ==============================
-    BW_rotated = imrotate(BW, angle);
-    [r,c] = find(BW_rotated == 1);
-    upper = min(r);
-    lower = max(r);
-    left = min(c);
-    right = max(c);
-    BW_rotated_crop = BW_rotated(upper:lower,left:right);
-    weight_line = sum(BW_rotated_crop, 1);
-    
-    % I tried use batch and just single frame. I found if I define the
-    % matrix before loop, sinle frame even faster than batch.
-    
-    % init matrix
-    % in result mat file, we will store a map, each column represent blood 
-    % vessel brightness averaged along vertical axis. All columns represent
-    % the timeline. The following steps will analyse the map and output
-    % each timepoint's diameter and left(lower) and right(upper) idx for the edge.
-    
-    % Besides mat file, it also create a tif represent the diameter
-    % timeline response.
-    print_per_frames = 500;
-    
-    topo_merge_frames =  round(15 / bint / output_video_hz);
-    
-    topo_path = [current_bv_folder, '\bv_video_', num2str(output_video_hz), 'Hz.tif'];
-    if isfile(topo_path), delete(topo_path); end
-    result_path = [current_bv_folder, '\result.mat'];
-    if isfile(result_path), delete(result_path); end
-        
-    response_fig = zeros([size(BW_rotated_crop,2), nf]);
-    response_video = zeros([(lower-upper+1), (right-left+1), topo_merge_frames]);
+result = struct();
+result.runs = runs;
 
-    for i=1:nf
+result.movpath = [current_bv_folder,'mov.mat'];
+result.refpath = [current_bv_folder,'ref.tif'];
+result.maskpath = [current_bv_folder,'mask.tif'];
+result.ref_with_mask_path = [current_bv_folder, 'ref_with_mask.tif'];
+result.topopath = [current_bv_folder, 'topo.tif'];
+result.resultpath = [current_bv_folder, 'result.mat'];
+result.response_fig_path = [current_bv_folder, 'response_topo.tif'];
+result.plotpath = [current_bv_folder, 'plot.fig'];
 
-        tmp = imrotate(permute(squeeze(x(pmt+1, :, :, i)), [2,1]), angle);
-        tmp = double(tmp(upper:lower,left:right)) .* BW_rotated_crop;
+result.diameter = [];
+result.edgeidx=[];
+result.mov = [];
+result.trial_length = [];
 
-        response_fig(:,i) = sum(tmp, 1)./weight_line;
-        
-        
-        if rem(i, print_per_frames) == 0
-            wd = [num2str(i), ' of ', num2str(nf), ' is done.'];
-            disp(wd);
+
+% Prepare data matrix ================================================
+if isfile(result.movpath)
+    result.mov = load(result.movpath);
+else
+    for run =runs
+        tmppath = sbxDir(animalID, dateID, run);
+        tmppath = tmppath.runs{1}.pretreatedmov;
+        disp(['start to load run ', num2str(run)]);
+        tmpmx = loadTiffStack_slow(tmppath);
+        [tmpr,tmpc,tmpch,tmpf] = size(tmpmx);
+        if tmpch>1
+            % As we use tiff as source, pmt0 means green channel, pmt1 means red channel. 
+            tmpmx = tmpmx(:,:,2-pmt,:);
         end
-        
-        % write video
-        if rem(i, topo_merge_frames) == 0
-            imwrite(mean(response_video, 3)/maxvalue, topo_path, 'WriteMode', 'append');
-            response_video = zeros([(lower-upper+1), (right-left+1), topo_merge_frames]);
+
+        if length(result.mov) == 0
+            result.mov = tmpmx;
         else
-            response_video(:, :, rem(i, topo_merge_frames)) = tmp;
+            result.mov = cat(4, result.mov, tmpmx);
         end
+
+        result.trial_length = [result.trial_length, tmpf];
     end
-    % output the data to local folder
-    save([current_bv_folder, '\result.mat'], 'response_fig');
-    disp('finished calculate the diameter values');
-    
-    response_fig_bint = imadjust(bint2D(response_fig, topo_merge_frames)/maxvalue);
-    
-    create_response_figure([current_bv_folder, '\response_topo.tif'], response_fig_bint);
-    
-    % After get the response_fig matrix, we can start to calculate the
-    % diameter.
-    % output_topo_filepath = [current_bv_folder, '\response_topo.tif'];
-    % create_response_topo_fig(response_fig/double(maxvalue), edge_idx_of_line, output_topo_filepath);
-    
-    diameter_value = zeros([1, size(response_fig,2)]);
-    edge_idx_of_line = zeros([2, size(response_fig,2)]);
-    for i=1:size(response_fig,2)
-        [diameter_value(1, i), edge_idx_of_line(1, i), edge_idx_of_line(2, i)] = findEdge(response_fig(:,i));
+
+    save(result.movpath, 'result.mov');
+end
+
+if isfile(result.ref_with_mask_path)
+    tmp = imread(result.refpath); 
+    result.ref = tmp(:,:,1);
+    result.mask = tmp(:,:,3);
+else
+    if isfile(result.refpath)
+        result.ref = imread(result.refpath); 
+    else
+        result.ref = imadjust(uint16(squeeze(max(result.mov,[],4))));
+        imwrite(result.ref, result.refpath);
     end
-    save([current_bv_folder, '\result.mat'], 'diameter_value', '-append');
+    [result.mask, result.angle] = bwangle(result.ref);
+    create_ref_pic(result.ref_with_mask_path, result.ref, result.mask);
+end
+
+
+
+
+
+if ~isfile(result.ref_with_mask_path)
+    create_ref_pic(result.ref_with_mask_path, result.ref, result.mask);
+end
+
+% calculate the diameter frame by frame ==============================
+BW_rotated = imrotate(result.mask, result.angle);
+[r,c] = find(BW_rotated == 1);
+upper = min(r);
+lower = max(r);
+left = min(c);
+right = max(c);
+BW_rotated_crop = BW_rotated(upper:lower,left:right);
+weight_line = sum(BW_rotated_crop, 1);
+
+% I tried use batch and just single frame. I found if I define the
+% matrix before loop, sinle frame even faster than batch.
+
+% init matrix
+% in result mat file, we will store a map, each column represent blood 
+% vessel brightness averaged along vertical axis. All columns represent
+% the timeline. The following steps will analyse the map and output
+% each timepoint's diameter and left(lower) and right(upper) idx for the edge.
+
+% Besides mat file, it also create a tif represent the diameter
+% timeline response.
+print_per_frames = 1000;
+
+
+if isfile(result.topopath), delete(result.topopath); end
+if isfile(result.resultpath), delete(result.resultpath); end
+
+[nr,nc] = size(BW_rotated_crop);
+nf = length(result.mov);
+
+response_fig = zeros([nc,nf]);
+response_video = zeros([(lower-upper+1), (right-left+1), nf]);
+
+for i=1:nf
+
+    tmp = imrotate(squeeze(result.mov(:,:,1,i)), result.angle);
+    tmp = tmp(upper:lower,left:right) .* BW_rotated_crop; %double(tmp(upper:lower,left:right)) .* BW_rotated_crop;
+
+    response_fig(:,i) = sum(tmp, 1)./weight_line;
+    response_video(:,:,i) = tmp;
     
-    %this function is to produce the edge map based on the index, but some
-    %how I find sometimes it produce more rows than response_fig.
-    %I need to add a check function in this function.
-    edge_map = edge_idx_to_map(response_fig, edge_idx_of_line);
-    
-    edge_map_bint = bint2D(edge_map, topo_merge_frames);
-    create_response_figure([current_bv_folder, '\response_topo.tif'], response_fig_bint, edge_map_bint);
-    
-    fig = figure;
-    plot(bint1D(medfilt1(diameter_value, topo_merge_frames),topo_merge_frames));
-    savefig(fig,[current_bv_folder, '\plot.fig']);
-    
+    [tmpdiameter, edgeidx1, edgeidx2] = findEdge(response_fig(:,i));
+    result.diameter = [result.diameter, tmpdiameter];
+    result.edgeidx = [result.edgeidx; [edgeidx1, edgeidx2]];
+
+
+    if rem(i, print_per_frames) == 0
+        wd = [num2str(i), ' of ', num2str(nf), ' is done.'];
+        disp(wd);
+    end
+
+end
+% output the data to local folder
+disp('finished calculate the diameter values');
+
+% create_response_figure(result.response_fig_path, response_fig);
+
+save(result.resultpath, 'result');
+
+%this function is to produce the edge map based on the index, but some
+%how I find sometimes it produce more rows than response_fig.
+%I need to add a check function in this function.
+edge_map = edge_idx_to_map(response_fig, result.edgeidx);
+create_response_figure(result.response_fig_path, response_fig, edge_map);
+
+fig = figure;
+plot(bint1D(medfilt1(result.diameter, fbin),fbin));
+savefig(fig,result.plotpath);
     
 
 end
