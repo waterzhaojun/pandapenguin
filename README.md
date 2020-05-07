@@ -16,6 +16,15 @@ To use this function, some preparation is needed.
 2. some project has extra steps to set like for CSD project, you need to run related function to set registration seperate point, which will largely effect the registration result. Please check each project's note and run them before final pretreatment.
 
 3. load_parameters.m: give the animalid, date, run, pmt(This parameter define which pmt data you want to load. If you leave it blank, it will only load pmt 0 which is green. If you recorded multiple pmts, better set it to [0,1] as it will registrate both channel at the same time)
+The output of this function is a struct containing:
+config_path: the config file path to pretreat the mx.
+config: the config parameters when pretreat the mx. It should be the same as the file content.
+refname: the reference file name when used to register the mx. For some reasom this file didn't saved in present folder, but you can find it stored in registration_parameter_path file(4/21/2020).
+registration_parameter_path: This file stores a lot information related with registration like ref mx, the idx to seperate the chunk to registration.
+registration_mx_path: this file is the registrated but not cropped mx. You can load it and crop the edge by regp = load(p.registration_parameter_path); mx = dft_clean_edge(mx, {regp.shift + regp.superShife}); then use.
+pretreated_mov: the tif file converted from registration_mx_path file. it is registed but not cropped.
+
+
 
 4. treatsbx.m: run give parameters to treatsbx.m, This is the step to do pretreatment. It finally output a movie named xxx_pretreated.tif. If we did registration, This movie will have noisy edge. This movie is just a reference, we can't use it for analysis. I need to search xxx_registrated_mx.mat and xxx_registrated_parameters.mat to get a clean movie based on which piece you want. So the best way is if exist xxx_registrated_mx.mat and xxx_registrated_parameters.mat, read them and clean_edge and downsample if necessary, if not exist, read xxx_pretreated.tif.
 

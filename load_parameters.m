@@ -6,18 +6,9 @@ function p = load_parameters(animalid, date, run, pmt)
     p.date = date;
     p.run = run;
     
-    path = sbxPath(animalid, date, run, 'sbx'); 
-    
-    inf = sbxInfo(path, true);
-    
     if nargin<4, pmt = 0; end % if you recorded 2 channels, you have to set it to [0,1] when do pretreat.
     
-    if inf.nchan == 1
-        p.pmt = 0; % pmt is not used if you just pretreat the mx. But if you need to analyse some channel, it is important to set.
-    else
-        p.pmt = pmt;
-    end
-        
+    p.pmt = pmt; % pmt is not used if you just pretreat the mx. But if you need to analyse some channel, it is important to set.
     path = sbxPath(animalid, date, run, 'sbx'); 
     inf = sbxInfo(path, true);
     tmp = sbxDir(animalid, date, run);
@@ -26,6 +17,15 @@ function p = load_parameters(animalid, date, run, pmt)
     
     p.config_path = tmp.runs{1}.config;
     p.config = ReadYaml(p.config_path);
+    
+    % roi part
+    if exist([p.dirname,'roi\'], 'dir')
+        p.roi={};
+        p.roi.dirname = [p.dirname,'roi\'];
+        if isfile([p.roi.dirname, 'roimap.tif'])
+            p.roi.mappath = [p.roi.dirname, 'roimap.tif'];
+        end
+    end
 
     % the following part need to define based on each person's code.
     

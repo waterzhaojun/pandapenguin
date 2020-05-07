@@ -7,13 +7,12 @@ function create_response_figure(path, map, edgemap)
     end
     [r,c] = size(map);
     map3d = zeros([r, c, 3]);
-    map3d(:,:,1) = imadjust(uint16(map));
+    map3d(:,:,1) = map;
     
     
     if has_edge_label
-        map3d(:,:,3) = 65535*edgemap;
+        map3d(:,:,3) = edgemap;
     end
-    map3d = uint16(map3d);
     
     imwrite(map3d, path);
 
