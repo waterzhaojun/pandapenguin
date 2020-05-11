@@ -25,6 +25,12 @@ dft_apply_shift: apply shift to original mx to create registrated mx.
 dft_clean_edge: based on the registrated mx and shift, crop the edge. If you have multiple steps registration, add shifts together then apply.
 
 
-=======================================================================================================================================================
+==========================================================================================================Each file is registed by its own ref. The registration_parameter including :
+ref_idx: all frames are seperated to multiple chunks. this array record at which frame they are broken.
+shift: the shift based on each chunk's ref.
+supershift: each chunk ref's shift based on super ref.
+registed_ref: the registed each chunk's ref.
+
+If you need regist cross trials, you need to use registreate_cross_trials and save the shift to a path you defined.
 =======================================================================================================================================================
 =======================================================================================================================================================

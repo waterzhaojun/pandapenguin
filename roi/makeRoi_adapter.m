@@ -1,7 +1,7 @@
 function makeRoi_adapter(p,create_new_map)
 
 try
-    create_new_map = ~isfield(p.roi,'mappath');
+    create_new_map = ~isfield(p.roi,'mappath')
 catch
     create_new_map = 1;
 end

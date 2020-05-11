@@ -11,7 +11,7 @@ for i = 1:length(runs)
         ref = reshape(tmp, [size(tmp),1,1]);
         l1shift = shiftPara.superShife;
     else
-        ref(:,:,1,i) = shiftPara.super_ref;;
+        ref(:,:,1,i) = shiftPara.super_ref;
         l1shift = cat(1, l1shift, shiftPara.superShife);
     end
 end

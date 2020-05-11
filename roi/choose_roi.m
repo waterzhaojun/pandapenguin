@@ -6,11 +6,14 @@ if output_folderpath(end) ~= '\'
 end
 
 total_mask_path = [output_folderpath, 'totalmask.tif'];
-if ~isfile(total_mask_path)
-    total_mask = uint16(zeros(size(im,1), size(im,2)));
-else
-    total_mask = uint16(imread(total_mask_path));
-end
+total_mask = uint16(zeros(size(im,1), size(im,2)));
+size(total_mask)
+
+%if ~isfile(total_mask_path)
+%    total_mask = uint16(zeros(size(im,1), size(im,2)));
+%else
+%    total_mask = uint16(imread(total_mask_path));
+%end
 
 %% get identified roi list
 filelist = dir([output_folderpath, '\*_*.tif']);
@@ -21,7 +24,15 @@ for i = 1:length(filelist)
     if tmp>=roilist
         roilist = tmp+1;
     end
+    
+    i
+    filelist(i)
+    tmpmsk = imread([filelist(i).folder,'\',filelist(i).name]);
+    size(tmpmsk)
+    total_mask = uint16(((total_mask + tmpmsk) > 0)*1);
 end
+
+disp('done');
 
 %% start to add new roi
 flag = 1;

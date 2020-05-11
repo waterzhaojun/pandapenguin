@@ -8,7 +8,6 @@ if ndims(mx) == 3
     mx= reshape(mx, [size(mx,1), size(mx,2), 1, size(mx,3)]);
 end
     
-    
 [r,c,ch,f] = size(mx);
 if ch == 1
     pmt = 0;
