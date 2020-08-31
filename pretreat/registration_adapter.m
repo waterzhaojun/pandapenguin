@@ -25,4 +25,11 @@ end
 % afterwards.
 % registed_mx = dft_clean_edge(registed_mx, shift+superShife, 10);
 
+% A good thing for dft is if you want to do another register, you can just 
+% apply the shift to previous registed movie. So if you want to connect
+% several trials, you just need grab each superref from each run, and
+% registed them by dft_registrate_cross_trials and output a file named
+% XXX_crosstrial_register_parameters. By apply this shift and cut the
+% (shift + superShift + cross_trial_shift) edge.
+
 end

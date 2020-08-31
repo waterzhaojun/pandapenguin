@@ -15,7 +15,9 @@ csdarray = squeeze(mean(mx, [1,2]));
 character = csd_character(csdarray);
 
 [duration, tidycsdmx] = process(mx(:,:,:,character.csd_start_point:character.csd_end_point), p);
-speed = size(mx, 2) * p.scanrate/ duration;
+[move_distance_considered_angle,angle] = csd_move_distance_with_angle(tidycsdmx(:,:,end));
+% speed is um per sec.
+speed = pixal2realdistance(move_distance_considered_angle,angle,p) * p.scanrate/duration;
 mx2tif(tidycsdmx, [foldername, 'csdMov.tif']);
 A1_duration = character.csd_start_point/p.scanrate;
 C_duration = (character.csd_end_point - character.csd_start_point)/p.scanrate;
@@ -24,7 +26,7 @@ peakidx = character.peakidx;
 csd_start_point = character.csd_start_point;
 csd_end_point = character.csd_end_point;
 A2_endpoint = character.a2_endpoint;
-save([foldername, 'result.mat'], 'csdarray', 'speed', 'peakidx', ...
+save([foldername, 'result.mat'], 'csdarray', 'speed', 'angle', 'peakidx', ...
     'A1_duration', 'C_duration', 'A2_duration', 'csd_start_point',...
     'csd_end_point', 'A2_endpoint');
 
@@ -148,5 +150,23 @@ fs = find(s == 0);
 mx(:,:,:,fs) = [];
 
 newmx = mx;
+
+end
+
+function distance = csd_move_distance_with_angle(mx)
+% the mx should be the last frame of CSD wave movie, in which the CSD wave
+% arraived at the end edge. mx is a 2D matrix.
+% the output angle is not the 
+
+[r,c] = size(mx);
+fsmooth = smooth2a(mx,10,10);
+fkms = reshape(kmeans(reshape(fsmooth,[],1),2),r,c);
+fkms = (fkms == 1);
+x = sum(fkms,2);
+y = reshape(linspace(1,r,r),r,[]);
+p = polyfit(x,y,1);
+angle = sin(atan(p(1)));
+distance = c*angle;
+
 
 end

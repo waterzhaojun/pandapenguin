@@ -1,4 +1,30 @@
-function choose_roi(im,output_folderpath)
+function choose_roi(im,output_folderpath,edgeshift)
+
+
+if nargin < 3
+    shiftmask = ones(size(im,1), size(im,2));
+else
+    r = size(im,1);
+    c = size(im,2);
+    shiftmask = ones(size(im,1), size(im,2));
+    r_start=[]; r_end=[]; c_start=[]; c_end=[];
+    for i = 1:length(edgeshift)
+        shift = edgeshift{i};
+        r_start = [r_start, 1 + ceil(max(shift(:,2) .* (shift(:,2)>0)))];
+        r_end = [r_end, r - ceil(abs(min(shift(:,2) .* (shift(:,2)<0))))];
+        c_start = [c_start, 1 + ceil(max(shift(:,1) .* (shift(:,1)>0)))];
+        c_end = [c_end, c - ceil(abs(min(shift(:,1) .* (shift(:,1)<0))))];
+    end
+
+    r_start = max(r_start);
+    r_end = min(r_end);
+    c_start = max(c_start);
+    c_end = min(c_end);
+    shiftmask(1:r_start-1,:) = 0;
+    shiftmask(r_end+1:end,:) = 0;
+    shiftmask(:,1:c_start-1) = 0;
+    shiftmask(:,c_end+1:end) = 0;
+end
 
 %% load map and mask
 if output_folderpath(end) ~= '\'
@@ -16,7 +42,8 @@ size(total_mask)
 %end
 
 %% get identified roi list
-filelist = dir([output_folderpath, '\*_*.tif']);
+filelist = dir([output_folderpath, '*_*.tif']);
+
 roilist = 1;
 for i = 1:length(filelist)
     tmp = strsplit(filelist(i).name,'_');
@@ -25,10 +52,7 @@ for i = 1:length(filelist)
         roilist = tmp+1;
     end
     
-    i
-    filelist(i)
     tmpmsk = imread([filelist(i).folder,'\',filelist(i).name]);
-    size(tmpmsk)
     total_mask = uint16(((total_mask + tmpmsk) > 0)*1);
 end
 
@@ -44,7 +68,7 @@ while flag
     imshow(refmap);
     title('After choose roi, press b for branch, s for sito, e for endfeet, q for quit.');
     roi = drawfreehand('color', maskcolor, 'LineWidth', 1);
-    msk = uint16(createMask(roi));
+    msk = uint16(createMask(roi).*shiftmask);
 %     if sum(msk .* total_mask, 'all') > 0
 %         disp('haha');
 %     end

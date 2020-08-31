@@ -25,6 +25,13 @@ function p = load_parameters(animalid, date, run, pmt)
         if isfile([p.roi.dirname, 'roimap.tif'])
             p.roi.mappath = [p.roi.dirname, 'roimap.tif'];
         end
+        if isfile([p.roi.dirname, 'roi_setting.mat'])
+            p.roi.setting = [p.roi.dirname, 'roi_setting.mat'];
+        end
+        if isfile([p.roi.dirname, 'crossTrialRoiMap.tif'])
+            p.roi.crossTrial_mappath = [p.roi.dirname, 'crossTrialRoiMap.tif'];
+        end
+        
     end
 
     % the following part need to define based on each person's code.
@@ -38,5 +45,10 @@ function p = load_parameters(animalid, date, run, pmt)
     p.keep_frames_start = floor((inf.max_idx+1-p.keep_frames)/2/(inf.volscan+1))*(inf.volscan+1)+1;
     
     p.downsample_t = floor(inf.scanmode * 15.5  / p.config.output_fq);
+    
+    % cross trial register
+    if isfile([p.basicname,'_crosstrial_register_parameters.mat'])
+         p.crosstiral_registration_parameter_path = [p.basicname,'_crosstrial_register_parameters.mat'];
+    end
 
 end

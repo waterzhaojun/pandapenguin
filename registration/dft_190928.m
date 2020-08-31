@@ -43,7 +43,7 @@ end
 % then apply shift to other channel.
 for j = 1:ch
     if j ~= refPmt
-        regMovie(:,:,j,:) = apply_shift(mx(:,:,j,:), shift);
+        regMovie(:,:,j,:) = apply_shift(mx(:,:,j,:), shift); % looks like I changed the function name after some revise. should I correct it?
     end
 end
 
@@ -55,7 +55,7 @@ ref_unclean = uint16(ref);
 
 if length(ref_idx) > 2
     disp('use piece registration');
-    ref_clean = dft_clean_edge(ref, {shift}); 
+    ref_clean = dft_clean_edge(ref, {shift}); %without clean, the edge will effect the result.
     
     idxes_for_reg_superref =  needed_idx_to_correct(ref_idx);
     disp(idxes_for_reg_superref);

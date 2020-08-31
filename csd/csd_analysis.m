@@ -1,4 +1,8 @@
 function csd_analysis(animal, date, run, pmt, csdrun, csd_ana_setting_path, output_folderpath)
+% At 8/20/2020, I can't remember which function i used to analyze CSD
+% trial. But this one seems not the correct one. I believe the correct one
+% is csd_single_trial_analysis.m
+% I will mark this one as deprecated file.
 
 % analysis csd trial
 csdp = load_parameters(animal, date, csdrun, pmt);
