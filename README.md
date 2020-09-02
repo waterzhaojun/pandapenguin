@@ -30,6 +30,9 @@ pretreated_mov: the tif file converted from registration_mx_path file. it is reg
 
 5. After pretreatment, you can go to your project folder to run specific analysis method to get the result.
 
+6. In pretreat folder there are also some high level api for using. 
+apply_shift.m is to apply mx with shift parameters. It is the same if you go to each registration function to apply, but this function will be easier.
+
 ================================================================================
 ### vessel_diameter_measurement
 scripts used for 2P experiment vessel diameter measurement
