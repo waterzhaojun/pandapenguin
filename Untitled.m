@@ -1,14 +1,16 @@
-aaa = {'DL159', '190612', 8; 'DL170', '190613', 6}
+aaa = {'DL159', '190612', 8; 'DL170', '190613', 6; 'DL171', '190614', 8;'DL172','190617',9;'DL173','190620',6;'DL174','190622',4;'RAS001','190913',3;'RAS002','190916',3;'RAS003','190917',3;'RAS004','190920',3}
 
 [r,c] = size(aaa);
 for i =1:r
-    p = load_parameters(aaa{i,1}, aaa{i,2}, aaa{i,3});
-    mx = mxFromSbx(p);
-    mx = denoise(mx, p);
-    mx = trimMatrix(mx, p);
-    mx = apply_shift(mx, p);
-    csd_movie_path = [p.dirname, 'run', num2str(p.run), '_CSD\'];
-    mx2tif(mx, [csdfolder, '
+    csd_cperiod_bigmovie(aaa{i,1}, aaa{i,2}, aaa{i,3});
+    disp(i);
+%     p = load_parameters(aaa{i,1}, aaa{i,2}, aaa{i,3});
+%     mx = mxFromSbx(p);
+%     mx = denoise(mx, p);
+%     mx = trimMatrix(mx, p);
+%     mx = apply_shift(mx, p);
+%     csd_movie_path = [p.dirname, 'run', num2str(p.run), '_CSD\'];
+%     mx2tif(mx, [csdfolder, '
 end
     
 
