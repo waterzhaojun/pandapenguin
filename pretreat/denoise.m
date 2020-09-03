@@ -6,7 +6,7 @@ function output = denoise(matrix,parameters)
     % As I know sd Gaussian filter is a better method than avergae. It
     % keeps more details.
     sigma = 100; % This is a tricky parameter. So far I didn't see much different. 
-    sdgaussfilter_size = 1; % The more, the smoother and blurrer. for rat i set to 7
+    sdgaussfilter_size = 7; % The more, the smoother and blurrer. for rat i set to 7
     sdgaussfilter_frames = 15; % So far I fix this value for 0.2hz frame number.
     wiener_size = 5; % The size of area to calculate variance.
     

@@ -1,4 +1,4 @@
-aaa = {'DL159', '190612', 8; 'DL170', '190613', 6; 'DL171', '190614', 8;'DL172','190617',9;'DL173','190620',6;'DL174','190622',4;'RAS001','190913',3;'RAS002','190916',3;'RAS003','190917',3;'RAS004','190920',3}
+aaa = {'DL170', '190613', 6; 'DL171', '190614', 8;'DL173','190620',6;'DL174','190622',4;'RAS001','190913',3;'RAS002','190916',3;'RAS003','190917',3;'RAS004','190920',3}
 
 [r,c] = size(aaa);
 for i =1:r
@@ -14,10 +14,10 @@ for i =1:r
 end
     
 
-root = 'C:\2pdata\DL159\190612_DL159\190612_DL159_run8\test_test_run0\';
+root = 'C:\2pdata\aaa\';
 
 p = struct();
-p.pretreated_mov = [root, 'DL159_190612_007_csd_C_mov_1hz.tif'];
+p.pretreated_mov = [root, 'DL172_190617_008_csd_C_mov_fullsize.tif'];
 p.config.related_setting_file.aqua_parameter_file = [root, 'aqua_csd_parameters.yml'];
 
 p.run = '0'
