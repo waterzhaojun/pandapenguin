@@ -17,7 +17,7 @@ end
 root = 'C:\2pdata\aaa\';
 
 p = struct();
-p.pretreated_mov = [root, 'DL172_190617_008_csd_C_mov_fullsize.tif'];
+p.pretreated_mov = [root, 'RAS004_190920_002_csd_C_mov_fullsize.tif'];
 p.config.related_setting_file.aqua_parameter_file = [root, 'aqua_csd_parameters.yml'];
 
 p.run = '0'

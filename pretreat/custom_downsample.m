@@ -1,4 +1,4 @@
-function output = downsample(mx,parameters, varargin)
+function output = custom_downsample(mx,parameters, varargin)
     disp('start downsample matrix');
     
     oritype = class(mx);

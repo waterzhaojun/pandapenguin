@@ -7,7 +7,7 @@
   "check_denoise": 1,
   "denoise_sample_size": 50,
 
-  "fn_downsample": "downsample",
+  "fn_downsample": "custom_downsample",
   "downsample_size": 2,
   "output_fq": 1
 
