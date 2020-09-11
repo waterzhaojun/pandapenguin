@@ -14,10 +14,11 @@ for i =1:r
 end
     
 
-root = 'C:\2pdata\aaa\';
+%root = 'C:\2pdata\aaa\';
+root = 'C:\2pdata\DL159\DL159 run3\';
 
 p = struct();
-p.pretreated_mov = [root, 'RAS004_190920_002_csd_C_mov_fullsize.tif'];
+p.pretreated_mov = [root, 'DL159_190612_002_pretreated.tif'];
 p.config.related_setting_file.aqua_parameter_file = [root, 'aqua_csd_parameters.yml'];
 
 p.run = '0'
