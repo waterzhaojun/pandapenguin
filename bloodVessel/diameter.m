@@ -38,6 +38,10 @@ function diameter(animalID, dateID, run, pmt, bvid, output_video_hz, find_edge_m
         x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer nf]);
     end
     
+    if size(x,1) == 1
+        pmt = 0;
+    end
+    
     x = 65535-x;
     % x = uint8(x/255);
     
@@ -65,7 +69,7 @@ function diameter(animalID, dateID, run, pmt, bvid, output_video_hz, find_edge_m
         pic_ref = imread(ref_path);
     else
         idx_for_ref = int16(linspace(1,nf,100));
-        pic_ref = squeeze(max(x(pmt+1,:,:,idx_for_ref), [], 4));
+        pic_ref = squeeze(max(x(pmt+1,:,:,idx_for_ref), [], 4)); %I am still not sure here I need to use pmt+1 or 2-pmt
         pic_ref = permute(pic_ref, [2,1]);
         pic_ref = uint8(pic_ref/255); % It is not necessary to transfer to uint8, but it will decrease file size.
         imwrite(pic_ref, ref_path);

@@ -17,7 +17,7 @@ gap = 100 *60 * 1; % I stop use it
 % set load data parameter.
 p = struct();
 p.length = 100 * 60 * 5;
-%p.piece_length = 100 * 30;
+p.piece_length = 100 * 30;
 p.scanrate = 100;
 
 control = {[rootpath,'lfp2018040401.csv'], 180300; [rootpath,'lfp2018042701.csv'], 569693;};
@@ -33,8 +33,7 @@ params.tapers = [3,5];
 params.Fs = 100;
 params.fpass = [0,50];
 params.pad = 0; % Increase this will make f more precisely seperated. But it won't change the distribution. For now I think default 0 
-params.err = [1, 0.05];
-params.trialave = 1;
+result = eeg_analysis(flctmx, params);
 
 
 [sflct,f,err] = mtspectrumc( flctmx, params );
@@ -56,3 +55,8 @@ params.err = [1, 0.05];
 movingwin=[1000,10];
 
 [S,t,f,Serr] = mtspecgramc( fVals, movingwin, params );
+
+
+sigma = 5;
+y = normrnd(0,sigma,100,1);
+m = jackknife(@var,y,1);
