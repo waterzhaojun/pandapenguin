@@ -1,11 +1,10 @@
-function output = singlePlateSbx2tif(animalID, dateID, run, pmt, bint, outputTif)
-
+function singlePlateSbx2tif(animalID, dateID, run, pmt, bint)
+% This function is to produce a tif video file for single plate recording
+% sbx file from scanbox.
     % default is just read green channel
     if nargin<4, pmt = 0; end
     
     if nargin<5, bint = 1; end
-           
-    if nargin<6, outputTif = 1; end
 
     path = sbxPath(animalID, dateID, run, 'sbx'); 
     

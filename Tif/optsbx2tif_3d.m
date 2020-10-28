@@ -27,7 +27,7 @@ function output = optsbx2tif_3d(animalID, dateID, run, pmt, layers, outputTif)
     x = fread(inf.fid, inf.nsamples/2*N, 'uint16=>uint16');
     x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer N]);
     
-    edges = sbxRemoveEdges(path);
+    %edges = sbxRemoveEdges(path);
     
     outputPath = [path(1:end-4), '_3Dstructure.tif'];
     if exist(outputPath, 'file') == 2, delete(outputPath); end

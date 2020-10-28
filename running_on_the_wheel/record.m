@@ -133,7 +133,7 @@ if saveFolder(end) ~= '\'
 end
 
 % saveName = [animalID, '_', expID];
-saveName = 'DL124_180905_1'
+saveName = 'A2020081803_201015_1'
 save([saveFolder, saveName, '.mat'], 'speed_array');
 speed_array = [];
 
@@ -156,7 +156,7 @@ if saveFolder(end) ~= '\'
 end
 
 % saveName = [animalID, '_', expID];
-saveName = 'DL124_180905_1'
+saveName = 'A2020081803_201015_1'
 save([saveFolder, saveName, '.mat'], 'speed_array');
 speed_array = [];
 

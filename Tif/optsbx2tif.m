@@ -1,4 +1,4 @@
-function output = optsbx2tif(animalID, dateID, run, pmt, layers, outputTif)
+function optsbx2tif(animalID, dateID, run, pmt, layers)
 
     % default is just read green channel
     % if only record red channel, also set pmt = 0
@@ -6,15 +6,13 @@ function output = optsbx2tif(animalID, dateID, run, pmt, layers, outputTif)
         
     % layers is a 2 0-1 number vector. It define which depth need to build
     % tif. For example [0.5, 1] mean from half to top.
-    if nargin<5, layers = [0,1]; end
-    
-    if nargin<6, outputTif = 1; end
+    if nargin<5, layers = [0,1]; end% I changed it to 0.3 from 1
 
     path = sbxPath(animalID, dateID, run, 'sbx'); 
     
     inf = sbxInfo(path, true);
 
-    if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
+    %if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
 
     % Set in to read the whole file if unset
     N = inf.max_idx + 1; 
@@ -33,8 +31,9 @@ function output = optsbx2tif(animalID, dateID, run, pmt, layers, outputTif)
     edges = sbxRemoveEdges();
     
     depth = floor(length(inf.otwave)*layers);
-    if depth(1) == 0, depth(1) = 1; end
     
+    if depth(1) == 0, depth(1) = 1; end
+    disp(depth);
     if pmt == 0
             fnm = 'greenChl'; 
         else
@@ -59,7 +58,7 @@ function output = optsbx2tif(animalID, dateID, run, pmt, layers, outputTif)
 
         % wd = [num2str(j+1), ' of ', num2str(nf), ' is done.'];
         % disp(wd);
-        iLoopNotice(j, nf-1, 10);
+        %iLoopNotice(j, nf-1, 10);
     end
 
 end
