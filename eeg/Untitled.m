@@ -11,14 +11,28 @@ maxTimeTicks = CEDS64ChanMaxTime( fhand1, 1 )+1; % +1 so the read gets the last 
 [ fRead, fVals, fTime ] = CEDS64ReadWaveF( fhand1, 1, 1000000, 0, maxTimeTicks );
 
 
-rootpath = 'C:\Users\Levylab\Downloads\lfp\';
+rootpath = 'C:\Users\Levylab\jun\';
 gap = 100 *60 * 1; % I stop use it
 
 % set load data parameter.
 p = struct();
-p.length = 100 * 60 * 5;
-p.piece_length = 100 * 30;
-p.scanrate = 100;
+p.length = 1000 * 60 * 30;
+p.piece_length = 1000 * 60 * 30;
+p.scanrate = 1000;
+
+test = {[rootpath,'aaaaa.csv'],1};
+testmx = load_data(test,p);
+test1 = downsample(testmx(1:900000,1), 10);
+params = struct();
+params.tapers = [0.5,10,9];%unit is s and hz for two paras, the third para is 2TW-1
+params.Fs = 100;
+params.fpass = [0,50];
+params.err = [1, 0.05];
+movingwin=[1,1];
+[S,t,f,Serr] = mtspecgramc( 1000*test1, movingwin, params );
+S = flip(S',1);
+heatmap(log(S),'GridVisible','off','Colormap', summer);
+
 
 control = {[rootpath,'lfp2018040401.csv'], 180300; [rootpath,'lfp2018042701.csv'], 569693;};
 flct = {[rootpath,'lfp2018041001.csv'], 364690; [rootpath,'lfp2018042401.csv'], 390036; [rootpath,'lfp2018061301.csv'], 636192; [rootpath,'lfp2018042501.csv'], 749580;};
