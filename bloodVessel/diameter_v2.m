@@ -1,4 +1,4 @@
-function diameter_v2(animalID, dateID, runs, pmt, bvid, fbin, find_edge_method)
+function diameter_v2(animalID, dateID, run, pmt, bvid, fbin, find_edge_method)
 
 % pmt is in which pmt channel the blood vessel being recorded.
 %
@@ -15,28 +15,32 @@ if nargin < 5, bvid = false; end
 if nargin < 4, pmt = 0; end
 
 % set a result struct =================================================
-root = sbxDir(animalID, dateID);
-root = root.date_mouse;
+root = sbxDir(animalID, dateID, run);
+root = root.runs{1};
 
-if bvid
-    current_bv_folder = [root, 'bv_', num2str(bvid)];
-else
-    num_of_bv= length(dir([root 'bv_*']))+1;
-    current_bv_folder = [root, 'bv_', num2str(num_of_bv), '\'];
-    mkdir(current_bv_folder);
+vb_folder = [root, 'bv'];
+if ~exist(vb_folder, 'dir')
+   mkdir(vb_folder)
 end
 
-result = struct();
-result.runs = runs;
+% if bvid
+%     current_bv_folder = [root, 'bv_', num2str(bvid)];
+% else
+%     num_of_bv= length(dir([root 'bv_*']))+1;
+%     current_bv_folder = [root, 'bv_', num2str(num_of_bv), '\'];
+%     mkdir(current_bv_folder);
+% end
 
-result.movpath = [current_bv_folder,'mov.mat'];
-result.refpath = [current_bv_folder,'ref.tif'];
-result.maskpath = [current_bv_folder,'mask.tif'];
-result.ref_with_mask_path = [current_bv_folder, 'ref_with_mask.tif'];
-result.topopath = [current_bv_folder, 'topo.tif'];
-result.resultpath = [current_bv_folder, 'result.mat'];
-result.response_fig_path = [current_bv_folder, 'response_topo.tif'];
-result.plotpath = [current_bv_folder, 'plot.fig'];
+result = struct();
+result.run = run;
+result.movpath = [vb_folder,'mov.mat'];
+result.refpath = [vb_folder,'ref.tif'];
+result.maskpath = [vb_folder,'mask.tif'];
+result.ref_with_mask_path = [vb_folder, 'ref_with_mask.tif'];
+result.topopath = [vb_folder, 'topo.tif'];
+result.resultpath = [vb_folder, 'result.mat'];
+result.response_fig_path = [vb_folder, 'response_topo.tif'];
+result.plotpath = [vb_folder, 'plot.fig'];
 
 result.diameter = [];
 result.edgeidx=[];

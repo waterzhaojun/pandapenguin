@@ -8,17 +8,17 @@ function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
     % do z stack scanning from bottom to top. usually we don't use top and
     % bottom layer.
     
-    persistent p
-    if isempty(p)
-        p = inputParser;
-        p.FunctionName = 'optsbx2tif';
-        addParameter(p,'outputType','average', @(x)validateattributes(x,{'char'},...
-            {'average', 'stack'}))
-    end
-    
-    parse(p,varargin{:})
-    
-    if nargin<4, pmt = 0; end
+    p = inputParser;
+    validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
+    addRequired(p, 'animalID', @ischar);
+    addRequired(p, 'dateID', @ischar);
+    addRequired(p, 'run', validScalarPosNum);
+    addOptional(p, 'pmt', 0, @(x) any(validatestring(num2str(x),{'0','1'})));
+    addOptional(p, 'layers', 0);
+    addParameter(p,'outputType','average', @(x) validateattributes(x,{'char'},...
+        {'average', 'stack'}));
+    parse(p,animalID, dateID, run, varargin{:})
+    disp(p.Results.pmt);
     if pmt == 0
         fnm = 'greenChl'; 
     else
@@ -47,15 +47,18 @@ function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
     % after this step, x is a matrix with r, c, z, nf.
     
     % set layers, pass the most top and bottom layers.
-    if nargin<5, layers = 2:inf.otparam(3)-1; end 
+    %if layers == 0, layers = 2:inf.otparam(3)-1; end  % changed temp
+    layers = 2:inf.otparam(3)-1;
     disp(['make tif from layer ', num2str(layers(1)), ' to layer ', num2str(layers(end))]);
     x = x(:,:,layers, :);
     size(x)
-    if strcmp(outputType, 'average')
-        x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
-    elseif strcmp(type, 'stack')
-        x = uint16(x);
-    end
+%     if strcmp(outputType, 'average')
+%         x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
+%     elseif strcmp(type, 'stack')
+%         x = uint16(x);
+%     end
+
+    x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
     
     % output tif movie.
     outputPath = [path(1:end-4), '_', fnm, '.tif'];
