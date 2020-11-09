@@ -1,12 +1,29 @@
-function optsbx2tif(animalID, dateID, run, pmt, layers)
+function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
 
     % default is just read green channel
     % if only record red channel, also set pmt = 0
+    % only treat one channel. If you need both green and red channel, just
+    % run it twice.
+    % If you only need some layers' data, set layers =a:b. remember scanbox
+    % do z stack scanning from bottom to top. usually we don't use top and
+    % bottom layer.
+    
+    persistent p
+    if isempty(p)
+        p = inputParser;
+        p.FunctionName = 'optsbx2tif';
+        addParameter(p,'outputType','average', @(x)validateattributes(x,{'char'},...
+            {'average', 'stack'}))
+    end
+    
+    parse(p,varargin{:})
+    
     if nargin<4, pmt = 0; end
-        
-    % layers is a 2 0-1 number vector. It define which depth need to build
-    % tif. For example [0.5, 1] mean from half to top.
-    if nargin<5, layers = [0,1]; end% I changed it to 0.3 from 1
+    if pmt == 0
+        fnm = 'greenChl'; 
+    else
+        fnm = 'redChl';
+    end
 
     path = sbxPath(animalID, dateID, run, 'sbx'); 
     
@@ -14,51 +31,35 @@ function optsbx2tif(animalID, dateID, run, pmt, layers)
 
     %if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
 
-    % Set in to read the whole file if unset
+    % Set frames
     N = inf.max_idx + 1; 
-
-    nr = inf.sz(1);
-    nc = inf.sz(2);
-    nf = floor(N/length(inf.otwave));
-
-    % ---------------------------------------
-    x = fread(inf.fid, inf.nsamples/2*N, 'uint16=>uint16');
-    x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer N]);
+    nf = floor(N/inf.otparam(3));
     
-    %x = squeeze(x(pmt+1, :, :,:));
-    %x = intmax('uint16') - permute(x, [1 3 2 4]);
+    % set pmt
+    if inf.nchan == 1, pmt = 0; end
+
+    % load data, trim, and reshape ---------------------------------------
+    x = mxFromSbxPath(path);
     
     edges = sbxRemoveEdges();
+    x = x(edges(3)+1:end-edges(4), edges(1)+1:end-edges(2), pmt+1, 1:nf*inf.otparam(3));
+    x = reshape(squeeze(x), size(x,1), size(x,2), inf.otparam(3), nf);
+    % after this step, x is a matrix with r, c, z, nf.
     
-    depth = floor(length(inf.otwave)*layers);
-    
-    if depth(1) == 0, depth(1) = 1; end
-    disp(depth);
-    if pmt == 0
-            fnm = 'greenChl'; 
-        else
-            fnm = 'redChl';
+    % set layers, pass the most top and bottom layers.
+    if nargin<5, layers = 2:inf.otparam(3)-1; end 
+    disp(['make tif from layer ', num2str(layers(1)), ' to layer ', num2str(layers(end))]);
+    x = x(:,:,layers, :);
+    size(x)
+    if strcmp(outputType, 'average')
+        x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
+    elseif strcmp(type, 'stack')
+        x = uint16(x);
     end
+    
+    % output tif movie.
     outputPath = [path(1:end-4), '_', fnm, '.tif'];
     if exist(outputPath, 'file') == 2, delete(outputPath); end
-
-    for j = 0:(nf-1)
-
-        tmp = mean(squeeze(x(pmt+1, :, :, j*length(inf.otwave)+depth(1):j*length(inf.otwave)+depth(2))), 3);
-
-        tmp = tmp(edges(1)+1:end-edges(2), edges(3)+1:end-edges(4));
-        
-        % tmp = binxy(tmp, 2); when do blood vessel, I prefer not binxy.
-
-        tmp = 65535-permute(tmp, [2,1]);
-        tmp = uint8(tmp/255);
-
-        imwrite(tmp, outputPath, ...
-            'WriteMode', 'append');
-
-        % wd = [num2str(j+1), ' of ', num2str(nf), ' is done.'];
-        % disp(wd);
-        %iLoopNotice(j, nf-1, 10);
-    end
+    mx2tif(x, outputPath);
 
 end
