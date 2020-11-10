@@ -11,7 +11,7 @@ function output = optsbx2tif_3d(animalID, dateID, run, pmt, layers)
     
     inf = sbxInfo(path, true);
 
-    if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
+    %if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
     
     if inf.nchan == 1, pmt = 0;end
 

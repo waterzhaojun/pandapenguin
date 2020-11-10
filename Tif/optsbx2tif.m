@@ -23,7 +23,6 @@ function optsbx2tif(animalID, dateID, run, varargin)
     pmt = p.Results.pmt;
     layers = p.Results.layers;
     zbint = p.Results.zbint;
-    disp(layers)
     outputType = p.Results.outputType;
     if pmt == 0
         fnm = 'greenChl'; 
