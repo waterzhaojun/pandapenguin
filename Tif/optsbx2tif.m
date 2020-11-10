@@ -1,4 +1,4 @@
-function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
+function optsbx2tif(animalID, dateID, run, varargin)
 
     % default is just read green channel
     % if only record red channel, also set pmt = 0
@@ -15,10 +15,16 @@ function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
     addRequired(p, 'run', validScalarPosNum);
     addOptional(p, 'pmt', 0, @(x) any(validatestring(num2str(x),{'0','1'})));
     addOptional(p, 'layers', 0);
-    addParameter(p,'outputType','average', @(x) validateattributes(x,{'char'},...
-        {'average', 'stack'}));
-    parse(p,animalID, dateID, run, varargin{:})
-    disp(p.Results.pmt);
+    addParameter(p,'outputType','average', @(x) any(validatestring(x,{'average', 'stack'})));
+    
+    % This parameter is only usable when we output stack tif.
+    addParameter(p,'zbint',1, @(x) isnumeric(x) && isscalar(x) && (x>0)); 
+    parse(p,animalID, dateID, run, varargin{:});
+    pmt = p.Results.pmt;
+    layers = p.Results.layers;
+    zbint = p.Results.zbint;
+    disp(layers)
+    outputType = p.Results.outputType;
     if pmt == 0
         fnm = 'greenChl'; 
     else
@@ -47,18 +53,17 @@ function optsbx2tif(animalID, dateID, run, pmt, layers, varargin)
     % after this step, x is a matrix with r, c, z, nf.
     
     % set layers, pass the most top and bottom layers.
-    %if layers == 0, layers = 2:inf.otparam(3)-1; end  % changed temp
-    layers = 2:inf.otparam(3)-1;
+    if layers == 0, layers = 2:inf.otparam(3)-1; end  
+    % layers = 2:inf.otparam(3)-1;
     disp(['make tif from layer ', num2str(layers(1)), ' to layer ', num2str(layers(end))]);
     x = x(:,:,layers, :);
     size(x)
-%     if strcmp(outputType, 'average')
-%         x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
-%     elseif strcmp(type, 'stack')
-%         x = uint16(x);
-%     end
-
-    x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
+    if strcmp(outputType, 'average')
+        x = uint16(reshape(mean(x, 3), size(x,1), size(x,2), 1, []));
+    elseif strcmp(outputType, 'stack')
+        x = mean(reshape(x, size(x,1), size(x,2), zbint, []), 3);
+        x = uint16(x);
+    end
     
     % output tif movie.
     outputPath = [path(1:end-4), '_', fnm, '.tif'];
