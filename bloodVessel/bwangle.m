@@ -1,4 +1,4 @@
-function [BW, angle] = bwangle(pic)
+function [BW, angle, area] = bwangle(pic)
 
 [BW, xi, yi] = roipoly(pic); % xi = col, yi = row
 BW = double(BW);
@@ -11,5 +11,8 @@ xm = x1-x2;
 ym = y1-y2;
 angle = asin(xm/sqrt(xm^2+ym^2))*180/pi;
 disp(['blood vessel angle: ', num2str(angle)]);
+disp(xi)
+disp(yi)
+area = [min(xi),min(yi), max(xi), max(yi)];
         
 end
