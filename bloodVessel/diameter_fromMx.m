@@ -1,7 +1,7 @@
 function diameter_fromMx(mx, path, varargin)
 
 % This function is to analyse diameter from matrix. The matrix's 3rd
-% deminsion should be 1. 
+% deminsion should be 1. The output ignore whether it is optotune or not. 
 % This path is the subfolder in bv root folder. It should have a matrix
 % tif, a ref pic, a ref with mask pic etc.
 % If the target is vessel trunk, use default vesselType. If it is dive
@@ -13,8 +13,8 @@ addRequired(parser, 'mx', @(x) isnumeric(x) && (size(x,3)== 1) );
 addRequired(parser, 'path', @ischar);
 %addParameter(p, 'vesselType', 'trunk', @(x) any(validatestring(x,{'trunk', 'dive'})));
 addParameter(parser, 'smooth', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
-addParameter(parser, 'output_mov_fbint', 15, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
-addParameter(parser, 'output_response_fig_width', 1000, @(x) isnumeric(x) && isscalar(x) && (x > 0)); % The output is not exactly 1000px, but close to 1000 based on the bint size.
+addParameter(parser, 'output_mov_fbint', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
+%addParameter(parser, 'output_response_fig_width', 1000, @(x) isnumeric(x) && isscalar(x) && (x > 0)); % The output is not exactly 1000px, but close to 1000 based on the bint size.
 parse(parser,mx, path, varargin{:});
 
 smooth = parser.Results.smooth;
@@ -54,7 +54,7 @@ end
 
 % build mask =====================================================
 flag = 1;
-roistart = 1
+roistart = 1;
 
 while flag
     [BW,angle] = bwangle(ref, 'title','After choose roi, Please choose vessel position. Press t for horizontal trunk, v for vertical penetration, q to quit');
@@ -112,12 +112,15 @@ saveas(gcf,result.response_fig_path);
 close;
 
 % output mov sample ===============================================
-samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
-samplemov = mx(:,:,:,1:samplemov_f);
-samplemov = reshape(samplemov, r,c,ch,output_mov_fbint,[]);
-samplemov = squeeze(mean(samplemov, 4));
-samplemov = uint16(reshape(samplemov, r,c,1,[]));
-mx2tif(samplemov, result.movpath);
+if output_mov_fbint > 1
+    samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
+    mx = mx(:,:,:,1:samplemov_f);
+    mx = reshape(mx, r,c,ch,output_mov_fbint,[]);
+    mx = squeeze(mean(mx, 4));
+    mx = reshape(mx, r,c,ch,[]);
+end
+mx = uint16(mx);
+mx2tif(mx, result.movpath);
 
 
 save(result.resultpath, 'result');
