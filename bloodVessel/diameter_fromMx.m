@@ -1,172 +1,126 @@
-function diameter_fromMx(mx, varargin)
+function diameter_fromMx(mx, path, varargin)
 
-% This function is to analyse diameter from matrix.
+% This function is to analyse diameter from matrix. The matrix's 3rd
+% deminsion should be 1. 
+% This path is the subfolder in bv root folder. It should have a matrix
+% tif, a ref pic, a ref with mask pic etc.
 % If the target is vessel trunk, use default vesselType. If it is dive
 % part, set vesselType to 'dive'.
 % sometimes the video is too noise, then you can set smooth > 0
 
-p = inputParser;
-addRequired(p, 'mx', @isnumeric);
-addParameter(p, 'vesselType', 'trunk', @(x) any(validatestring(x,{'trunk', 'dive'})));
-addParameter(p, 'smooth', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
-parse(p,mx, varargin{:});
+parser = inputParser;
+addRequired(parser, 'mx', @(x) isnumeric(x) && (size(x,3)== 1) );
+addRequired(parser, 'path', @ischar);
+%addParameter(p, 'vesselType', 'trunk', @(x) any(validatestring(x,{'trunk', 'dive'})));
+addParameter(parser, 'smooth', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
+addParameter(parser, 'output_mov_fbint', 15, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
+addParameter(parser, 'output_response_fig_width', 1000, @(x) isnumeric(x) && isscalar(x) && (x > 0)); % The output is not exactly 1000px, but close to 1000 based on the bint size.
+parse(parser,mx, path, varargin{:});
 
-vesselType = p.Results.vesselType;
-smooth = p.Results.smooth;
+smooth = parser.Results.smooth;
+output_mov_fbint = parser.Results.output_mov_fbint;
+
+[r,c,ch,f] = size(mx);
+% pretreat mx =========================================================
+if smooth > 1
+    for i = 1:f
+        mx(:,:,1,i) = imgaussfilt(mx(:,:,1,i), smooth);
+        %mx(:,:,1,i) = wiener2(mx(:,:,1,i), [smooth, smooth]);
+    end
+end
 
 % set a result struct =================================================
-root = sbxDir(animalID, dateID, run);
-root = root.runs{1};
-
-vb_folder = [root, 'bv'];
-if ~exist(vb_folder, 'dir')
-   mkdir(vb_folder)
+path = correct_folderpath(path);
+if ~exist(path, 'dir')
+   mkdir(path)
 end
-
-% if bvid
-%     current_bv_folder = [root, 'bv_', num2str(bvid)];
-% else
-%     num_of_bv= length(dir([root 'bv_*']))+1;
-%     current_bv_folder = [root, 'bv_', num2str(num_of_bv), '\'];
-%     mkdir(current_bv_folder);
-% end
 
 result = struct();
-result.run = run;
-result.movpath = [vb_folder,'mov.mat'];
-result.refpath = [vb_folder,'ref.tif'];
-result.maskpath = [vb_folder,'mask.tif'];
-result.ref_with_mask_path = [vb_folder, 'ref_with_mask.tif'];
-result.topopath = [vb_folder, 'topo.tif'];
-result.resultpath = [vb_folder, 'result.mat'];
-result.response_fig_path = [vb_folder, 'response_topo.tif'];
-result.plotpath = [vb_folder, 'plot.fig'];
+result.movpath = [path,'mov.tif'];
+result.refpath = [path,'ref.tif'];
+result.ref_with_mask_path = [path, 'ref_with_mask.tif'];
+result.resultpath = [path, 'result.mat'];
+result.response_fig_path = [path, 'response.pdf'];
 
-result.diameter = [];
-result.edgeidx=[];
-result.mov = [];
-result.trial_length = [];
+result.roi = {};
 
-
-% Prepare data matrix ================================================
-if isfile(result.movpath)
-    result.mov = load(result.movpath);
+% build reference ================================================
+if isfile(result.refpath)
+    ref = imread(result.refpath); 
 else
-    for run =runs
-        tmppath = sbxDir(animalID, dateID, run);
-        tmppath = tmppath.runs{1}.pretreatedmov;
-        disp(['start to load run ', num2str(run)]);
-        tmpmx = loadTiffStack_slow(tmppath);
-        [tmpr,tmpc,tmpch,tmpf] = size(tmpmx);
-        if tmpch>1
-            % As we use tiff as source, pmt0 means green channel, pmt1 means red channel. 
-            tmpmx = tmpmx(:,:,2-pmt,:);
-        end
+    ref = imadjust(uint16(squeeze(max(mx,[],4))));
+    imwrite(ref, result.refpath);
+end
 
-        if length(result.mov) == 0
-            result.mov = tmpmx;
-        else
-            result.mov = cat(4, result.mov, tmpmx);
-        end
+% build mask =====================================================
+flag = 1;
+roistart = 1
 
-        result.trial_length = [result.trial_length, tmpf];
+while flag
+    [BW,angle] = bwangle(ref, 'title','After choose roi, Please choose vessel position. Press t for horizontal trunk, v for vertical penetration, q to quit');
+    waitforbuttonpress;
+    p = get(gcf, 'CurrentCharacter');
+    switch p
+        case 't'
+            vposition='horizontal';
+            
+        case 'v'
+            vposition='vertical';
+            
+        case 'q'
+            flag = 0;
     end
-
-    save(result.movpath, 'result.mov');
-end
-
-if isfile(result.ref_with_mask_path)
-    tmp = imread(result.refpath); 
-    result.ref = tmp(:,:,1);
-    result.mask = tmp(:,:,3);
-else
-    if isfile(result.refpath)
-        result.ref = imread(result.refpath); 
-    else
-        result.ref = imadjust(uint16(squeeze(max(result.mov,[],4))));
-        imwrite(result.ref, result.refpath);
+    if ~strcmp(p,'q')
+        result.roi{roistart}.position = vposition;
+        if strcmp(p,'t')
+            result.roi{roistart}.BW = BW;
+            result.roi{roistart}.angle = angle;
+        elseif strcmp(p,'v')
+            result.roi{roistart}.BW = vertical_mask(BW);
+        end
+        ref = addroi(ref, BW);
+        roistart = roistart + 1;
     end
-    [result.mask, result.angle] = bwangle(result.ref);
-    create_ref_pic(result.ref_with_mask_path, result.ref, result.mask);
-end
-
-
-
-
-
-if ~isfile(result.ref_with_mask_path)
-    create_ref_pic(result.ref_with_mask_path, result.ref, result.mask);
-end
-
-% calculate the diameter frame by frame ==============================
-BW_rotated = imrotate(result.mask, result.angle);
-[r,c] = find(BW_rotated == 1);
-upper = min(r);
-lower = max(r);
-left = min(c);
-right = max(c);
-BW_rotated_crop = BW_rotated(upper:lower,left:right);
-weight_line = sum(BW_rotated_crop, 1);
-
-% I tried use batch and just single frame. I found if I define the
-% matrix before loop, sinle frame even faster than batch.
-
-% init matrix
-% in result mat file, we will store a map, each column represent blood 
-% vessel brightness averaged along vertical axis. All columns represent
-% the timeline. The following steps will analyse the map and output
-% each timepoint's diameter and left(lower) and right(upper) idx for the edge.
-
-% Besides mat file, it also create a tif represent the diameter
-% timeline response.
-print_per_frames = 1000;
-
-
-if isfile(result.topopath), delete(result.topopath); end
-if isfile(result.resultpath), delete(result.resultpath); end
-
-[nr,nc] = size(BW_rotated_crop);
-nf = length(result.mov);
-
-response_fig = zeros([nc,nf]);
-response_video = zeros([(lower-upper+1), (right-left+1), nf]);
-
-for i=1:nf
-
-    tmp = imrotate(squeeze(result.mov(:,:,1,i)), result.angle);
-    tmp = tmp(upper:lower,left:right) .* BW_rotated_crop; %double(tmp(upper:lower,left:right)) .* BW_rotated_crop;
-
-    response_fig(:,i) = sum(tmp, 1)./weight_line;
-    response_video(:,:,i) = tmp;
     
-    [tmpdiameter, edgeidx1, edgeidx2] = findEdge(response_fig(:,i));
-    result.diameter = [result.diameter, tmpdiameter];
-    result.edgeidx = [result.edgeidx; [edgeidx1, edgeidx2]];
-
-
-    if rem(i, print_per_frames) == 0
-        wd = [num2str(i), ' of ', num2str(nf), ' is done.'];
-        disp(wd);
-    end
-
 end
-% output the data to local folder
-disp('finished calculate the diameter values');
+close;
+imwrite(uint16(ref), result.ref_with_mask_path);
 
-% create_response_figure(result.response_fig_path, response_fig);
+disp('Finished choose roi. Start to calculate diameter array');
+
+% Calculate diameter ==============================================
+
+subplotnum = 2*length(result.roi);
+figure();
+for i = 1:length(result.roi)
+    if strcmp(result.roi{i}.position, 'horizontal')
+        [result.roi{i}.diameter, response_fig] = calculate_diameter(mx, result.roi{i}.BW, result.roi{i}.angle);
+    elseif strcmp(result.roi{i}.position, 'vertical')
+        [result.roi{i}.diameter, response_fig] = vertical_diameter_measure(mx, result.roi{i}.BW);
+    end
+    
+    subplot(subplotnum, 1, 2*i-1);
+    plot(result.roi{i}.diameter);
+    xlim([1,length(result.roi{i}.diameter)]);
+    
+    subplot(subplotnum, 1, 2*i);
+    imshow(imresize(uint16(response_fig),[100,1500])); % Right now just use manual way to define ratio. Need to change to a better way.
+    
+end
+
+saveas(gcf,result.response_fig_path);
+close;
+
+% output mov sample ===============================================
+samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
+samplemov = mx(:,:,:,1:samplemov_f);
+samplemov = reshape(samplemov, r,c,ch,output_mov_fbint,[]);
+samplemov = squeeze(mean(samplemov, 4));
+samplemov = uint16(reshape(samplemov, r,c,1,[]));
+mx2tif(samplemov, result.movpath);
+
 
 save(result.resultpath, 'result');
-
-%this function is to produce the edge map based on the index, but some
-%how I find sometimes it produce more rows than response_fig.
-%I need to add a check function in this function.
-edge_map = edge_idx_to_map(response_fig, result.edgeidx);
-create_response_figure(result.response_fig_path, response_fig, edge_map);
-
-fig = figure;
-plot(bint1D(medfilt1(result.diameter, fbin),fbin));
-savefig(fig,result.plotpath);
-    
 
 end
 

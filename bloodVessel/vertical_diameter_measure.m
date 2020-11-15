@@ -1,21 +1,27 @@
-function [diameter_value, mov, centroid] = vertical_diameter_measure(mx, varargin)
+function [diameter_value, response_fig, mov, centroid] = vertical_diameter_measure(mx, BW, varargin)
 
 parser = inputParser;
-addRequired(parser, 'pic', @isnumeric);
+addRequired(parser, 'rawmx', @(x) isnumeric(x) && (size(x,3) == 1));
+addRequired(parser, 'BW', @isnumeric);
 addParameter(parser, 'gaussianFilterSize', 4, @isnumeric);
 addParameter(parser, 'areaopenSize', 8, @isnumeric);
 addParameter(parser, 'ch', 1, @(x) isnumeric(x) && (x>0) && (x<3));
-parse(parser,mx, varargin{:});
+parse(parser,mx, BW, varargin{:});
 
 ch = parser.Results.ch;
 gaussianFilterSize = parser.Results.gaussianFilterSize;
 areaopenSize = parser.Results.areaopenSize;
-f = size(mx,4);
+
+[rr,cc] = find(BW);
+mxcrop = mx(min(rr):max(rr),min(cc):max(cc),:,:);
+f = size(mxcrop,4);
 diameter_value = zeros(1,f);
-mov = zeros(size(mx,1),size(mx,2),3,f);
-%mov(:,:,1,:) = mx;
+response_fig = zeros(size(mxcrop,1), f,3);
+mov = zeros(size(mxcrop,1),size(mxcrop,2),3,f);
+centroid = zeros(2,f);
+
 for i=1:f
-    x = imadjust(uint16(imgaussfilt(mx(:,:,ch,i),gaussianFilterSize)));
+    x = imadjust(uint16(imgaussfilt(mxcrop(:,:,ch,i),gaussianFilterSize)));
     b = imbinarize(x);
     b = bwareaopen(b,areaopenSize);
     [border,area] = bwboundaries(b,'noholes');
@@ -27,12 +33,19 @@ for i=1:f
         stats = stats(1);
     end
     
-    diameter_value(i) = sqrt(stats.Area / pi);
-    centroid = stats.Centroid;
-    mov(:,:,1,i) = x;
-    mov(:,:,3,i) = imadjust(edge_idx_to_map(area,border{1,1}', 'method', 'square'));
+    diameter_value(i) = 2 * sqrt(stats.Area / pi);
+    centroid(:,i) = stats.Centroid;
+    
+    mov(:,:,:,i) = repmat(x,[1,1,3]);
+    mov(:,:,3,i) = mov(:,:,3,i) + double(imadjust(edge_idx_to_map(area,border{1,1}', 'method', 'square')));
+    
+    response_fig(:,i,:) = mov(:,floor(centroid(2,i)),:,i);
 end
-mov = reshape(mov, size(mov,1), size(mov,2), []);
+
+response_fig = uint16(response_fig);
 mov = uint16(mov);
+
+mov = reshape(mov, size(mov,1), size(mov,2), []);
+
 
 end
