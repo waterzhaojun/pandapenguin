@@ -36,7 +36,8 @@ for i=1:f
     diameter_value(i) = 2 * sqrt(stats.Area / pi);
     centroid(:,i) = stats.Centroid;
     
-    mov(:,:,:,i) = repmat(x,[1,1,3]);
+    %mov(:,:,:,i) = repmat(x,[1,1,3]);
+    mov(:,:,1,i) = x;
     mov(:,:,3,i) = mov(:,:,3,i) + double(imadjust(edge_idx_to_map(area,border{1,1}', 'method', 'square')));
     
     response_fig(:,i,:) = mov(:,floor(centroid(2,i)),:,i);
@@ -45,7 +46,7 @@ end
 response_fig = uint16(response_fig);
 mov = uint16(mov);
 
-mov = reshape(mov, size(mov,1), size(mov,2), []);
+%mov = reshape(mov, size(mov,1), size(mov,2), []);
 
 
 end

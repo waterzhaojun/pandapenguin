@@ -1,4 +1,4 @@
-function output = optsbx2tif_3d(animalID, dateID, run, pmt, layers,varargin)
+function optsbx2tif_3d(animalID, dateID, run, pmt,varargin)
 % This function is to build 3D structure of selected pmt channel.
 p = inputParser;
 validScalarPosNum = @(x) isnumeric(x) && isscalar(x) && (x > 0);
@@ -6,9 +6,8 @@ addRequired(p, 'animalID', @ischar);
 addRequired(p, 'dateID', @ischar);
 addRequired(p, 'run', validScalarPosNum);
 addOptional(p, 'pmt', 0, @(x) any(validatestring(num2str(x),{'0','1'})));
-parse(p,animalID, dateID, run, varargin{:});
+parse(p,animalID, dateID, run, pmt, varargin{:});
 
-pmt = p.Results.pmt;
 if pmt == 0
     fnm = 'greenChl'; 
 else

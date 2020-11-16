@@ -16,7 +16,7 @@ smooth = parser.Results.smooth;
 output_mov_fbint = parser.Results.output_mov_fbint;
 
 % Prepare data matrix ================================================
-path = sbxPath(animal, date, run, 'sbx'); 
+path = sbxPath(animalID, dateID, run, 'sbx'); 
 inf = sbxInfo(path, true);
 z = inf.otparam(3);
 mx = mxFromSbxInfo(animalID, dateID, run, pmt);

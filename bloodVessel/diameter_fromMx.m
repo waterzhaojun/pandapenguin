@@ -78,7 +78,7 @@ while flag
         elseif strcmp(p,'v')
             result.roi{roistart}.BW = vertical_mask(BW);
         end
-        ref = addroi(ref, BW);
+        ref = addroi(ref, result.roi{roistart}.BW);
         roistart = roistart + 1;
     end
     
@@ -96,7 +96,7 @@ for i = 1:length(result.roi)
     if strcmp(result.roi{i}.position, 'horizontal')
         [result.roi{i}.diameter, response_fig] = calculate_diameter(mx, result.roi{i}.BW, result.roi{i}.angle);
     elseif strcmp(result.roi{i}.position, 'vertical')
-        [result.roi{i}.diameter, response_fig] = vertical_diameter_measure(mx, result.roi{i}.BW);
+        [result.roi{i}.diameter, response_fig, response_mov] = vertical_diameter_measure(mx, result.roi{i}.BW);
     end
     
     subplot(subplotnum, 1, 2*i-1);
