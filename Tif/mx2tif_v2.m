@@ -16,7 +16,7 @@ function mx2tif_v2(mx, path, varargin)
 parser = inputParser;
 addRequired(parser, 'mx');
 addRequired(parser, 'path', @ischar);
-addOptional(parser, 'color', ['r','g','b']); %, @(x) any(validatestring(x,{'r','g','b'})));
+addOptional(parser, 'color', {'r','g','b'}); %, @(x) any(validatestring(x,{'r','g','b'})));
 addOptional(parser, 'filetype', 'uint16', @(x) any(validatestring(x, {'uint16','uint8', 'double'})));
 parse(parser,mx, path, varargin{:});
 
@@ -28,30 +28,30 @@ if ndims(mx) == 3, mx = reshape(mx, size(mx,1),size(mx,2),1,size(mx,4)); end
 [r,c,ch,f] = size(mx);
     
 % pretreat the mx based on the color
-missc = [];
-allc = ['r','g','b'];
-colorlist = [];
-for i = 1:length(color)
-    if any(allc == color(i))
-        colorlist = [colorlist, find(allc == color(i))];
+if ch > 1
+    colorlist = [];
+    for i = 1:length(color)
+    %     if any(allc == color(i))
+    %         colorlist = [colorlist, find(allc == color(i))];
+    %     end
+        colorlist = [colorlist, find(color{i} == 'rgb')];
     end
+    if sum(colorlist) < 6, colorlist = [colorlist, 6-sum(colorlist)]; end
+    mx = mx(:,:,colorlist, :);
 end
 
+if ch > 1, filetype = 'uint8'; end
+
+if strcmp(filetype, 'uint8') && max(mx, [], 'all') > 255
+    mx = mx/255;
+end
+    
 mx = feval(filetype, mx);
 
+% produce the tiff
 if exist(path, 'file') == 2, delete(path); end
 
-% produce the tiff
 for i = 1:f
-    if ch == 1
-        imwrite(squeeze(mx(:,:,:,i)), path, 'WriteMode', 'append');
-    else
-        tmp = zeros(r,c,3);
-        for j = 1:ch
-            tmp(:,:,colorlist(j)) = uint8(mx(:,:,j,i));
-        end
-        imwrite(squeeze(mx(:,:,:,i)), path, 'WriteMode', 'append');
-    end
-    % the follow part may rewrite to a shorter version.
+    imwrite(squeeze(mx(:,:,:,i)), path, 'WriteMode', 'append');
     loopNotice(i,f);
 end
