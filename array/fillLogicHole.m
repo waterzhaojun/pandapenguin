@@ -7,10 +7,15 @@ for i = 1:gap
     tap = ['1', repmat('  0', 1, i), '  1'];
     newtap = ['1', repmat('  1', 1, i), '  1'];
     strarray = strrep(strarray, tap, newtap);
+    % This extra treatment is for 2016a version as when met 1 0 0 1 0 0 1 it
+    % will produce 1 1 1 11 1 1 1.
+    strarray = strrep(strarray, '11', '1');
 end
 
 
+
 result = strsplit(strarray, '  ');
-result = double(string(result));
+result = cellfun(@str2num, result(:));
+%result = double(string(result)); % string is only available after 2016b
 
 end

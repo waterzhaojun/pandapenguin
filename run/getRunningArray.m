@@ -4,6 +4,7 @@ parser = inputParser;
 addRequired(parser, 'path', @ischar );
 addParameter(parser, 'bint', 1, @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'deshake', 1, @islogical);
+addParameter(parser, 'absvalue', 0, @islogical); %Usually I think keep negative value is necessary. If you want just abs value, set it to 1;
 parse(parser,path, varargin{:});
 
 array = load(path);
@@ -13,6 +14,9 @@ array = array(2:end) - array(1:end-1);
 if parser.Results.deshake
     array = deshake(array);
 end
+
+if parser.Results.absvalue
+    array = abs(array);
 
 if parser.Results.bint > 1
     tmp = floor(length(array) / parser.Results.bint) * parser.Results.bint;
