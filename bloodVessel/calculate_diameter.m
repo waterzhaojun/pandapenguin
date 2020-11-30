@@ -34,8 +34,10 @@ edge_idx_of_line = zeros([2, size(raw_res_fig,2)]);
 for i=1:size(raw_res_fig,2)
     [diameter_value(1, i), edge_idx_of_line(1, i), edge_idx_of_line(2, i)] = findEdge(raw_res_fig(:,i));
 end
-
-edge_map = edge_idx_to_map(raw_res_fig, edge_idx_of_line);
+% edge_idx_of_line output is a 2xn matrix. So we need to transform it to a
+% nx2 matrix. column is x and y.
+tmp_edge_line = cat(2,[edge_idx_of_line(1,:); 1:size(edge_idx_of_line,2)],[edge_idx_of_line(2,:); 1:size(edge_idx_of_line,2)]);
+edge_map = edge_idx_to_map(raw_res_fig, tmp_edge_line, 'method', 'vertical');
 response_fig = zeros([size(raw_res_fig),3]);
 response_fig(:,:,1) = imadjust(uint16(raw_res_fig));
 response_fig(:,:,3) = imadjust(uint16(edge_map));

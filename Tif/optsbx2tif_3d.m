@@ -19,12 +19,12 @@ inf = sbxInfo(path, true);
 if inf.nchan == 1, pmt = 0; end
 pmt = pmt + 1;
 z = inf.otparam(3);
-
+disp('start to load matrix...');
 mx = mxFromSbxPath(path);
 [r,c,ch,f] = size(mx);
+disp(['original size ', num2str(r), 'x',num2str(c),'x',num2str(ch),'x',num2str(f)]);
 mx = mx(:,:,pmt,1:floor(f/z)*z);
 [r,c,ch,f] = size(mx);
-
 mx = squeeze(mean(reshape(mx, r,c,ch,z,f/z),5));
 mx = reshape(mx, r,c,ch,z);
 

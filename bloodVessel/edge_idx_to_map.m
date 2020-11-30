@@ -13,7 +13,7 @@ border = floor(parser.Results.border / 2);
 
 edgemap = zeros(r,c);
 for i = 1:size(edge_idxes,2)
-    edgemap(edge_idxes(1,i), edge_idxes(2,i)) = 1;
+    edgemap(edge_idxes(1,i),edge_idxes(2,i)) = 1;
 end
 
 if any(strcmp(method, {'vertical', 'square'}))
