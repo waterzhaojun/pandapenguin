@@ -1,5 +1,5 @@
 function path = get_2p_file_path(animalID, date, run, filetype, keyword)
-
+% not sure I ever used this function
 root = rootpath('2p');
 
 level1 = strcat(date, '_', animalID);

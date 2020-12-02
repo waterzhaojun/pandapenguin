@@ -36,20 +36,20 @@ if ~exist(path, 'dir')
 end
 
 result = struct();
-result.movpath = [path,'mov.tif'];
-result.refpath = [path,'ref.tif'];
-result.ref_with_mask_path = [path, 'ref_with_mask.tif'];
-result.resultpath = [path, 'result.mat'];
-result.response_fig_path = [path, 'response.pdf'];
+result.movpath = 'mov.tif';
+result.refpath = 'ref.tif';
+result.ref_with_mask_path = 'ref_with_mask.tif';
+result.resultpath = 'result.mat';
+result.response_fig_path = 'response.pdf';
 
 result.roi = {};
 
 % build reference ================================================
 if isfile(result.refpath)
-    ref = imread(result.refpath); 
+    ref = imread([path,result.refpath]); 
 else
     ref = imadjust(uint16(squeeze(max(mx,[],4))));
-    imwrite(ref, result.refpath);
+    imwrite(ref, [path,result.refpath]);
 end
 
 % build mask =====================================================
@@ -84,7 +84,7 @@ while flag
     
 end
 close;
-imwrite(uint16(ref), result.ref_with_mask_path);
+imwrite(uint16(ref), [path,result.ref_with_mask_path]);
 
 disp('Finished choose roi. Start to calculate diameter array');
 
@@ -97,8 +97,8 @@ for i = 1:length(result.roi)
         [result.roi{i}.diameter, response_fig] = calculate_diameter(mx, result.roi{i}.BW, result.roi{i}.angle);
     elseif strcmp(result.roi{i}.position, 'vertical')
         [result.roi{i}.diameter, response_fig, response_mov] = vertical_diameter_measure(mx, result.roi{i}.BW);
-        result.roi{i}.response_mov_path= [path,'roi_', num2str(i),'_response_mov.tif'];
-        mx2tif_v2(uint8(response_mov/256), result.roi{i}.response_mov_path);
+        result.roi{i}.response_mov_path= ['roi_', num2str(i),'_response_mov.tif'];
+        mx2tif_v2(uint8(response_mov/256), [path,result.roi{i}.response_mov_path]);
     end
     
     subplot(subplotnum, 1, 2*i-1);
@@ -110,7 +110,7 @@ for i = 1:length(result.roi)
     
 end
 
-saveas(gcf,result.response_fig_path);
+saveas(gcf,[path,result.response_fig_path]);
 close;
 
 % output mov sample ===============================================
@@ -122,10 +122,10 @@ if output_mov_fbint > 1
     mx = reshape(mx, r,c,ch,[]);
 end
 mx = uint16(mx);
-mx2tif(mx, result.movpath);
+mx2tif(mx, [path,result.movpath]);
 
 
-save(result.resultpath, 'result');
+save([path,result.resultpath], 'result');
 
 end
 
