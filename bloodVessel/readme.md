@@ -6,3 +6,10 @@ The function of diameter.m will create a result.mat file to store diameter chang
 
 After the diameter analysis, run set_vessel_type.m to set each roi's vessel type. If you want to edit redefined roi, just run the code again.
 
+## 12/2/2020
+I am thinking maybe seperate the analysis to different steps will be better. One step error wont' let you run the whole process again. And it is easier to debug each step. The steps are designed as below:
+
+1. check 3D structure (if it is optune). find the best layers. Use optsbx2tif_3d for this step.
+2. extract matrix by using diameter_prepare_mx. You need to bint the matrix to 1hz if you did single plate recording. otherwise there will be a big tif file which will cause error.
+3. build reference and mask by diameter_build_refmask. 
+4. analyze result.roi by diameter_analysis.

@@ -7,6 +7,8 @@ function diameter_fromMx(mx, path, varargin)
 % If the target is vessel trunk, use default vesselType. If it is dive
 % part, set vesselType to 'dive'.
 % sometimes the video is too noise, then you can set smooth > 0
+% This function is mainly used to first time analysis or reset analysis. If
+% you just want to add more roi in, please use other function.
 
 parser = inputParser;
 addRequired(parser, 'mx', @(x) isnumeric(x) && (size(x,3)== 1) );
@@ -35,14 +37,7 @@ if ~exist(path, 'dir')
    mkdir(path)
 end
 
-result = struct();
-result.movpath = 'mov.tif';
-result.refpath = 'ref.tif';
-result.ref_with_mask_path = 'ref_with_mask.tif';
-result.resultpath = 'result.mat';
-result.response_fig_path = 'response.pdf';
-
-result.roi = {};
+result = bv_file_system();
 
 % build reference ================================================
 if isfile(result.refpath)
@@ -98,7 +93,7 @@ for i = 1:length(result.roi)
     elseif strcmp(result.roi{i}.position, 'vertical')
         [result.roi{i}.diameter, response_fig, response_mov] = vertical_diameter_measure(mx, result.roi{i}.BW);
         result.roi{i}.response_mov_path= ['roi_', num2str(i),'_response_mov.tif'];
-        mx2tif_v2(uint8(response_mov/256), [path,result.roi{i}.response_mov_path]);
+        mx2tif(uint8(response_mov/256), [path,result.roi{i}.response_mov_path]);
     end
     
     subplot(subplotnum, 1, 2*i-1);

@@ -40,6 +40,8 @@ for i = 1:size(source, 1)
    end
    tmp = strsplit(source{i,1},'\');
    tmp = [tmp{end-3},'\',tmp{end-2},'\',tmp{end-1},'\',tmp{end},'\'];
+   tmpid = source{i,2};
+   result.source = cat(1,{tmp,tmpid});
 end
    
 % output movie.
