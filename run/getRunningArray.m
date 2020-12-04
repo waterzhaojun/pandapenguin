@@ -9,7 +9,7 @@ parse(parser,path, varargin{:});
 
 array = load(path);
 array = double(array.quad_data);
-array = array(2:end) - array(1:end-1);
+array = diff([0,array]);%array(1:end) - [0,array(1:end-1)];
 
 if parser.Results.deshake
     array = deshake(array);
@@ -19,9 +19,10 @@ if parser.Results.absvalue
     array = abs(array);
 
 if parser.Results.bint > 1
-    tmp = floor(length(array) / parser.Results.bint) * parser.Results.bint;
-    array = reshape(array(1:tmp), parser.Results.bint, []);
-    array = sum(array, 1);
+%     tmp = floor(length(array) / parser.Results.bint) * parser.Results.bint;
+%     array = reshape(array(1:tmp), parser.Results.bint, []);
+%     array = sum(array, 1);
+    array = bint1D(array,bint,'method','sum');
 end
 
 

@@ -1,8 +1,8 @@
 function output = bint1D(vec, bin, varargin)
 % this function bin the 1D vector with bin parameter
 parser = inputParser;
-addRequired(parser, 'vec', @ischar );
-addRequired(parser, 'bin', @ischar );
+addRequired(parser, 'vec', @isnumeric );
+addRequired(parser, 'bin', @isnumeric );
 addParameter(parser, 'method', 'mean');
 parse(parser,vec,bin,varargin{:});
 
