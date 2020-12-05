@@ -9,7 +9,7 @@ root = sbxDir(animal, date, run);
 root = root.runs{1}.path;
 root = correct_folderpath([correct_folderpath(root), 'running']);
 if ~exist(root, 'dir')
-   mkdir(root)
+   mkdir(root);
 end
 
 path = sbxPath(animal, date, run, 'quad'); 
@@ -22,6 +22,7 @@ end
 
 result = struct();
 result.array = getRunningArray(path);
+result.scanrate = scanrate;
 [tmp, result.secarray] = get_bout(result.array, scanrate);
 result.bout = tmp.bout;
 
@@ -30,7 +31,7 @@ plot(result.secarray);
 hold on
 for i = 1:length(result.bout)
     boutstart = max(result.bout{i}.startsec-1, 1);
-    boutend = min(result.bout{i}.endsec+1, length(result.array));
+    boutend = min(result.bout{i}.endsec+1, floor(length(result.array)/scanrate));
     direction = result.bout{i}.direction;
     if direction == 1
         plot([boutstart:boutend], result.secarray(boutstart:boutend),'color','green')
@@ -39,7 +40,7 @@ for i = 1:length(result.bout)
     end
 end
 hold off
-saveas(gcf,[root, 'response.pdf'])
+saveas(gcf,[root, 'response.pdf']);
 close;
 
 % save result ========================================================

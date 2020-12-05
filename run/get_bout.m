@@ -7,16 +7,17 @@ addParameter(parser, 'duration', 2, @(x) isnumeric(x) && isscalar(x) && (x>0)); 
 addParameter(parser, 'threshold', 1, @(x) isnumeric(x) && isscalar(x) && (x>0)); % The threshold of blocks ran in one sec to be considered as running.
 
 parse(parser,array, varargin{:});
-srate = parser.Results.scanrate
+srate = parser.Results.scanrate;
 
 % recordlength = floor(length(array) / srate) * srate;
 % array_sec = reshape(abs(array(1:recordlength)), srate, []);
 % array_sec = sum(array_sec, 1);
-array_sec = bint1D(array, srate, 'method', 'sum');
+array_sec = bint1D(abs(array), srate, 'method', 'sum');
 bintarray = (array_sec >= parser.Results.threshold) *1;
 bintarray = fillLogicHole(bintarray, parser.Results.gap);
 bintarray = fillLogicHole(bintarray, parser.Results.duration, 'reverse',1);
 result=struct();
+result.bout = {};
 boutstart = 1;
 flag = 0;
 array1 = [0, bintarray, 0];
@@ -31,11 +32,22 @@ for i = 2:length(array1)
     end
 end
 
+% The following part is mainly because I find still some short array are
+% defined as bout. So I add this line to exclude them.
+tmplist = [];
+for i = 1:length(result.bout)
+    if result.bout{i}.endsec - result.bout{i}.startsec >=2
+        tmplist = [tmplist,i];
+    end
+end
+result.bout = result.bout(tmplist);
+% ==================================================
+
 for i = 1:length(result.bout)
     startidx = (result.bout{i}.startsec - 1) * parser.Results.scanrate +1;
-    endidx = result.bout{i}.endsec * parser.Results.scanrate;
+    endidx = min(result.bout{i}.endsec * parser.Results.scanrate, length(array));
     tmparray = array(startidx:endidx);
-    
+
     tmpidx = find(abs(tmparray) > 0);  % Not sure if 0 is good here. Need to edit based on threshold later.
     result.bout{i}.startidx = startidx + min(tmpidx) - 1;
     result.bout{i}.endidx = startidx + max(tmpidx) - 1;
@@ -50,7 +62,7 @@ for i = 1:length(result.bout)
         result.bout{i}.direction = 1;
     end
     result.bout{i}.maxspeed = max(abs(result.bout{i}.array)) * parser.Results.scanrate / result.bout{i}.duration;
-    
+
     % The following part is to calculate acceleration based 1hz array. I don't sure if 1hz is better than original rate.
     % Be careful I used absolute value here.
     % The max acceleration is used for this bout's acceleration. The

@@ -37,6 +37,7 @@ if z > 1
 end
 
 % Prepare output path ===================================================
+bvfilesys = bv_file_system();
 bvpath = [correct_folderpath(fileparts(path)),'bv'];
 if ~exist(bvpath, 'dir')
    mkdir(bvpath)
@@ -53,6 +54,21 @@ outputpath = [correct_folderpath(bvpath), foldername];
 diameter_fromMx(mx, outputpath, 'output_mov_fbint', output_mov_fbint, ...
     'smooth', smooth);
 
+% add some extra info in ===========================================
+result = load([correct_folderpath(outputpath), bvfilesys.resultpath]);
+result = result.result;
+if inf.scanmode == 1
+    tmpscanrate = 15;
+elseif inf.scanmode == 2
+    tmpscanrate = 31;
+end
+if length(inf.otparam) == 3
+    tmplayers = inf.otparam(3);
+else
+    tmplayers = 1; % if it is single layer, set z to 1.
+end
+result.scanrate = tmpscanrate / tmplayers;
+save([correct_folderpath(outputpath), bvfilesys.resultpath], 'result');
 
 end
 
