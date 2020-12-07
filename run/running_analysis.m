@@ -6,7 +6,7 @@ addRequired(parser, 'run', @isnumeric);
 parse(parser, animal, date, run, varargin{:});
 
 root = sbxDir(animal, date, run);
-root = root.runs{1}.path;
+root = root.runs{1}.path
 root = correct_folderpath([correct_folderpath(root), 'running']);
 if ~exist(root, 'dir')
    mkdir(root);

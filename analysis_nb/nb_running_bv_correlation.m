@@ -8,18 +8,68 @@ list = {
     'CGRP02','201117',1;'CGRP02','201117',2;'CGRP02','201117',3;'CGRP02','201117',4;...
     'CGRP02','201119',1;'CGRP02','201119',2;'CGRP02','201119',3;...
     
-    'CGRP03','201109',1;'CGRP03','201109',2;...
+    %'CGRP03','201109',1;'CGRP03','201109',2;...
     'CGRP03','201116',1;'CGRP03','201116',2;'CGRP03','201116',3;'CGRP03','201116',4;'CGRP03','201116',5;'CGRP03','201116',6;...
     'CGRP03','201118',1;'CGRP03','201118',2;'CGRP03','201118',3;'CGRP03','201118',4;'CGRP03','201118',5;'CGRP03','201118',6;'CGRP03','201118',7;...
     'CGRP03','201120',1;...
     
     'WT01','201111',1;'WT01','201111',2;'WT01','201111',3;'WT01','201111',4;...
-    'WT01','201117',1;'WT01','201117',2;'WT01','201117',3;'WT01','201117',4;'WT01','201117',5;'WT01','201117',6;...
+    %'WT01','201117',1;...
+    'WT01','201117',2;'WT01','201117',3;'WT01','201117',4;'WT01','201117',5;'WT01','201117',6;...
     'WT01','201119',1;'WT01','201119',2;'WT01','201119',3;'WT01','201119',4;'WT01','201119',5;...
-    'WT01','201124',1;'WT01','201124',2;'WT01','201124',3;'WT01','201124',4;...
-    'WT01','201125',1;'WT01','201125',2;...
+    %'WT01','201124',1;'WT01','201124',2;'WT01','201124',3;'WT01','201124',4;...
+    %'WT01','201125',1;'WT01','201125',2;...
     }
 
+CGRPlist = {
+    'CGRP02','201110',2;'CGRP02','201110',3;...
+    'CGRP03','201109',1;'CGRP03','201109',2;...
+    }
+controllist = {
+    'WT01','201111',1;'WT01','201111',2;'WT01','201111',3;'WT01','201111',4;...
+    }
+
+saveroot = 'D:\Jun\tmp\coor\';
+cgrpbaseline = tmpfunction(CGRPlist);
+controlbaseline = tmpfunction(controllist);
+
+% add filter here
+%filt = {'direction == 1'};
+%cgrpbaseline = boutFilter(cgrpbaseline, filt);
+%controlbaseline = boutFilter(controlbaseline, filt);
+
+
+results = {cgrpbaseline, controlbaseline};
+keys = {'speed', 'diameter_maxdff_in_5sec'};
+titles = {'speed','diameter max changes'};
+groups = {'CGRP baseline', 'wild type baseline'};
+plotCorrelationFig(results, keys, titles, groups,...
+    [saveroot, groups{1}, ' vs ', groups{2}, ' -- ', titles{1}, ' ', titles{2},'.pdf']...
+    );
+
+keys = {'maxspeed', 'diameter_maxdff_in_5sec'};
+titles = {'maxspeed','diameter max changes'};
+groups = {'CGRP baseline', 'wild type baseline'};
+plotCorrelationFig(results, keys, titles, groups,...
+    [saveroot, groups{1}, ' vs ', groups{2}, ' -- ', titles{1}, ' ', titles{2},'.pdf']...
+    );
+
+keys = {'acceleration', 'diameter_maxdff_in_5sec'};
+titles = {'acceleration','diameter max changes'};
+groups = {'CGRP baseline', 'wild type baseline'};
+plotCorrelationFig(results, keys, titles, groups,...
+    [saveroot, groups{1}, ' vs ', groups{2}, ' -- ', titles{1}, ' ', titles{2},'.pdf']...
+    );
+
+keys = {'duration', 'diameter_maxdff_in_5sec'};
+titles = {'duration','diameter max changes'};
+groups = {'CGRP baseline', 'wild type baseline'};
+plotCorrelationFig(results, keys, titles, groups,...
+    [saveroot, groups{1}, ' vs ', groups{2}, ' -- ', titles{1}, ' ', titles{2},'.pdf']...
+    );
+
+
+%% function for this notebook
 % some setting ==========================================================
 baseline_sec = 2; % For each bout, get 2 sec pre data as baseline
 
@@ -64,18 +114,6 @@ for st = 1:size(list,1)
                 % get idx and arrays
                 result.bout{startidx}.startidx = tmpstartidx;
                 result.bout{startidx}.endidx = tmpendidx;
-                result.bout{startidx}.running_array = tmp_running_array(tmpstartidx:tmpendidx);
-                result.bout{startidx}.bv_array = bvresult.roi{k}.diameter(tmpstartidx:tmpendidx);
-                baselinelength = baseline_sec * runscanrate/bintrate;
-                if baselinelength < tmpstartidx
-                    result.bout{startidx}.running_array_prebaseline = tmp_running_array((tmpstartidx-baselinelength):(tmpstartidx-1));
-                    result.bout{startidx}.bv_array_prebaseline = bvresult.roi{k}.diameter((tmpstartidx-baselinelength):(tmpstartidx-1));
-                else
-                    extrapoint = tmpstartidx - baselinelength +1;
-                    result.bout{startidx}.running_array_prebaseline = [zeros(1,extrapoint), tmp_running_array(1:(tmpstartidx-1))];
-                    extrabvbl = mean(bvresult.roi{k}.diameter(1:(tmpstartidx-1)));
-                    result.bout{startidx}.bv_array_prebaseline = [repmat(extrabvbl, 1,extrapoint), bvresult.roi{k}.diameter(1:(tmpstartidx-1))];
-                end
                 
                 % get running characters
                 result.bout{startidx}.distance = running.bout{i}.distance;
@@ -85,14 +123,30 @@ for st = 1:size(list,1)
                 result.bout{startidx}.direction = running.bout{i}.direction;
                 result.bout{startidx}.acceleration = running.bout{i}.acceleration;
                 result.bout{startidx}.acceleration_delay = running.bout{i}.acceleration_delay;
+                tmp = character_analysis_1D(tmp_running_array, tmpstartidx, tmpendidx, bvscanrate, baseline_sec,'dff',false);
+                result.bout{startidx}.running_array = tmp.response_array;
 
                 % get diameter
-                result.bout{startidx}.diameter_baseline = mean(result.bout{startidx}.bv_array_prebaseline);
-                result.bout{startidx}.diameter_maxdff_in_10sec = bvresult.roi{k}.diameter(tmpstartidx:
+                tmp = character_analysis_1D(bvresult.roi{k}.diameter, tmpstartidx,tmpendidx, bvscanrate, baseline_sec, 'analyze_response_secrange', [0,10]);
+                result.bout{startidx}.diameter_baseline = tmp.baseline;
+                result.bout{startidx}.diameter_maxdff_in_10sec = tmp.response_max;
+                
+                startidx = startidx+1;
             end
         end
     end
         
     
 end
-   
+
+
+% ========================================================================
+% plot part
+x = [];
+y = [];
+for i = 1:length(result.bout)
+    x = [x,result.bout{i}.speed];
+    y = [y,result.bout{i}.diameter_maxdff_in_10sec];
+end
+scatter(x,y);
+
