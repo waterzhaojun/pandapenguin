@@ -1,12 +1,12 @@
-function refmap = addroi(ref, newroi, text, varargin)
+function refmap = addroi(ref, newroi, varargin)
 p = inputParser;
 addRequired(p, 'ref');
 addRequired(p, 'newroi');
-addOptional(p, 'text', '');
+addOptional(p, 'text', '', @ischar);
 addParameter(p, 'alpha', 0.4, @(x) isnumeric(x) && (x >= 0) && (x <= 1));
 addParameter(p, 'color', 'b', @(x) any(validatestring(x,{'r', 'g', 'b'})));
-parse(p,ref, newroi, text, varargin{:});
-
+parse(p,ref, newroi, varargin{:});
+text = p.Results.text;
 alpha = p.Results.alpha;
 switch p.Results.color
     case 'r'
