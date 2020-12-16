@@ -6,12 +6,11 @@ addRequired(parser, 'animalID', @ischar );
 addRequired(parser, 'dateID', @ischar);
 addRequired(parser, 'run', @(x) isnumeric(x) && isscalar(x) && (x>0));
 addOptional(parser, 'pmt', 0, @(x) isnumeric(x) && isscalar(x) && (x>=0) && (x<2));
-addOptional(parser, 'layer', 'all');
+addOptional(parser, 'layer', 'all',@isnumeric);
 addParameter(parser, 'smooth', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
 %addParameter(parser, 'output_mov_fbint', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
 %addParameter(parser, 'output_response_fig_width', 1000, @(x) isnumeric(x) && isscalar(x) && (x > 0)); % The output is not exactly 1000px, but close to 1000 based on the bint size.
 parse(parser,animalID, dateID, run, varargin{:});
-
 pmt = parser.Results.pmt;
 layer = parser.Results.layer;
 smooth = parser.Results.smooth;
