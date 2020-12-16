@@ -34,7 +34,7 @@ function optsbx2tif(animalID, dateID, run, varargin)
     
     inf = sbxInfo(path, true);
 
-    %if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
+    if ~isfield(inf, 'volscan') || length(inf.otwave)<2, error('This function is only used for read whole opto frames.'); end
 
     % Set frames
     N = inf.max_idx + 1; 

@@ -18,6 +18,10 @@ path = sbxPath(animalID, dateID, run, 'sbx');
 inf = sbxInfo(path, true);
 if inf.nchan == 1, pmt = 0; end
 pmt = pmt + 1;
+
+if inf.volscan == 0
+    error('This sbx file is not z stack scanned.');
+end
 z = inf.otparam(3);
 disp('start to load matrix...');
 mx = mxFromSbxPath(path);

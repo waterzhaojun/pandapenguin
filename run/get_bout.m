@@ -1,27 +1,35 @@
-function [result, array_sec] = get_bout(array, scanrate, varargin)
+function [result, array_sec] = get_bout(array, varargin)
 parser = inputParser;
 addRequired(parser, 'array', @isnumeric ); % This array must be deshaked.
 addOptional(parser, 'scanrate', 15, @(x) isnumeric(x) && isscalar(x) && (x>0));
-addParameter(parser, 'gap', 2, @(x) isnumeric(x) && isscalar(x) && (x>0)); % how many seconds of gap to be considered as the end of the bout.
-addParameter(parser, 'duration', 2, @(x) isnumeric(x) && isscalar(x) && (x>0)); % how many seconds at least to be considered as a bout.
-addParameter(parser, 'threshold', 1, @(x) isnumeric(x) && isscalar(x) && (x>0)); % The threshold of blocks ran in one sec to be considered as running.
+% addParameter(parser, 'gap', 2, @(x) isnumeric(x) && isscalar(x) && (x>0)); % how many seconds of gap to be considered as the end of the bout.
+% addParameter(parser, 'duration', 2, @(x) isnumeric(x) && isscalar(x) && (x>0)); % how many seconds at least to be considered as a bout.
+% addParameter(parser, 'threshold', 1, @(x) isnumeric(x) && isscalar(x) && (x>0)); % The threshold of blocks ran in one sec to be considered as running.
 
 parse(parser,array, varargin{:});
 srate = parser.Results.scanrate;
+
+config = run_config();
+direction_threshold = config.bout_direction_percent_threshold;
+duration_threshold = config.bout_duration_threshold;
+gap_threshold = config.bout_gap_duration_threshold;
+distance_threshold = config.bout_sec_distance_threshold;
 
 % recordlength = floor(length(array) / srate) * srate;
 % array_sec = reshape(abs(array(1:recordlength)), srate, []);
 % array_sec = sum(array_sec, 1);
 array_sec = bint1D(abs(array), srate, 'method', 'sum');
-bintarray = (array_sec >= parser.Results.threshold) *1;
-bintarray = fillLogicHole(bintarray, parser.Results.gap);
-bintarray = fillLogicHole(bintarray, parser.Results.duration, 'reverse',1);
+bintarray = (array_sec >= distance_threshold) *1;
+bintarray = fillLogicHole(bintarray, gap_threshold);
+bintarray = fillLogicHole(bintarray, duration_threshold, 'reverse',1);
 result=struct();
 result.bout = {};
 boutstart = 1;
 flag = 0;
 array1 = [0, bintarray, 0];
-for i = 2:length(array1)
+% I didn't let the loop start from 2 as I think the beginning bout need to
+% have enough rest time before start.
+for i = (gap_threshold+1):length(array1) 
     if prod(array1(i-1:i) == [0 1]) && ~flag
         result.bout{boutstart}.startsec = i-1;
         flag = 1;
@@ -44,8 +52,8 @@ result.bout = result.bout(tmplist);
 % ==================================================
 
 for i = 1:length(result.bout)
-    startidx = (result.bout{i}.startsec - 1) * parser.Results.scanrate +1;
-    endidx = min(result.bout{i}.endsec * parser.Results.scanrate, length(array));
+    startidx = (result.bout{i}.startsec - 1) * srate +1;
+    endidx = min(result.bout{i}.endsec * srate, length(array));
     tmparray = array(startidx:endidx);
 
     tmpidx = find(abs(tmparray) > 0);  % Not sure if 0 is good here. Need to edit based on threshold later.
@@ -55,13 +63,14 @@ for i = 1:length(result.bout)
     result.bout{i}.distance = sum(abs(result.bout{i}.array));
     result.bout{i}.duration = length(result.bout{i}.array)/srate;
     result.bout{i}.speed = result.bout{i}.distance / result.bout{i}.duration;
-    tmp = sum(result.bout{i}.array);
-    if tmp <= 0
-        result.bout{i}.direction = -1;
-    else
-        result.bout{i}.direction = 1;
-    end
-    result.bout{i}.maxspeed = max(abs(result.bout{i}.array)) * parser.Results.scanrate / result.bout{i}.duration;
+%     tmp = sum(result.bout{i}.array);
+%     if tmp <= 0
+%         result.bout{i}.direction = -1;
+%     else
+%         result.bout{i}.direction = 1;
+%     end
+    result.bout{i}.direction = identify_running_direction(result.bout{i}.array, direction_threshold);
+    result.bout{i}.maxspeed = max(abs(result.bout{i}.array)) * srate / result.bout{i}.duration;
 
     % The following part is to calculate acceleration based 1hz array. I don't sure if 1hz is better than original rate.
     % Be careful I used absolute value here.
