@@ -31,8 +31,32 @@ params.err = [1, 0.05];
 movingwin=[1,1];
 [S,t,f,Serr] = mtspecgramc( 1000*test1, movingwin, params );
 S = flip(S',1);
-heatmap(log(S),'GridVisible','off','Colormap', summer);
+heatmap(log(S),'GridVisible','off','Colormap', jet);
 
+params = struct();
+params.tapers = [0.5,10,9];%unit is s and hz for two paras, the third para is 2TW-1
+params.Fs = 1000;
+params.fpass = [0,100];
+params.err = [1, 0.05];
+movingwin=[1,1];
+a = V201216_afterCSD_Ch4.values;
+aa = downsample(a, 10);
+[S,t,f,Serr] = mtspecgramc( aa, movingwin, params );
+S = flip(S',1);
+h = heatmap(log(S),'GridVisible','off','Colormap', jet);
+xticks = repmat(true, 1, size(S,2));
+h.XDisplayLabels(xticks) = {''};
+label = [5,10,15,20,25];
+xticks = repmat(false, 1, size(S,2));
+xticks([1,label * 60]) = true;
+h.XDisplayLabels(xticks) = {-5, 0, 5,10,15,20};
+h.YDisplayLabels(repmat(true, 1, size(S,1))) = {''};
+
+
+mx = [1,2,3,4;4,5,6,7;1,2,3,4;4,5,6,7;];
+h = heatmap(mx);
+h.XDisplayLabels([true, false, true, false]) = {5,3};
+h.XDisplayLabels([false, true, false, true]) = {''};
 
 control = {[rootpath,'lfp2018040401.csv'], 180300; [rootpath,'lfp2018042701.csv'], 569693;};
 flct = {[rootpath,'lfp2018041001.csv'], 364690; [rootpath,'lfp2018042401.csv'], 390036; [rootpath,'lfp2018061301.csv'], 636192; [rootpath,'lfp2018042501.csv'], 749580;};
