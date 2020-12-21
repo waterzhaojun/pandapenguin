@@ -198,7 +198,7 @@ for i=1:length(df)
             mx = cat(1, mx, tmp);
         end
     catch
-        disp(df{i}.animal, df{i}.date, df{i}.run);
+        disp([df(i).animal,'-', df(i).date, '-', num2str(df(i).run)]);
     end
 end
 % 
@@ -244,5 +244,5 @@ end
 % If you plot mx' here, you can see all the timecourse.
 
 meantl = mean(mx, 1);
-stdtl = std(mx,1);
+stdtl = std(mx,1)/sqrt(size(mx,1));
 errorbar(meantl, stdtl);
