@@ -14,5 +14,5 @@ I am thinking maybe seperate the analysis to different steps will be better. One
 1. check 3D structure (if it is optune). find the best layers. Use optsbx2tif_3d for this step.
 2. extract matrix by using diameter_prepare_mx. By default it will produce a 1hz or less than 1hz sample mov.
 3. build reference and mask by diameter_build_refmask. 
-4. use set_scanrate to set bv scanrate for each layer's result.
-4. analyze result.roi by diameter_analysis.
+4. use set_scanrate to set bv scanrate for each layer's result. You can pass this step if you just rerun the analysis.
+5. analyze result.roi by diameter_analysis.
