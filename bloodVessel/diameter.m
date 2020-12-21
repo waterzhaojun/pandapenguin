@@ -19,11 +19,7 @@ smooth = parser.Results.smooth;
 % Prepare data matrix and output bint =====================================
 path = sbxPath(animalID, dateID, run, 'sbx'); 
 inf = sbxInfo(path, true);
-if inf.volscan == 1
-    z = inf.otparam(3);
-else
-    z = 1; % if it is single layer, set z to 1.
-end
+z = check_scan_layers(inf);
 mx = mxFromSbxInfo(animalID, dateID, run, pmt);
 [r,c,ch,f] = size(mx);
 if z > 1
@@ -70,12 +66,8 @@ if inf.scanmode == 1
 elseif inf.scanmode == 2
     tmpscanrate = 31;
 end
-if inf.volscan == 1
-    tmplayers = inf.otparam(3);
-else
-    tmplayers = 1; % if it is single layer, set z to 1.
-end
-result.scanrate = tmpscanrate / tmplayers;
+
+result.scanrate = tmpscanrate / check_scan_layers(inf);
 save([correct_folderpath(outputpath), bvfilesys.resultpath], 'result');
 
 end

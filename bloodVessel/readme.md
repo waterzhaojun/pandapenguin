@@ -1,3 +1,5 @@
+bvfiles: extract folder paths based on animal, date, run.
+
 We use Scanbox as our 2P recording system. It create a sbx file to store the data from one or two pmt channels. After recording, we need to convert the sbx file to Tif. Check how’s your experiment. You can do alignment but it is not necessary. 
 
 We use MatLab function diameter.m to calculate the diameter changes. This function will load the Tif file and produce a reference image by using max value (After calculation it will be saved to the same folder named ref.jpg). You need to draw a roi by counterclockwise sequence. In short, mark the left point, then the right side, then the second right side, then the left side, then the first point as an end. The roi should be as vertical to the vessel as possible. Once roi is defined, the function will rotate the image and calculate the mean vertically, then calculate the diameter by findEdge.m function, which calculate maximum and minimum values of the two sides after smoothing, and find the point below 50% of this difference as the edge of the vessel.

@@ -33,7 +33,7 @@ controllist = {
     'WT0118','201125',1;'WT0118','201125',2;'WT0118','201125',3;'WT0118','201125',4;'WT0118','201125',5;'WT0118','201125',6;...
     %'WT0118','201201',1;'WT0118','201201',2;'WT0118','201201',3;'WT0118','201201',4;'WT0118','201201',5;'WT0118','201201',6;...
     %'WT0118','201208',1;'WT0118','201208',2;'WT0118','201208',3;'WT0118','201208',4;'WT0118','201208',5;'WT0118','201208',6;'WT0118','201208',7;...
-    
+    }
     'WT0119','201123',1;'WT0119','201123',2;'WT0119','201123',3;'WT0119','201123',4;...
     'WT0119','201125',1;'WT0119','201125',2;'WT0119','201125',3;'WT0119','201125',4;'WT0119','201125',5;'WT0119','201125',6;...
     %'WT0119','201201',1;'WT0119','201201',2;'WT0119','201201',3;'WT0119','201201',4;'WT0119','201201',5;...
@@ -163,3 +163,54 @@ for i = 1:length(result.bout)
 end
 scatter(x,y);
 
+%% build time course plot
+baselinePeriod = 3; %sec
+responsePeriod = 10; %sec
+outputfs = 1; %hz
+%mx = zeros(1,baselinePeriod + responsePeriod);
+mx = [];
+tmplist = CGRPlist;%controllist;
+for i = 1:length(tmplist)
+    df = get_bout_idx(tmplist{i,1},tmplist{i,2},tmplist{i,3});
+    
+    bvpaths = bvfiles(tmplist{i,1},tmplist{i,2},tmplist{i,3});
+    bvpaths = bvpaths.layerfolderpath;
+    
+    for j = 1:length(bvpaths)
+    	bv = load([bvpaths{j}, 'result.mat']);
+        bv = bv.result;
+        bvscanrate = bv.scanrate;
+        for k = 1:length(bv.roi)
+            roi = bv.roi{k};
+            % add filter here
+           % if strcmp(roi.type, 'artery') && strcmp(roi.tissue, 'pia')
+                for m = 1:length(df)
+                    runstartidx = df(m).startidx;
+                    runscanrate = df(m).scanrate;
+                    rundirection = df(m).direction;
+                    % add filter here
+                    if rundirection > 0
+                        bvstartidx = translateIdx(runstartidx, runscanrate, bvscanrate);
+                        tmp = idx_to_1d_array(roi.diameter,...
+                            bvstartidx - baselinePeriod * bvscanrate, ...
+                            bvstartidx + responsePeriod * bvscanrate-1, ...
+                            baselinePeriod, bvscanrate);
+                        tmp = bint1D(tmp, bvscanrate/outputfs);
+                        if length(mx) == 0
+                            mx = reshape(tmp,1,[]);
+                        else
+                            mx = cat(1,mx,reshape(tmp,1,[]));
+                        end
+                    end
+                %end
+            end
+        end
+    end
+    
+end
+
+% If you plot mx' here, you can see all the timecourse.
+
+meantl = mean(mx, 1);
+stdtl = std(mx,1);
+errorbar(meantl, stdtl);
