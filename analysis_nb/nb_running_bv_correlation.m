@@ -33,14 +33,14 @@ controllist = {
     'WT0118','201125',1;'WT0118','201125',2;'WT0118','201125',3;'WT0118','201125',4;'WT0118','201125',5;'WT0118','201125',6;...
     %'WT0118','201201',1;'WT0118','201201',2;'WT0118','201201',3;'WT0118','201201',4;'WT0118','201201',5;'WT0118','201201',6;...
     %'WT0118','201208',1;'WT0118','201208',2;'WT0118','201208',3;'WT0118','201208',4;'WT0118','201208',5;'WT0118','201208',6;'WT0118','201208',7;...
-    }
+    
     'WT0119','201123',1;'WT0119','201123',2;'WT0119','201123',3;'WT0119','201123',4;...
     'WT0119','201125',1;'WT0119','201125',2;'WT0119','201125',3;'WT0119','201125',4;'WT0119','201125',5;'WT0119','201125',6;...
     %'WT0119','201201',1;'WT0119','201201',2;'WT0119','201201',3;'WT0119','201201',4;'WT0119','201201',5;...
     %'WT0119','201208',1;'WT0119','201208',2;'WT0119','201208',3;'WT0119','201208',4;'WT0119','201208',5;'WT0119','201208',6;'WT0119','201208',7;'WT0119','201208',8;...
     
     'WT0120','201209',1;'WT0120','201209',2;'WT0120','201209',3;'WT0120','201209',4;'WT0120','201209',5;'WT0120','201209',6;'WT0120','201209',7;'WT0120','201209',8;'WT0120','201209',9;'WT0120','201209',10;...
-    }
+    };
 
 testlist = {
     'CGRP03','201109',3;'CGRP03','201109',4;
@@ -51,12 +51,12 @@ controlbaseline = tmpfunction(controllist);
 
 testbaseline = tmpfunction(testlist);
 % add filter here
-%filt = {'direction == 1'};
-%cgrpbaseline = boutFilter(cgrpbaseline, filt);
-%controlbaseline = boutFilter(controlbaseline, filt);
+filt = {'type == "artery"'};
+cgrpbaseline = boutFilter(cgrpbaseline, filt);
+controlbaseline = boutFilter(controlbaseline, filt);
 
 
-results = {testbaseline, testbaseline};
+results = {controlbaseline, cgrpbaseline};
 keys = {'speed', 'diameter_maxdff_in_5sec'};
 titles = {'speed','diameter max changes'};
 groups = {'CGRP baseline', 'wild type baseline'};
@@ -84,6 +84,33 @@ groups = {'CGRP baseline', 'wild type baseline'};
 plotCorrelationFig(results, keys, titles, groups,...
     [saveroot, groups{1}, ' vs ', groups{2}, ' -- ', titles{1}, ' ', titles{2},'.pdf']...
     );
+
+
+df = correlation_table_running_bv(controllist);
+
+% add filter here
+tmpidx = [];
+for i = 1:length(df)
+    
+    if strcmp(df(i).bvtype, 'artery') && strcmp(df(i).bvtissue, 'pia')
+        tmpidx = [tmpidx,i];
+    end
+
+end
+df = df(tmpidx);
+
+for i = 1:length(df)
+    df(i).
+    result.bout{startidx}.distance = running.bout{i}.distance;
+                    result.bout{startidx}.duration = running.bout{i}.duration;
+                    result.bout{startidx}.speed = running.bout{i}.speed;
+                    result.bout{startidx}.maxspeed = running.bout{i}.maxspeed;
+                    result.bout{startidx}.direction = running.bout{i}.direction;
+                    result.bout{startidx}.acceleration = running.bout{i}.acceleration;
+                    result.bout{startidx}.acceleration_delay = running.bout{i}.acceleration_delay;
+    
+    
+end
 
 
 %% function for this notebook
@@ -172,17 +199,18 @@ baselinePeriod = 3; %sec
 responsePeriod = 10; %sec
 outputfs = 1; %hz
 
-df = correlation_table_running_bv(controllist);
+df = correlation_table_running_bv(CGRPlist);
 
 % add filter here
 tmpidx = [];
 for i = 1:length(df)
-    if strcmp(df(i).bvtype, 'artery')
+    
+    if strcmp(df(i).bvtype, 'artery') && strcmp(df(i).bvtissue, 'pia')
         tmpidx = [tmpidx,i];
     end
+
 end
 df = df(tmpidx);
-tmplist = controllist;
 %extract matrix
 mx = [];
 for i=1:length(df)
@@ -206,44 +234,44 @@ for i=1:length(df)
     end
 end
 % 
-for i = 1:length(tmplist)
-    df = get_bout_idx(tmplist{i,1},tmplist{i,2},tmplist{i,3});
-    
-    bvpaths = bvfiles(tmplist{i,1},tmplist{i,2},tmplist{i,3});
-    bvpaths = bvpaths.layerfolderpath;
-    
-    for j = 1:length(bvpaths)
-    	bv = load([bvpaths{j}, 'result.mat']);
-        bv = bv.result;
-        bvscanrate = bv.scanrate;
-        for k = 1:length(bv.roi)
-            roi = bv.roi{k};
-            % add filter here
-           % if strcmp(roi.type, 'artery') && strcmp(roi.tissue, 'pia')
-                for m = 1:length(df)
-                    runstartidx = df(m).startidx;
-                    runscanrate = df(m).scanrate;
-                    rundirection = df(m).direction;
-                    % add filter here
-                    if rundirection > 0
-                        bvstartidx = translateIdx(runstartidx, runscanrate, bvscanrate);
-                        tmp = idx_to_1d_array(roi.diameter,...
-                            bvstartidx - baselinePeriod * bvscanrate, ...
-                            bvstartidx + responsePeriod * bvscanrate-1, ...
-                            baselinePeriod, bvscanrate);
-                        tmp = bint1D(tmp, bvscanrate/outputfs);
-                        if length(mx) == 0
-                            mx = reshape(tmp,1,[]);
-                        else
-                            mx = cat(1,mx,reshape(tmp,1,[]));
-                        end
-                    end
-                %end
-            end
-        end
-    end
-    
-end
+% for i = 1:length(tmplist)
+%     df = get_bout_idx(tmplist{i,1},tmplist{i,2},tmplist{i,3});
+%     
+%     bvpaths = bvfiles(tmplist{i,1},tmplist{i,2},tmplist{i,3});
+%     bvpaths = bvpaths.layerfolderpath;
+%     
+%     for j = 1:length(bvpaths)
+%     	bv = load([bvpaths{j}, 'result.mat']);
+%         bv = bv.result;
+%         bvscanrate = bv.scanrate;
+%         for k = 1:length(bv.roi)
+%             roi = bv.roi{k};
+%             % add filter here
+%            % if strcmp(roi.type, 'artery') && strcmp(roi.tissue, 'pia')
+%                 for m = 1:length(df)
+%                     runstartidx = df(m).startidx;
+%                     runscanrate = df(m).scanrate;
+%                     rundirection = df(m).direction;
+%                     % add filter here
+%                     if rundirection > 0
+%                         bvstartidx = translateIdx(runstartidx, runscanrate, bvscanrate);
+%                         tmp = idx_to_1d_array(roi.diameter,...
+%                             bvstartidx - baselinePeriod * bvscanrate, ...
+%                             bvstartidx + responsePeriod * bvscanrate-1, ...
+%                             baselinePeriod, bvscanrate);
+%                         tmp = bint1D(tmp, bvscanrate/outputfs);
+%                         if length(mx) == 0
+%                             mx = reshape(tmp,1,[]);
+%                         else
+%                             mx = cat(1,mx,reshape(tmp,1,[]));
+%                         end
+%                     end
+%                 %end
+%             end
+%         end
+%     end
+%     
+% end
 
 % If you plot mx' here, you can see all the timecourse.
 
