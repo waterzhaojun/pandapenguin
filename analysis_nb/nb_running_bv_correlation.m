@@ -42,17 +42,21 @@ controllist = {
     'WT0120','201209',1;'WT0120','201209',2;'WT0120','201209',3;'WT0120','201209',4;'WT0120','201209',5;'WT0120','201209',6;'WT0120','201209',7;'WT0120','201209',8;'WT0120','201209',9;'WT0120','201209',10;...
     }
 
-saveroot = 'D:\Jun\tmp\coor\';
+testlist = {
+    'CGRP03','201109',3;'CGRP03','201109',4;
+    }
+saveroot = 'D:\Jun\tmp\';
 cgrpbaseline = tmpfunction(CGRPlist);
 controlbaseline = tmpfunction(controllist);
 
+testbaseline = tmpfunction(testlist);
 % add filter here
 %filt = {'direction == 1'};
 %cgrpbaseline = boutFilter(cgrpbaseline, filt);
 %controlbaseline = boutFilter(controlbaseline, filt);
 
 
-results = {cgrpbaseline, controlbaseline};
+results = {testbaseline, testbaseline};
 keys = {'speed', 'diameter_maxdff_in_5sec'};
 titles = {'speed','diameter max changes'};
 groups = {'CGRP baseline', 'wild type baseline'};
