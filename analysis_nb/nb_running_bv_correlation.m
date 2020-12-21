@@ -167,9 +167,41 @@ scatter(x,y);
 baselinePeriod = 3; %sec
 responsePeriod = 10; %sec
 outputfs = 1; %hz
-%mx = zeros(1,baselinePeriod + responsePeriod);
+
+df = correlation_table_running_bv(controllist);
+
+% add filter here
+tmpidx = [];
+for i = 1:length(df)
+    if strcmp(df(i).bvtype, 'artery')
+        tmpidx = [tmpidx,i];
+    end
+end
+df = df(tmpidx);
+tmplist = controllist;
+%extract matrix
 mx = [];
-tmplist = CGRPlist;%controllist;
+for i=1:length(df)
+    try
+        bv = load(df(i).bvresultfile);
+        bv = bv.result;
+        bv = bv.roi{df(i).bvroiidx}.diameter;
+        tmpstartidx = df(i).bvstartidx - baselinePeriod * df(i).bvscanrate;
+        tmpendidx   = df(i).bvstartidx + responsePeriod * df(i).bvscanrate - 1;
+        tmp = idx_to_1d_array(bv,tmpstartidx, tmpendidx,...
+            baselinePeriod, df(i).bvscanrate);
+        tmp = bint1D(tmp, df(i).bvscanrate / outputfs);
+        tmp = reshape(tmp, 1, []);
+        if i == 1
+            mx = tmp;
+        else
+            mx = cat(1, mx, tmp);
+        end
+    catch
+        disp(df{i}.animal, df{i}.date, df{i}.run);
+    end
+end
+% 
 for i = 1:length(tmplist)
     df = get_bout_idx(tmplist{i,1},tmplist{i,2},tmplist{i,3});
     
