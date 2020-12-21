@@ -1,4 +1,4 @@
-function mx = diameter_prepare_mx(animalID, dateID, run, varargin)
+function [mx, outputpath] = diameter_prepare_mx(animalID, dateID, run, varargin)
 % This function is the main function to do vascular analysis by giving exp
 % info. If your input is matrix, please use diameter_fromMx.
 parser = inputParser;
@@ -57,6 +57,9 @@ else
     foldername = [num2str(layer(1)), 'to', num2str(layer(end))];
 end
 outputpath = correct_folderpath([correct_folderpath(bvpath), foldername]);
+if ~exist(outputpath, 'dir')
+   mkdir(outputpath)
+end
 
 % Save mov sample. This sample is used only to check, not for future check.
 % The rate is 1hz.
@@ -70,7 +73,7 @@ if output_mov_fbint > 1
     mx = squeeze(mean(mx, 4));
     mx = reshape(mx, r,c,ch,[]);
 elseif output_mov_fbint < 1
-    disp(['Cannot bint by ', num2str(output_mov_fbint), '. Donot save sample mov.']);
+    disp(['Cannot bint by ', num2str(output_mov_fbint), '. Just save not bint sample mov.']);
 end
 mx = uint16(mx);
 mx2tif(mx, [outputpath,'mov.tif']);

@@ -1,0 +1,1 @@
+set_scanrate: set the trial's scanrate to each different analyze folder like running, bv.

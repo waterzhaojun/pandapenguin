@@ -12,6 +12,7 @@ After the diameter analysis, run set_vessel_type.m to set each roi's vessel type
 I am thinking maybe seperate the analysis to different steps will be better. One step error wont' let you run the whole process again. And it is easier to debug each step. The steps are designed as below:
 
 1. check 3D structure (if it is optune). find the best layers. Use optsbx2tif_3d for this step.
-2. extract matrix by using diameter_prepare_mx. You need to bint the matrix to 1hz if you did single plate recording. otherwise there will be a big tif file which will cause error.
+2. extract matrix by using diameter_prepare_mx. By default it will produce a 1hz or less than 1hz sample mov.
 3. build reference and mask by diameter_build_refmask. 
+4. use set_scanrate to set bv scanrate for each layer's result.
 4. analyze result.roi by diameter_analysis.
