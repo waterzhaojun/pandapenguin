@@ -1,0 +1,215 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>nb_bv_running_corr</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-12-23"><meta name="DC.source" content="nb_bv_running_corr.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">blood vessel wheel running correlation notebook</a></li><li><a href="#2">Information</a></li><li><a href="#4">choose the subfolder you want to check</a></li></ul></div><h2 id="1">blood vessel wheel running correlation notebook</h2><h2 id="2">Information</h2><pre class="codeinput">animal = <span class="string">'WT01'</span>;
+date = <span class="string">'201111'</span>;
+run = 1;
+
+prebout = 3; <span class="comment">% unit is sec</span>
+postbout = 10; <span class="comment">% unit is sec</span>
+
+bvfilesys = bv_file_system();
+
+runpath = sbxPath(animal, date, run, <span class="string">'running'</span>);
+runpath = runpath.result;
+runresult = load(runpath);
+runresult = runresult.result;
+<span class="comment">%</span>
+</pre><pre class="codeinput">df = correlation_table_running_bv({animal, date, run;});
+files = unique({df.bvresultfile});
+disp(files);
+</pre><pre class="codeoutput">    {'D:\2photon\WT01\201111_WT01\2&#8230;'}    {'D:\2photon\WT01\201111_WT01\2&#8230;'}
+
+</pre><h2 id="4">choose the subfolder you want to check</h2><pre class="codeinput">i = 1;
+resfile = files{i};
+result = load(resfile);
+result = result.result;
+
+ref = read(Tiff([correct_folderpath(fileparts(files{i})), bvfilesys.refpath],<span class="string">'r'</span>));
+
+scanrate = result.scanrate;
+prelength = scanrate * prebout;
+postlength = scanrate * postbout;
+
+j = 1;
+
+subdf = df([df.bvroiidx] == j);
+diameter = result.roi{j}.diameter;
+mask = result.roi{j}.BW;
+mx = []; <span class="comment">%plot 1hz timecourse</span>
+<span class="keyword">for</span> s = 1:length(subdf)
+    startidx = subdf(s).bvstartidx;
+    tmp = diameter(startidx - prelength:startidx + postlength-1);
+    baseline = mean(tmp(1:prelength));
+    tmp = (tmp - baseline)/baseline;
+    tmp = bint(tmp, scanrate);
+    tmp = reshape(tmp, 1,[]);
+    <span class="keyword">if</span> length(mx) == 0
+        mx = tmp;
+    <span class="keyword">else</span>
+        mx = cat(1, mx, tmp);
+    <span class="keyword">end</span>
+
+    meantl = mean(mx,1);
+    ste = std(mx,1)/sqrt(size(mx,1));
+
+    subref = addroi(ref, mask);
+<span class="keyword">end</span>
+subplot(2,2,1);
+plot(mx');
+subplot(2,2,2);
+errorbar(meantl, ste);
+subplot(2,2,3);
+imshow(subref);
+subplot(2,2,4);
+plot_running(runresult);
+hold <span class="string">on</span>
+plot(bint(diameter, scanrate));
+hold <span class="string">off</span>
+</pre><img vspace="5" hspace="5" src="nb_bv_running_corr_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%%% blood vessel wheel running correlation notebook
+%
+%
+%
+%
+%% Information
+%
+animal = 'WT01';
+date = '201111';
+run = 1;
+
+prebout = 3; % unit is sec
+postbout = 10; % unit is sec
+
+bvfilesys = bv_file_system();
+
+runpath = sbxPath(animal, date, run, 'running');
+runpath = runpath.result;
+runresult = load(runpath);
+runresult = runresult.result;
+%
+%%
+df = correlation_table_running_bv({animal, date, run;});
+files = unique({df.bvresultfile});
+disp(files);
+
+%% choose the subfolder you want to check
+i = 1;
+resfile = files{i};
+result = load(resfile);
+result = result.result;
+
+ref = read(Tiff([correct_folderpath(fileparts(files{i})), bvfilesys.refpath],'r'));
+
+scanrate = result.scanrate;
+prelength = scanrate * prebout;
+postlength = scanrate * postbout;
+
+j = 1;
+
+subdf = df([df.bvroiidx] == j);
+diameter = result.roi{j}.diameter;
+mask = result.roi{j}.BW;
+mx = []; %plot 1hz timecourse 
+for s = 1:length(subdf)
+    startidx = subdf(s).bvstartidx;
+    tmp = diameter(startidx - prelength:startidx + postlength-1);
+    baseline = mean(tmp(1:prelength));
+    tmp = (tmp - baseline)/baseline;
+    tmp = bint(tmp, scanrate);
+    tmp = reshape(tmp, 1,[]);
+    if length(mx) == 0
+        mx = tmp;
+    else
+        mx = cat(1, mx, tmp);
+    end
+    
+    meantl = mean(mx,1);
+    ste = std(mx,1)/sqrt(size(mx,1));
+    
+    subref = addroi(ref, mask);
+end
+subplot(2,2,1);
+plot(mx');
+subplot(2,2,2);
+errorbar(meantl, ste);
+subplot(2,2,3);
+imshow(subref);
+subplot(2,2,4);
+plot_running(runresult);
+hold on
+plot(bint(diameter, scanrate));
+hold off
+
+
+
+
+##### SOURCE END #####
+--></body></html>

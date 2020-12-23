@@ -5,6 +5,7 @@ res.refpath = 'ref.tif';
 res.ref_with_mask_path = 'ref_with_mask.tif';
 res.resultpath = 'result.mat';
 res.response_fig_path = 'response.pdf';
+res.bv_running_correlation_pdf = 'bv_running_correlation.pdf';
 res.folderpath = 'bv';
 res.roi = {};
 

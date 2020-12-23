@@ -16,3 +16,4 @@ I am thinking maybe seperate the analysis to different steps will be better. One
 3. build reference and mask by diameter_build_refmask. 
 4. use set_scanrate to set bv scanrate for each layer's result. You can pass this step if you just rerun the analysis.
 5. analyze result.roi by diameter_analysis.
+6. use diameter_baseline to calculate this trial's bv baseline. This step need you already identified running situation. It will use rest station to calculate baseline.

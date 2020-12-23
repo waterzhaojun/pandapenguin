@@ -92,6 +92,7 @@ for i = 1:length(result.roi)
         [result.roi{i}.diameter, response_fig] = calculate_diameter(mx, result.roi{i}.BW, result.roi{i}.angle);
     elseif strcmp(result.roi{i}.position, 'vertical')
         [result.roi{i}.diameter, response_fig, response_mov] = vertical_diameter_measure(mx, result.roi{i}.BW);
+        response_mov = downsamplef(response_mov, 
         result.roi{i}.response_mov_path= ['roi_', num2str(i),'_response_mov.tif'];
         %mx2tif(uint8(response_mov/256),[path,result.roi{i}.response_mov_path]);
         % I temperally disable the output 3D tif as sometimes the output

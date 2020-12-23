@@ -27,19 +27,20 @@ result.scanrate = scanrate;
 result.bout = tmp.bout;
 
 % plot the response pdf =============================================
-plot(result.secarray);
-hold on
-for i = 1:length(result.bout)
-    boutstart = max(result.bout{i}.startsec-1, 1);
-    boutend = min(result.bout{i}.endsec+1, floor(length(result.array)/scanrate));
-    direction = result.bout{i}.direction;
-    if direction == 1
-        plot([boutstart:boutend], result.secarray(boutstart:boutend),'color','green')
-    elseif direction == -1
-        plot([boutstart:boutend], result.secarray(boutstart:boutend),'color','red')
-    end
-end
-hold off
+% plot(result.secarray);
+% hold on
+% for i = 1:length(result.bout)
+%     boutstart = max(result.bout{i}.startsec-1, 1);
+%     boutend = min(result.bout{i}.endsec+1, floor(length(result.array)/scanrate));
+%     direction = result.bout{i}.direction;
+%     if direction == 1
+%         plot([boutstart:boutend], result.secarray(boutstart:boutend),'color','green')
+%     elseif direction == -1
+%         plot([boutstart:boutend], result.secarray(boutstart:boutend),'color','red')
+%     end
+% end
+% hold off
+plot_running(result);
 saveas(gcf,[root, 'response.pdf']);
 close;
 
