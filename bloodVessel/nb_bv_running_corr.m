@@ -5,9 +5,9 @@
 %
 %% Information
 %
-animal = 'WT01';
-date = '201111';
-run = 1;
+animal = 'WT0119';
+date = '201123';
+run = 2;
 
 prebout = 3; % unit is sec
 postbout = 10; % unit is sec
@@ -47,7 +47,7 @@ for s = 1:length(subdf)
     tmp = diameter(startidx - prelength:startidx + postlength-1);
     baseline = mean(tmp(1:prelength));
     tmp = (tmp - baseline)/baseline;
-    tmp = bint(tmp, scanrate);
+    tmp = bint1D(tmp, scanrate);
     tmp = reshape(tmp, 1,[]);
     if length(mx) == 0
         mx = tmp;
@@ -69,7 +69,7 @@ imshow(subref);
 subplot(2,2,4);
 plot_running(runresult);
 hold on
-plot(bint(diameter, scanrate));
+plot(bint1D(diameter, scanrate));
 hold off
 
 
