@@ -42,6 +42,23 @@ function path = sbxPath(mouse, date, run, type, estimate)
                 checkpath = [dirs.sbx(1:end - 4) '_eye.mat']; 
                 if exist(checkpath, 'file'), path = checkpath; end
             end
+        case 'running'
+            tmp = run_file_system();
+            path = struct();
+            path.folder = [dirs.path, tmp.folder];
+            path.result = [dirs.path, tmp.folder, '\', tmp.resultPath];
+        case 'bv'
+            tmp = bv_file_system();
+            path = struct();
+            path.folderpath = correct_folderpath([correct_folderpath(dirs.path), tmp.folderpath]);
+            path.layerfolderpath = {};
+
+            flist = dir(path.folderpath);
+            flist = flist(~ismember({flist.name},{'.','..'}));
+            for i = 1:length(flist)
+                path.layerfolderpath{i} = correct_folderpath([correct_folderpath(flist(i).folder), flist(i).name]);
+            end
+            path.resultpath = cellfun(@(x) [x, tmp.resultpath], path.layerfolderpath, 'UniformOutput', false);
         otherwise
             fs = dir(searchdir);
             

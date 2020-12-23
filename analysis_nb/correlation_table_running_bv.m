@@ -5,7 +5,7 @@ function res = correlation_table_running_bv(explist)
 
 res = struct();
 p=0;
-for i = 1:length(explist)
+for i = 1:size(explist,1)
     df = get_bout_idx(explist{i,1},explist{i,2},explist{i,3});
     
     bvpaths = bvfiles(explist{i,1},explist{i,2},explist{i,3});

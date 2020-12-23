@@ -64,6 +64,13 @@ for st = 1:size(list,1)
 end
 
 
+%% Single trial bv analysis
+animal = 'CGRP03';
+date = '201109';
+run = 3;
+[mx,folder] = diameter_prepare_mx(animal, date, run);
+diameter_build_refmask(folder, mx);
+
 %% cross trial analysis steps
 source = {}
 outputfolder = 
