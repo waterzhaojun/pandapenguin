@@ -1,4 +1,4 @@
-function running_analysis(animal, date, run, varargin)
+function result = running_analysis(animal, date, run, varargin)
 parser = inputParser;
 addRequired(parser, 'animal', @ischar );
 addRequired(parser, 'date', @ischar);
@@ -20,11 +20,19 @@ elseif inf.scanmode == 2
     scanrate = 31;
 end
 
+cfg = run_config();
+
 result = struct();
 result.array = getRunningArray(path);
 result.scanrate = scanrate;
 [tmp, result.secarray] = get_bout(result.array, scanrate);
+
 result.bout = tmp.bout;
+result.config = cfg;
+
+result.rest={};
+tmp = getRunningArray(path, 'deshake', false);
+[result.rest.binary_array, result.rest.result] = get_rest_period(tmp, cfg.rest_period_length_threshold, cfg.rest_period_ending_kickout, scanrate);
 
 % plot the response pdf =============================================
 % plot(result.secarray);

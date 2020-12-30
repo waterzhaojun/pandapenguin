@@ -2,7 +2,7 @@
 
 animal = 'CGRP03';
 date = '201109';
-run = 3;
+run = 1;
 
 bvfilesys = bv_file_system();
 files = bvfiles(animal, date, run);

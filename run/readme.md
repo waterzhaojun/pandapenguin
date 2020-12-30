@@ -3,6 +3,7 @@ The main function in this folder is :
 running_analysis: the main function to get running data.
 run_config: set parameters.
 run_file_system: the structure of the output running folder.
+get_rest_period: identify rest period of the trial.
 
 
 Several related functions to get running bout.
