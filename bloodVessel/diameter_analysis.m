@@ -49,7 +49,8 @@ for i = 1:length(result.roi)
     imshow(imresize(uint16(response_fig),[100,1500])); % Right now just use manual way to define ratio. Need to change to a better way.
 
 end
-saveas(gcf,[path,result.response_fig_path]);
+
+saveas(gcf,[folder,result.response_fig_path]);
 close;
 
 save([folder,bvfilesys.resultpath], 'result');

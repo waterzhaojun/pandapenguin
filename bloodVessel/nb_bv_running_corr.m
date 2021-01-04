@@ -6,7 +6,7 @@
 %% Information
 %
 % Set the bv layer folder path here:
-path = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
+path = 'C:\2pdata\WT0120\201223_WT0120\201223_WT0120_run1\bv\10to10';
 
 % Set related parameters here: these is only realted with plot, it won't
 % effect the analysis value.
@@ -59,9 +59,9 @@ for i = 1:length(result.roi)
     subplot(2,2,2);
     plot_running(runresult);
     hold on
-    yline(roi.diameter_baseline, 'color', 'blue');
-    yline(roi.diameter_baseline + roi.diameter_std, 'color', 'green');
-    yline(roi.diameter_baseline - roi.diameter_std, 'color', 'green')
+    %yline(roi.diameter_baseline, 'color', 'blue');
+    %yline(roi.diameter_baseline + roi.diameter_std, 'color', 'green');
+    %yline(roi.diameter_baseline - roi.diameter_std, 'color', 'green')
     plot(bint1D(roi.diameter, result.scanrate));
     xticks([0:5*60:length(roi.diameter)]);
     xticklabels([0:5:length(roi.diameter)/60]);
@@ -75,7 +75,7 @@ for i = 1:length(result.roi)
     xlabel('time course (min)');
     xticks(1:size(mx,1));
     xticklabels([-prebout_length:postbout_length-1]);
-    xline(prebout_length+1);
+    %xline(prebout_length+1);
     
     subplot(2,2,4);
     scatter([subrunbvresult.maxspeed], [subrunbvresult.maxdff] * 100);
