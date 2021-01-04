@@ -1,4 +1,4 @@
-function diameter_running_corAnalyiss(animal, date, run, varargin)
+function diameter_running_corAnalysis(animal, date, run, varargin)
 % This function is to build an analyze blood vessel diameter and wheel running
 % correlation project folder, create a result in it. To build a result plot
 % notebook, you need to run nb_bv_running_cor.m

@@ -74,6 +74,12 @@ layers = [6,7];
 diameter_build_refmask(folder, mx);
 diameter_analysis(folder, mx);
 
+%% correlation with running.
+running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
+diameter_calculate_baseline(folder);
+layername = [num2str(layers(1)), 'to', num2str(layers(end))];
+diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
+
 %% cross trial analysis steps
 source = {}
 outputfolder = 
