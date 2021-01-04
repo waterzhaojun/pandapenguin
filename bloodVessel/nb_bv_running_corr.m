@@ -5,72 +5,84 @@
 %
 %% Information
 %
-animal = 'WT0119';
-date = '201123';
-run = 2;
+% Set the bv layer folder path here:
+path = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run3\bv\6to7';
 
-prebout = 3; % unit is sec
-postbout = 10; % unit is sec
+% Set related parameters here: these is only realted with plot, it won't
+% effect the analysis value.
+prebout_length = 3;  % second. the time period before each bout as baseline period.
+postbout_length = 5; % second. The time period after start of each bout as response period.
 
-bvfilesys = bv_file_system();
-
-runpath = sbxPath(animal, date, run, 'running');
-runpath = runpath.result;
-runresult = load(runpath);
-runresult = runresult.result;
-%
 %%
-df = correlation_table_running_bv({animal, date, run;});
-files = unique({df.bvresultfile});
-disp(files);
+% Don't change any code below===============================
+% load data
+[animal, date, run] = pathTranslate(path);
 
-%% choose the subfolder you want to check
-i = 1;
-resfile = files{i};
-result = load(resfile);
+path = correct_folderpath(path);
+bvfilesys = bv_file_system();
+resultpath = [path, bvfilesys.resultpath];
+result = load(resultpath);
 result = result.result;
+ref = read(Tiff([path, bvfilesys.refpath],'r'));
 
-ref = read(Tiff([correct_folderpath(fileparts(files{i})), bvfilesys.refpath],'r'));
+runfilepath = sbxPath(animal,date,run,'running');
+runresult = load(runfilepath.result);
+runresult = runresult.result;
 
-scanrate = result.scanrate;
-prelength = scanrate * prebout;
-postlength = scanrate * postbout;
+runbvcorrpath = [correct_folderpath(path), bvfilesys.bv_running_correlation_resultpath];
+runbvresult = load(runbvcorrpath);
+runbvresult = runbvresult.result;
 
-j = 1;
 
-subdf = df([df.bvroiidx] == j);
-diameter = result.roi{j}.diameter;
-mask = result.roi{j}.BW;
-mx = []; %plot 1hz timecourse 
-for s = 1:length(subdf)
-    startidx = subdf(s).bvstartidx;
-    tmp = diameter(startidx - prelength:startidx + postlength-1);
-    baseline = mean(tmp(1:prelength));
-    tmp = (tmp - baseline)/baseline;
-    tmp = bint1D(tmp, scanrate);
-    tmp = reshape(tmp, 1,[]);
-    if length(mx) == 0
-        mx = tmp;
-    else
-        mx = cat(1, mx, tmp);
+% plot data by id.
+
+
+for i = 1:length(result.roi)
+    roiid = i;   % change to id in the future
+    roi = result.roi{i};
+    subref = addroi(ref, roi.BW);
+    subrunbvresult = runbvresult([runbvresult.roiid] == roiid);  % If it is string, it may need change.
+    disp(['roi id: ', roiid]);
+    disp(['baseline diameter: ', num2str(roi.diameter_baseline)]);
+    
+    for j = 1:length(subrunbvresult)
+        tmp = reshape(subrunbvresult(j).bvarray, [],1);
+        if j == 1
+            mx = tmp;
+        else
+            mx = cat(2,mx,tmp);
+        end
     end
+    subplot(2,2,1);
+    imshow(subref);
     
-    meantl = mean(mx,1);
-    ste = std(mx,1)/sqrt(size(mx,1));
+    subplot(2,2,2);
+    plot_running(runresult);
+    hold on
+    yline(roi.diameter_baseline, 'color', 'blue');
+    yline(roi.diameter_baseline + roi.diameter_std, 'color', 'green');
+    yline(roi.diameter_baseline - roi.diameter_std, 'color', 'green')
+    plot(bint1D(roi.diameter, result.scanrate));
+    xticks([0:5*60:length(roi.diameter)]);
+    xticklabels([0:5:length(roi.diameter)/60]);
+    xlabel('time course (min)');
+    hold off
     
-    subref = addroi(ref, mask);
+    subplot(2,2,3);
+    plot(mx * 100);
+    ylabel('diameter dff changes');
+    ytickformat('percentage');
+    xlabel('time course (min)');
+    xticks(1:size(mx,1));
+    xticklabels([-prebout_length:postbout_length-1]);
+    xline(prebout_length+1);
+    
+    subplot(2,2,4);
+    scatter([subrunbvresult.maxspeed], [subrunbvresult.maxdff] * 100);
+    ylabel('diameter max dff changes');
+    xlabel('bout max speed (block/sec)');
+    ytickformat('percentage');
 end
-subplot(2,2,1);
-plot(mx');
-subplot(2,2,2);
-errorbar(meantl, ste);
-subplot(2,2,3);
-imshow(subref);
-subplot(2,2,4);
-plot_running(runresult);
-hold on
-plot(bint1D(diameter, scanrate));
-hold off
 
 
 

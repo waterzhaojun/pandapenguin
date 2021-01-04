@@ -67,9 +67,12 @@ end
 %% Single trial bv analysis
 animal = 'CGRP03';
 date = '201109';
-run = 3;
-[mx,folder] = diameter_prepare_mx(animal, date, run);
+run = 4;
+pmt = 1;
+layers = [6,7];
+[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, layers);
 diameter_build_refmask(folder, mx);
+diameter_analysis(folder, mx);
 
 %% cross trial analysis steps
 source = {}

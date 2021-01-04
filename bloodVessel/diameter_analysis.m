@@ -4,7 +4,7 @@ function diameter_analysis(folder, mx, varargin)
 
 parser = inputParser;
 addRequired(parser, 'folder', @ischar );
-addRequired(parser, 'mx', @ischar );
+addRequired(parser, 'mx' );
 parse(parser,folder,mx,varargin{:});
 
 folder = correct_folderpath(folder);

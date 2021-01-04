@@ -10,7 +10,7 @@ addRequired(parser, 'date', @ischar);
 addRequired(parser, 'run', @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'bvfolder', 'all');
 addParameter(parser, 'preBoutSec', 3, @(x) isnumeric(x) && isscalar(x) && (x>0));
-addParameter(parser, 'postBoutSec', 5,  @(x) isnumeric(x) && isscalar(x) && (x>0));
+addParameter(parser, 'postBoutSec', 10,  @(x) isnumeric(x) && isscalar(x) && (x>0));
 parse(parser,animal, date, run, varargin{:});
 
 bvfolder = parser.Results.bvfolder;
@@ -62,9 +62,13 @@ for i = 1:length(subbv)
                 tmpdf(j).layer = tmp(end);
                 tmpdf(j).baseline = baseline;
                 tmpdf(j).maxdff = (max(bv_array)-baseline)/baseline;
-                [~,tmpdf(j).maxdelay] = max(bv_array);
-                tmpdf(j).maxdelay = tmpdf(j).maxdelay/scanrate;
-                tmpdf(j).bvarray = roi.diameter(startidx - prebout*scanrate : startidx + postbout*scanrate-1);
+                [~,tmpmaxidx] = max(bv_array);
+                tmpdf(j).maxdelay = tmpmaxidx/scanrate;
+                tmphalfidx = find(bv_array(1:tmpmaxidx) > tmpdf(j).maxdff * 0.5);
+                tmphalfidx = tmphalfidx(1);
+                tmpdf(j).halfdelay = tmphalfidx/scanrate;
+                
+                tmpdf(j).bvarray = (roi.diameter(startidx - prebout*scanrate : startidx + postbout*scanrate-1)-baseline)/baseline;
                 if isfield(roi, 'id')
                     tmpdf(j).roiid = roi.id;
                 else
@@ -74,7 +78,7 @@ for i = 1:length(subbv)
                 disp('Baseline out of range. Pass.');
             end
         end
-        if r == 1
+        if ~exist('result','var')
             result = tmpdf(tmpidx);
         else
             result = [result, tmpdf(tmpidx)];

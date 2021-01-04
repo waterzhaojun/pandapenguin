@@ -6,8 +6,8 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>nb_bv_running_corr</title><meta name="generator" content="MATLAB 9.8"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-12-23"><meta name="DC.source" content="nb_bv_running_corr.m"><style type="text/css">
-html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+      --><title>nb_bv_running_corr</title><meta name="generator" content="MATLAB 9.9"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2021-01-01"><meta name="DC.source" content="nb_bv_running_corr.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
 html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
@@ -67,9 +67,89 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">blood vessel wheel running correlation notebook</a></li><li><a href="#2">Information</a></li><li><a href="#4">choose the subfolder you want to check</a></li></ul></div><h2 id="1">blood vessel wheel running correlation notebook</h2><h2 id="2">Information</h2><pre class="codeoutput">    {'D:\2photon\WT0119\201123_WT0119\201123_WT0119_run2\bv\1\result.mat'}
+  </style></head><body><div class="content"><h1></h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">blood vessel wheel running correlation notebook</a></li><li><a href="#2">Information</a></li></ul></div><h2 id="1">blood vessel wheel running correlation notebook</h2><h2 id="2">Information</h2><p>Set the bv layer folder path here:</p><pre class="codeinput">path = <span class="string">'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run3\bv\6to7'</span>;
 
-</pre><h2 id="4">choose the subfolder you want to check</h2><img vspace="5" hspace="5" src="nb_bv_running_corr_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020a</a><br></p></div><!--
+<span class="comment">% Set related parameters here: these is only realted with plot, it won't</span>
+<span class="comment">% effect the analysis value.</span>
+prebout_length = 3  <span class="comment">% second. the time period before each bout as baseline period.</span>
+postbout_length = 5 <span class="comment">% second. The time period after start of each bout as response period.</span>
+</pre><pre class="codeoutput">
+prebout_length =
+
+     3
+
+
+postbout_length =
+
+     5
+
+</pre><p>Don't change any code below=============================== load data</p><pre class="codeinput">[animal, date, run] = pathTranslate(path);
+
+path = correct_folderpath(path);
+bvfilesys = bv_file_system();
+resultpath = [path, bvfilesys.resultpath];
+result = load(resultpath);
+result = result.result;
+ref = read(Tiff([path, bvfilesys.refpath],<span class="string">'r'</span>));
+
+runfilepath = sbxPath(animal,date,run,<span class="string">'running'</span>);
+runresult = load(runfilepath.result);
+runresult = runresult.result;
+
+runbvcorrpath = [correct_folderpath(path), bvfilesys.bv_running_correlation_resultpath];
+runbvresult = load(runbvcorrpath);
+runbvresult = runbvresult.result;
+
+
+<span class="comment">% plot data by id.</span>
+
+
+<span class="keyword">for</span> i = 1:length(result.roi)
+    roiid = i;   <span class="comment">% change to id in the future</span>
+    roi = result.roi{i};
+    subref = addroi(ref, roi.BW);
+    subrunbvresult = runbvresult([runbvresult.roiid] == roiid);  <span class="comment">% If it is string, it may need change.</span>
+    disp([<span class="string">'roi id: '</span>, roiid]);
+    disp([<span class="string">'baseline diameter: '</span>, num2str(roi.diameter)]);
+
+    <span class="keyword">for</span> j = 1:length(subrunbvresult)
+        tmp = reshape(subrunbvresult(j).bvarray, [],1);
+        <span class="keyword">if</span> j == 1
+            mx = tmp;
+        <span class="keyword">else</span>
+            mx = cat(2,mx,tmp);
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    subplot(2,2,1);
+    imshow(subref);
+
+    subplot(2,2,2);
+    plot_running(runresult);
+    hold <span class="string">on</span>
+    yline(roi.diameter_baseline, <span class="string">'color'</span>, <span class="string">'blue'</span>);
+    yline(roi.diameter_baseline + roi.diameter_std, <span class="string">'color'</span>, <span class="string">'green'</span>);
+    yline(roi.diameter_baseline - roi.diameter_std, <span class="string">'color'</span>, <span class="string">'green'</span>)
+    plot(bint1D(roi.diameter, result.scanrate));
+    xticks([0:5*60:length(roi.diameter)]);
+    xticklabels([0:5:length(roi.diameter)/60]);
+    xlabel(<span class="string">'time course (min)'</span>);
+    hold <span class="string">off</span>
+
+    subplot(2,2,3);
+    plot(mx);
+    ylabel(<span class="string">'diameter dff changes'</span>);
+    xlabel(<span class="string">'time course (min)'</span>);
+    xticks(1:size(mx,1));
+    xticklabels([-prebout_length:postbout_length-1]);
+
+    subplot(2,2,4);
+    scatter([subrunbvresult.maxspeed], [subrunbvresult.maxdff]);
+    ylabel(<span class="string">'diameter max dff changes'</span>);
+    xlabel(<span class="string">'bout max speed (block/sec)'</span>);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">roi id:  
+baseline diameter: 42  39  37  39  37  36  34  35  37  35  38  38  37  40  38  39  44  41  40  36  39  35  35  37  36  37  37  36  35  37  38  34  37  34  35  39  38  38  39  39  37  33  34  34  32  29  27  30  27  27  25  27  27  28  27  27  30  25  28  28  31  30  27  27  30  31  25  29  29  27  26  27  28  24  26  26  26  27  27  31  29  27  29  28  32  30  32  32  34  34  33  37  38  34  38  35  35  37  38  37  38  39  38  37  38  36  39  36  36  36  35  35  36  35  36  35  34  35  34  31  33  34  32  32  32  32  32  30  31  31  30  29  32  31  30  31  30  31  28  30  32  31  30  30  29  29  29  31  32  30  31  33  30  32  30  31  28  29  30  29  31  29  32  31  29  29  32  30  30  31  32  31  30  31  29  29  29  30  29  31  30  28  30  31  30  31  29  30  29  30  30  29  29  29  30  28  30  28  31  31  29  29  29  30  31  32  33  33  33  31  31  33  31  29  32  31  31  30  32  31  33  31  32  32  31  33  31  29  31  33  33  32  30  31  30  31  33  34  33  31  33  32  31  32  30  32  32  31  31  33  31  31  31  31  31  30  33  31  32  30  30  32  32  35  33  32  32  33  32  29  33  32  34  30  31  33  33  32  33  32  30  32  33  32  32  31  32  31  31  30  33  30  32  32  33  34  33  34  36  35  35  37  34  33  30  33  31  31  31  33  31  30  32  32  33  30  33  31  33  32  34  32  31  35  32  30  31  32  31  29  30  30  33  29  30  29  31  32  33  33  31  34  32  30  29  30  31  31  30  30  31  30  30  32  30  32  30  31  31  30  31  31  32  31  31  31  31  33  33  31  33  31  30  32  33  31  33  32  31  30  30  32  31  30  30  31  32  31  32  31  33  30  32  32  32  31  31  33  31  32  30  30  31  31  33  34  34  33  33  33  35  34  32  33  35  33  33  34  32  30  31  31  32  32  32  31  34  34  32  33  33  32  31  33  32  32  32  32  30  30  33  33  32  31  31  32  30  31  31  31  32  32  33  33  32  31  31  32  31  31  30  33  33  30  33  32  33  32  31  32  32  33  31  32  31  33  32  32  32  31  31  32  33  32  33  31  31  33  33  32  32  33  33  33  31  33  33  34  33  34  33  35  35  32  34  35  31  30  31  32  31  32  31  33  33  31  32  34  32  32  33  30  32  30  31  32  31  30  31  31  32  31  32  32  31  32  32  31  31  31  32  32  32  31  31  31  30  32  31  33  32  33  30  32  32  31  31  32  30  31  30  29  31  32  31  33  31  31  31  32  31  31  31  33  33  33  30  31  29  31  33  31  32  32  31  30  33  32  30  32  31  32  31  29  32  31  31  30  31  30  31  29  32  30  31  31  29  31  29  31  32  31  32  31  32  31  32  35  37  40  41  40  40  38  34  34  32  33  34  32  36  36  35  32  35  36  31  33  32  35  37  37  32  35  34  33  32  31  33  31  33  32  32  32  34  33  32  31  31  31  31  30  30  31  30  30  30  30  30  30  29  30  32  31  28  31  32  32  32  33  33  30  29  32  31  31  38  37  35  34  33  32  32  31  31  32  29  30  32  30  30  31  29  30  36  34  34  32  32  32  32  30  31  31  32  31  32  29  30  30  29  32  32  31  33  31  32  30  29  31  32  30  31  32  29  32  33  35  34  34  34  31  31  29  35  32  34  33  32  30  31  32  32  30  30  32  31  30  31  30  31  30  32  34  33  34  34  31  34  28  30  31  31  30  33  31  32  32  30  29  30  31  31  33  30  31  34  30  33  33  33  32  32  31  33  32  33  29  30  29  30  30  29  31  29  32  31  30  31  30  31  30  31  31  30  33  32  31  30  30  31  30  29  30  31  31  31  31  30  33  31  30  30  31  29  31  32  31  31  30  31  31  34  34  35  35  33  33  33  32  31  31  31  32  31  29  30  30  32  31  34  30  32  31  31  32  28  32  32  32  31  32  32  29  28  30  33  29  30  30  30  30  30  29  31  32  31  31  33  33  35  33  31  31  35  36  32  34  31  30  32  31  31  31  29  32  29  30  29  29  29  31  32  29  28  31  32  31  31  30  33  31  31  30  29  33  35  35  34  32  33  33  33  31  29  30  31  30  30  32  33  31  33  30  31  31  28  30  31  31  31  31  30  30  31  31  34  34  33  34  30  32  32  30  32  37
+</pre><img vspace="5" hspace="5" src="nb_bv_running_corr_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2020b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %%% blood vessel wheel running correlation notebook
 %
@@ -78,72 +158,81 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 %
 %% Information
 %
-animal = 'WT0119';
-date = '201123';
-run = 2;
+% Set the bv layer folder path here:
+path = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run3\bv\6to7';
 
-prebout = 3; % unit is sec
-postbout = 10; % unit is sec
+% Set related parameters here: these is only realted with plot, it won't
+% effect the analysis value.
+prebout_length = 3  % second. the time period before each bout as baseline period.
+postbout_length = 5 % second. The time period after start of each bout as response period.
 
-bvfilesys = bv_file_system();
-
-runpath = sbxPath(animal, date, run, 'running');
-runpath = runpath.result;
-runresult = load(runpath);
-runresult = runresult.result;
-%
 %%
-df = correlation_table_running_bv({animal, date, run;});
-files = unique({df.bvresultfile});
-disp(files);
+% Don't change any code below===============================
+% load data
+[animal, date, run] = pathTranslate(path);
 
-%% choose the subfolder you want to check
-i = 1;
-resfile = files{i};
-result = load(resfile);
+path = correct_folderpath(path);
+bvfilesys = bv_file_system();
+resultpath = [path, bvfilesys.resultpath];
+result = load(resultpath);
 result = result.result;
+ref = read(Tiff([path, bvfilesys.refpath],'r'));
 
-ref = read(Tiff([correct_folderpath(fileparts(files{i})), bvfilesys.refpath],'r'));
+runfilepath = sbxPath(animal,date,run,'running');
+runresult = load(runfilepath.result);
+runresult = runresult.result;
 
-scanrate = result.scanrate;
-prelength = scanrate * prebout;
-postlength = scanrate * postbout;
+runbvcorrpath = [correct_folderpath(path), bvfilesys.bv_running_correlation_resultpath];
+runbvresult = load(runbvcorrpath);
+runbvresult = runbvresult.result;
 
-j = 1;
 
-subdf = df([df.bvroiidx] == j);
-diameter = result.roi{j}.diameter;
-mask = result.roi{j}.BW;
-mx = []; %plot 1hz timecourse 
-for s = 1:length(subdf)
-    startidx = subdf(s).bvstartidx;
-    tmp = diameter(startidx - prelength:startidx + postlength-1);
-    baseline = mean(tmp(1:prelength));
-    tmp = (tmp - baseline)/baseline;
-    tmp = bint1D(tmp, scanrate);
-    tmp = reshape(tmp, 1,[]);
-    if length(mx) == 0
-        mx = tmp;
-    else
-        mx = cat(1, mx, tmp);
+% plot data by id.
+
+
+for i = 1:length(result.roi)
+    roiid = i;   % change to id in the future
+    roi = result.roi{i};
+    subref = addroi(ref, roi.BW);
+    subrunbvresult = runbvresult([runbvresult.roiid] == roiid);  % If it is string, it may need change.
+    disp(['roi id: ', roiid]);
+    disp(['baseline diameter: ', num2str(roi.diameter)]);
+    
+    for j = 1:length(subrunbvresult)
+        tmp = reshape(subrunbvresult(j).bvarray, [],1);
+        if j == 1
+            mx = tmp;
+        else
+            mx = cat(2,mx,tmp);
+        end
     end
+    subplot(2,2,1);
+    imshow(subref);
     
-    meantl = mean(mx,1);
-    ste = std(mx,1)/sqrt(size(mx,1));
+    subplot(2,2,2);
+    plot_running(runresult);
+    hold on
+    yline(roi.diameter_baseline, 'color', 'blue');
+    yline(roi.diameter_baseline + roi.diameter_std, 'color', 'green');
+    yline(roi.diameter_baseline - roi.diameter_std, 'color', 'green')
+    plot(bint1D(roi.diameter, result.scanrate));
+    xticks([0:5*60:length(roi.diameter)]);
+    xticklabels([0:5:length(roi.diameter)/60]);
+    xlabel('time course (min)');
+    hold off
     
-    subref = addroi(ref, mask);
+    subplot(2,2,3);
+    plot(mx);
+    ylabel('diameter dff changes');
+    xlabel('time course (min)');
+    xticks(1:size(mx,1));
+    xticklabels([-prebout_length:postbout_length-1]);
+    
+    subplot(2,2,4);
+    scatter([subrunbvresult.maxspeed], [subrunbvresult.maxdff]);
+    ylabel('diameter max dff changes');
+    xlabel('bout max speed (block/sec)');
 end
-subplot(2,2,1);
-plot(mx');
-subplot(2,2,2);
-errorbar(meantl, ste);
-subplot(2,2,3);
-imshow(subref);
-subplot(2,2,4);
-plot_running(runresult);
-hold on
-plot(bint1D(diameter, scanrate));
-hold off
 
 
 

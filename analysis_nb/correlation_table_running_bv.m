@@ -2,6 +2,8 @@ function res = correlation_table_running_bv(explist)
 % This function is to produce a struct table containing all correlation
 % info.
 % explist element should be cell containing animal, date, run.
+% I am planning to use diameter_running_corAnalysis to replace this
+% function. 
 
 res = struct();
 p=0;
