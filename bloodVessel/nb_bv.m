@@ -1,4 +1,23 @@
-%% single trial analysis steps
+%% Single trial bv analysis
+animal = 'CGRP03';   % <====================== File your exp info
+date = '201109';     % <====================== File your exp info
+run = 4;             % <====================== File your exp info
+pmt = 1;             % <====================== File your exp info
+layers = [6,7];      % <====================== File your exp info
+bvfilesys = bv_file_system();
+[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, layers);
+diameter_build_refmask(folder, mx);
+diameter_analysis(folder, mx);
+
+%% correlation with running.
+running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
+diameter_calculate_baseline(folder);
+layername = [num2str(layers(1)), 'to', num2str(layers(end))];
+diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
+result2csv([folder, bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
+
+
+%% Old steps. Ignore it.
 list = {
     'CGRP01','201118',1;'CGRP01','201118',2;...
     
@@ -62,24 +81,3 @@ for st = 1:size(list,1)
         
     end
 end
-
-
-%% Single trial bv analysis
-animal = 'CGRP03';
-date = '201109';
-run = 4;
-pmt = 1;
-layers = [6,7];
-[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, layers);
-diameter_build_refmask(folder, mx);
-diameter_analysis(folder, mx);
-
-%% correlation with running.
-running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
-diameter_calculate_baseline(folder);
-layername = [num2str(layers(1)), 'to', num2str(layers(end))];
-diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
-
-%% cross trial analysis steps
-source = {}
-outputfolder = 
