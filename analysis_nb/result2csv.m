@@ -7,13 +7,14 @@ addOptional(parser, 'fieldLayer', {}); % If your wanted table is in subfields, y
 parse(parser,path, varargin{:});
 
 excludeFields = parser.Results.excludeFields;
-fieldLayer = parser.Results.excludeFields;
+fieldLayer = parser.Results.fieldLayer;
 
 outputpath = [path(1:end-3), 'csv'];
 result = load(path);
 result = result.result;
+
 for i = 1:length(fieldLayer)
-    result = result.(fieldLayer(i));
+   result = result.(fieldLayer{i});
 end
 
 if length(excludeFields) > 0
