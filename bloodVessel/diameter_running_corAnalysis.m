@@ -57,6 +57,8 @@ for i = 1:length(subbv)
             baseline = mean(roi.diameter(startidx-prebout*scanrate : startidx-1));
             if baseline < roi.diameter_baseline + roi.diameter_std
                 tmpidx = [tmpidx, j];
+                tmpdf(j).tissue = roi.tissue;
+                tmpdf(j).type = roi.type;
                 tmpdf(j).bv_scanrate = scanrate;
                 [~,tmpdf(j).layer] = fileparts(subbv{i});
                 tmpdf(j).baseline = baseline;

@@ -32,51 +32,49 @@ if ~isfile(resultpath) || parser.Results.rebuildRoi
     result.resultpath = filesys.resultpath;
     result.response_fig_path = filesys.response_fig_path;
     result.roi = {};
-    
-    % build mask =====================================================
-    flag = 1;
-    roistart = 1 + length(result.roi);
-
-    while flag
-        [BW,angle] = bwangle(ref, 'title','After choose roi, Please choose vessel position. Press t for horizontal trunk, v for vertical penetration, q to quit');
-        waitforbuttonpress;
-        p = get(gcf, 'CurrentCharacter');
-        switch p
-            case 't'
-                vposition='horizontal';
-
-            case 'v'
-                vposition='vertical';
-
-            case 'q'
-                flag = 0;
-        end
-        if ~strcmp(p,'q')
-            result.roi{roistart}.position = vposition;
-            if strcmp(p,'t')
-                result.roi{roistart}.BW = BW;
-                result.roi{roistart}.angle = angle;
-            elseif strcmp(p,'v')
-                result.roi{roistart}.BW = vertical_mask(BW);
-            end
-            ref = addroi(ref, result.roi{roistart}.BW);
-            roistart = roistart + 1;
-        end
-
-    end
-    close;
-    imwrite(uint16(ref), [folder,result.ref_with_mask_path]);
-    save([folder, result.resultpath], 'result');
-    
 else
     result = load(resultpath);
     result = result.result;
-    % ref = imread([folder,result.ref_with_mask_path]);
+    for i = 1:length(result.roi)
+        ref = addroi(ref, result.roi{i}.BW);
+    end
 end
+    
+    % build mask =====================================================
+flag = 1;
+roistart = 1 + length(result.roi);
 
+while flag
+    [BW,angle] = bwangle(ref, 'title','After choose roi, Please choose vessel position. Press t for horizontal trunk, v for vertical penetration, q to quit');
+    waitforbuttonpress;
+    p = get(gcf, 'CurrentCharacter');
+    switch p
+        case 't'
+            vposition='horizontal';
 
+        case 'v'
+            vposition='vertical';
 
+        case 'q'
+            flag = 0;
+    end
+    if ~strcmp(p,'q')
+        result.roi{roistart}.position = vposition;
+        if strcmp(p,'t')
+            result.roi{roistart}.BW = BW;
+            result.roi{roistart}.angle = angle;
+        elseif strcmp(p,'v')
+            result.roi{roistart}.BW = vertical_mask(BW);
+        end
+        ref = addroi(ref, result.roi{roistart}.BW);
+        roistart = roistart + 1;
+    end
 
+end
+close;
+imwrite(uint16(ref), [folder,result.ref_with_mask_path]);
+save([folder, result.resultpath], 'result');
+    
 
 disp('Finished choose/load roi. You can start to calculate diameter array');
 

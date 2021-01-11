@@ -1,20 +1,39 @@
 %% Single trial bv analysis
-animal = 'CGRP03';   % <====================== File your exp info
-date = '201109';     % <====================== File your exp info
-run = 4;             % <====================== File your exp info
-pmt = 1;             % <====================== File your exp info
-layers = [6,7];      % <====================== File your exp info
+animal = 'WT0120';   % <====================== File your exp info
+date = '201223';     % <====================== File your exp info
+run = 6;             % <====================== File your exp info
+pmt = 0;             % <====================== File your exp info
+layers = [7];      % <====================== File your exp info [11]
+smooth = 4;
+
+
+% don't change code below ==========================================
 bvfilesys = bv_file_system();
-[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, layers);
-diameter_build_refmask(folder, mx);
+[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers, 'smooth',smooth);
+diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', false);
+set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
+set_vessel_type(folder);
+input_vessel_id(folder);
 
 %% correlation with running.
 running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
 diameter_calculate_baseline(folder);
 layername = [num2str(layers(1)), 'to', num2str(layers(end))];
 diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
-%result2csv([folder, bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
+result2csv([folder, '\',bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 %% Old steps. Ignore it.

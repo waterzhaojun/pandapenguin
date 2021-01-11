@@ -1,6 +1,8 @@
 % This notebook is to analyze the correlation between running and blood
 % vessel changes. we need a running data folder and a bv data folder.
 
+% I stopped using this notebook since 1/5/2021
+
 list = {
     'CGRP01','201118',1;'CGRP01','201118',2;...
     

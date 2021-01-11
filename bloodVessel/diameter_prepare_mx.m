@@ -6,7 +6,7 @@ addRequired(parser, 'animalID', @ischar );
 addRequired(parser, 'dateID', @ischar);
 addRequired(parser, 'run', @(x) isnumeric(x) && isscalar(x) && (x>0));
 addOptional(parser, 'pmt', 0, @(x) isnumeric(x) && isscalar(x) && (x>=0) && (x<2));
-addOptional(parser, 'layer', 'all');
+addParameter(parser, 'layer', 'all');
 addParameter(parser, 'smooth', 0, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
 addParameter(parser, 'output_mov_fs', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0)); % suppose output 1hz mov.
 
@@ -77,6 +77,7 @@ elseif output_mov_fbint < 1
 end
 mx = uint16(mx);
 mx2tif(mx, [outputpath,'mov.tif']);
+
 
 
 

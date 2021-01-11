@@ -1,5 +1,5 @@
 function result = tmpfunction(list)
-
+% I believe I can delete this function.
 
 % some setting ==========================================================
 baseline_sec = 3; % For each bout, get 2 sec pre data as baseline
