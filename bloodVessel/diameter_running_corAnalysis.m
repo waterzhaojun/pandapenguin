@@ -58,8 +58,7 @@ for i = 1:length(subbv)
             if baseline < roi.diameter_baseline + roi.diameter_std
                 tmpidx = [tmpidx, j];
                 tmpdf(j).bv_scanrate = scanrate;
-                tmp = strsplit(subbv{i}, '\');
-                tmpdf(j).layer = tmp(end);
+                [~,tmpdf(j).layer] = fileparts(subbv{i});
                 tmpdf(j).baseline = baseline;
                 tmpdf(j).maxdff = (max(bv_array)-baseline)/baseline;
                 [~,tmpmaxidx] = max(bv_array);
@@ -90,8 +89,9 @@ for i = 1:length(subbv)
     end
     
     % save result.
-    save([correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_resultpath],'result');
-    
+    resultpath = [correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_resultpath];
+    save(resultpath,'result');
+    result2csv(resultpath,{'bvarray'});
     % plot result.
     
 end

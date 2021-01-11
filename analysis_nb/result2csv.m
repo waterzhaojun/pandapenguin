@@ -3,8 +3,6 @@ function result2csv(path,varargin)
 parser = inputParser;
 addRequired(parser, 'path', @ischar );
 addOptional(parser, 'excludeFields', {});
-%addParameter(parser, 'output_mov_fbint', 1, @(x) isnumeric(x) && isscalar(x) && (x >= 0));
-%addParameter(parser, 'output_response_fig_width', 1000, @(x) isnumeric(x) && isscalar(x) && (x > 0)); % The output is not exactly 1000px, but close to 1000 based on the bint size.
 parse(parser,path, varargin{:});
 
 excludeFields = parser.Results.excludeFields;
@@ -17,7 +15,7 @@ if length(excludeFields) > 0
         result = rmfield(result, excludeFields(i));
     end
 end
-    
+
 
 df = struct2table(result);
 writetable(df, outputpath);

@@ -14,7 +14,7 @@ running_analysis(animal, date, run); % If you didn't do running analysis, do it 
 diameter_calculate_baseline(folder);
 layername = [num2str(layers(1)), 'to', num2str(layers(end))];
 diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
-result2csv([folder, bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
+%result2csv([folder, bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
 
 
 %% Old steps. Ignore it.
