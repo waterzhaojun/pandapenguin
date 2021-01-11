@@ -68,15 +68,15 @@ output_mov_fbint = check_scan_rate(inf) / check_scan_layers(inf) / output_mov_fs
 if output_mov_fbint > 1
     disp(['bint by ', num2str(output_mov_fbint), ' the mx to output sample mov']);
     samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
-    mx = mx(:,:,:,1:samplemov_f);
-    mx = reshape(mx, r,c,ch,output_mov_fbint,[]);
-    mx = squeeze(mean(mx, 4));
-    mx = reshape(mx, r,c,ch,[]);
+    mxmov = mx(:,:,:,1:samplemov_f);
+    mxmov = reshape(mxmov, r,c,ch,output_mov_fbint,[]);
+    mxmov = squeeze(mean(mxmov, 4));
+    mxmov = reshape(mxmov, r,c,ch,[]);
 elseif output_mov_fbint < 1
     disp(['Cannot bint by ', num2str(output_mov_fbint), '. Just save not bint sample mov.']);
 end
-mx = uint16(mx);
-mx2tif(mx, [outputpath,'mov.tif']);
+mxmov = uint16(mxmov);
+mx2tif(mxmov, [outputpath,'mov.tif']);
 
 
 

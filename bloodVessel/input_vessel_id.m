@@ -25,6 +25,6 @@ for j = 1:totalpic
     result.roi{j}.id = ids{j};
 end
 save(resultpath, 'result');
-
+close();
 end
 

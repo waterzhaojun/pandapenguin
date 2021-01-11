@@ -35,6 +35,13 @@ if ~isfile(resultpath) || parser.Results.rebuildRoi
 else
     result = load(resultpath);
     result = result.result;
+    % temperally revise some previous failure.
+    result.movpath = filesys.movpath;
+    result.refpath = filesys.refpath;
+    result.ref_with_mask_path = filesys.ref_with_mask_path;
+    result.resultpath = filesys.resultpath;
+    result.response_fig_path = filesys.response_fig_path;
+    
     for i = 1:length(result.roi)
         ref = addroi(ref, result.roi{i}.BW);
     end
@@ -74,6 +81,7 @@ end
 close;
 imwrite(uint16(ref), [folder,result.ref_with_mask_path]);
 save([folder, result.resultpath], 'result');
+
     
 
 disp('Finished choose/load roi. You can start to calculate diameter array');

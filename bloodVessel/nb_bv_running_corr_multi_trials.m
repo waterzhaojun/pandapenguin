@@ -4,16 +4,27 @@
 % want to included into your analysis. Each row is one file.
 
 %% setting related parameters
-filelistpath = 'D:\Jun\tmp\aaa.csv' % <==========set the csv file list path here
-yfield = {'maxdff','maxdelay','halfdelay'}; % <==========set the fields for correlation y.
+filelistpath = 'C:\Users\Levylab\Documents\Jun\workingfolder\CGRP.csv' % <==========set the csv file list path here
+yfield = {'maxdff'};%,'maxdelay','halfdelay'}; % <==========set the fields for correlation y.
 xfield = {'speed','acceleration','maxspeed','distance','duration'}; % <==========set the fields for correlation x.
-filter = ''; % <=======set the filter.
-
 
 df = combine_data_from_csv_list(filelistpath);
+
+% Filter  <=======set the filter in this section.
+df = df(strcmpi({df.position}, 'horizontal'));
+df = df([df.bv_scanrate] == 1);
+
 % Included trials:
 disp(filelistpath);
 sprintf('Total bouts: %d', length(df))
+
+%% Plot time course.
+mx = reshape([df.bvarray], [], length(df));
+mx = mx';
+meantl = mean(mx,1);
+stdtl = std(mx,1);
+stetl = stdtl/sqrt(length(df));
+errorbar(1:length(meantl),meantl,stetl);
 
 %% Plot the correlation figure.
 totalfig = length(yfield) * length(xfield);

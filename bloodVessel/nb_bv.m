@@ -1,16 +1,15 @@
 %% Single trial bv analysis
-animal = 'WT0120';   % <====================== File your exp info
-date = '201223';     % <====================== File your exp info
+animal = 'WT0118';   % <====================== File your exp info
+date = '201125';     % <====================== File your exp info
 run = 6;             % <====================== File your exp info
 pmt = 0;             % <====================== File your exp info
-layers = [7];      % <====================== File your exp info [11]
-smooth = 4;
-
+layers = [4];      % <====================== File your exp info [11]
+smooth = 0;
 
 % don't change code below ==========================================
 bvfilesys = bv_file_system();
-[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers, 'smooth',smooth);
-diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', false);
+[mx,folder] = diameter_prepare_mx(animal, date, run, pmt);,'smooth',4);
+diameter_build_refmask(folder, mx, 'rebuildRef', true, 'rebuildRoi', false);
 set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
 set_vessel_type(folder);

@@ -5,7 +5,7 @@ function diameter_analysis(folder, mx, varargin)
 parser = inputParser;
 addRequired(parser, 'folder', @ischar );
 addRequired(parser, 'mx' );
-addParameter(parser, 'rebuild', false);
+addParameter(parser, 'rebuild', false); % Not using yet
 parse(parser,folder,mx,varargin{:});
 
 folder = correct_folderpath(folder);
@@ -29,12 +29,12 @@ for i = 1:length(result.roi)
        result.roi{i}.diameter = diameter * (result.x_ratio + result.y_ratio)/2;
        result.roi{i}.response_mov_path= ['roi_', num2str(i),'_response_mov.tif'];
        % To avoid produce super big tif, I downsample output mov to 1hz.
-       %response_mov = downsamplef(response_mov, result.scanrate);
+       response_mov = downsamplef(response_mov, result.scanrate);
       
-       %if max(response_mov, [],'all') > 256
-       %    response_mov = response_mov/256;
-       %end
-       %mx2tif(uint8(response_mov), [folder,result.roi{i}.response_mov_path]);
+       if max(response_mov, [],'all') > 256
+          response_mov = response_mov/256;
+       end
+       mx2tif(uint8(response_mov), [folder,result.roi{i}.response_mov_path]);
    elseif strcmp(result.roi{i}.position, 'horizontal')
        tmpangle = result.roi{i}.angle;
        [diameter, response_fig] = calculate_diameter(mx, tmpbw, tmpangle);

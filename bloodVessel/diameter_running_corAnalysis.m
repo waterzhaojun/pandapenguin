@@ -43,43 +43,64 @@ for i = 1:length(subbv)
     bvresult = load(resultpath);
     bvresult = bvresult.result;
     scanrate = bvresult.scanrate;
+    result = struct();
     for r = 1:length(bvresult.roi)
         roi = bvresult.roi{r};
         tmpdf = rundf;
         tmpidx = [];
         for j = 1:length(tmpdf)
+            if isfield(roi, 'id')
+                tmpdf(j).roiid = roi.id;
+            else
+                tmpdf(j).roiid = r;
+            end
+            
             startidx = translateIdx(tmpdf(j).startidx, runscanrate, scanrate);
-            endidx = translateIdx(tmpdf(j).endidx, runscanrate, scanrate);
+            endidx = postbout * scanrate + startidx - 1;
+            %translateIdx(tmpdf(j).endidx, runscanrate, scanrate);
             if endidx > length(roi.diameter)
+                disp('endidx out of range. Pass.');
                 continue
             end
+            
             bv_array = roi.diameter(startidx:endidx);
-            baseline = mean(roi.diameter(startidx-prebout*scanrate : startidx-1));
-            if baseline < roi.diameter_baseline + roi.diameter_std
-                tmpidx = [tmpidx, j];
-                tmpdf(j).tissue = roi.tissue;
-                tmpdf(j).type = roi.type;
-                tmpdf(j).bv_scanrate = scanrate;
-                [~,tmpdf(j).layer] = fileparts(subbv{i});
-                tmpdf(j).baseline = baseline;
-                tmpdf(j).maxdff = (max(bv_array)-baseline)/baseline;
-                [~,tmpmaxidx] = max(bv_array);
-                tmpdf(j).maxdelay = tmpmaxidx/scanrate;
-                tmphalfidx = find(bv_array(1:tmpmaxidx) > tmpdf(j).maxdff * 0.5);
+            baseline_array = roi.diameter(startidx-prebout*scanrate : startidx-1);
+            baseline = mean(baseline_array);
+            bv_array_dff = (bv_array - baseline)/baseline;
+            baseline_array_dff = (baseline_array - baseline)/baseline;
+            
+            if baseline > roi.diameter_baseline + roi.diameter_std
+                disp('Baseline out of range. Pass.');
+                continue
+            end
+            
+            tmpidx = [tmpidx, j];
+            tmpdf(j).tissue = roi.tissue;
+            tmpdf(j).type = roi.type;
+            tmpdf(j).position = roi.position;
+            tmpdf(j).bv_scanrate = scanrate;
+            if strcmp(subbv{i}(end), '\')
+                tmpbvpath = subbv{i}(1:end-1);
+            else
+                tmpbvpath = subbv{i};
+            end
+            [~,tmpdf(j).layer] = fileparts(tmpbvpath);
+            tmpdf(j).baseline = baseline;
+            [tmpdf(j).maxdff, tmpmaxidx] = max(bv_array_dff);
+            tmpdf(j).maxdelay = tmpmaxidx/scanrate;
+            tmphalfidx = find(bv_array_dff(1:tmpmaxidx) > tmpdf(j).maxdff * 0.5);
+            if length(tmphalfidx) > 0
                 tmphalfidx = tmphalfidx(1);
                 tmpdf(j).halfdelay = tmphalfidx/scanrate;
-                
-                tmpdf(j).bvarray = (roi.diameter(startidx - prebout*scanrate : startidx + postbout*scanrate-1)-baseline)/baseline;
-                if isfield(roi, 'id')
-                    tmpdf(j).roiid = roi.id;
-                else
-                    tmpdf(j).roiid = r;
-                end
             else
-                disp('Baseline out of range. Pass.');
+                sprintf('half delay is equal to max delay at roi %s at bout %d: %s', tmpdf(j).roiid, tmpdf(j).boutid, subbv{i})
+                tmpdf(j).halfdelay = tmpdf(j).maxdelay;
             end
+            tmpdf(j).bvarray = [baseline_array_dff, bv_array_dff];
+            
+            
         end
-        if ~exist('result','var')
+        if isempty(fieldnames(result))
             result = tmpdf(tmpidx);
         else
             result = [result, tmpdf(tmpidx)];
@@ -93,7 +114,7 @@ for i = 1:length(subbv)
     % save result.
     resultpath = [correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_resultpath];
     save(resultpath,'result');
-    result2csv(resultpath,{'bvarray'});
+    % result2csv(resultpath,{'bvarray'});
     % plot result.
     
 end
