@@ -65,10 +65,12 @@ end
 % The rate is 1hz.
 
 output_mov_fbint = check_scan_rate(inf) / check_scan_layers(inf) / output_mov_fs;
+samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
+mxmov = mx(:,:,:,1:samplemov_f);
 if output_mov_fbint > 1
     disp(['bint by ', num2str(output_mov_fbint), ' the mx to output sample mov']);
-    samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
-    mxmov = mx(:,:,:,1:samplemov_f);
+    
+    
     mxmov = reshape(mxmov, r,c,ch,output_mov_fbint,[]);
     mxmov = squeeze(mean(mxmov, 4));
     mxmov = reshape(mxmov, r,c,ch,[]);
