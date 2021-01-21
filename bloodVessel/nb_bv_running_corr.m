@@ -3,7 +3,7 @@
 %% Information
 %
 % Set the bv layer folder path here:
-path = 'C:\2pdata\WT0120\201223_WT0120\201223_WT0120_run1\bv\10to10';
+path = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
 
 % Set related parameters here: these is only realted with plot, it won't
 % effect the analysis value.
@@ -50,6 +50,15 @@ for i = 1:length(result.roi)
 end
 imshow(ref);
 
+%% For each ROI, the response in each bout
+roiids = [unique([runbvresult.roiid])];
+boutids = unique([runbvresult.boutid]);
+for i = 1:length(runbvresult)
+    tmpr = find(roiids == runbvresult(i).roiid);%find(strcmpi(roiids,runbvresult(i).roiid));
+    tmpc = find(boutids == runbvresult(i).boutid);
+    subplot(length(roiids)+1, length(boutids), (tmpr-1)*length(boutids)+tmpc);
+    plot(runbvresult(i).bvarray);
+end
 
 %% plot data by id.
 for i = 1:length(result.roi)

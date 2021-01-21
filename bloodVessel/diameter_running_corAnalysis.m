@@ -9,7 +9,7 @@ addRequired(parser, 'animal', @ischar );
 addRequired(parser, 'date', @ischar);
 addRequired(parser, 'run', @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'bvfolder', 'all');
-addParameter(parser, 'preBoutSec', 3, @(x) isnumeric(x) && isscalar(x) && (x>0));
+addParameter(parser, 'preBoutSec', 5, @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'postBoutSec', 10,  @(x) isnumeric(x) && isscalar(x) && (x>0));
 parse(parser,animal, date, run, varargin{:});
 
@@ -44,15 +44,19 @@ for i = 1:length(subbv)
     bvresult = bvresult.result;
     scanrate = bvresult.scanrate;
     result = struct();
+    plotr = length(bvresult.roi) + 1;
+    plotc = length(rundf);
+    individualfig = tiledlayout(plotr,plotc);
     for r = 1:length(bvresult.roi)
         roi = bvresult.roi{r};
-        tmpdf = rundf;
+        tmpdf = rundf
         tmpidx = [];
         for j = 1:length(tmpdf)
+            nexttile
             if isfield(roi, 'id')
                 tmpdf(j).roiid = roi.id;
             else
-                tmpdf(j).roiid = r;
+                tmpdf(j).roiid = num2str(r);
             end
             
             startidx = translateIdx(tmpdf(j).startidx, runscanrate, scanrate);
@@ -64,6 +68,8 @@ for i = 1:length(subbv)
             end
             
             bv_array = roi.diameter(startidx:endidx);
+            
+            
             baseline_array = roi.diameter(startidx-prebout*scanrate : startidx-1);
             baseline = mean(baseline_array);
             bv_array_dff = (bv_array - baseline)/baseline;
@@ -73,7 +79,7 @@ for i = 1:length(subbv)
                 disp('Baseline out of range. Pass.');
                 continue
             end
-            
+            plot([baseline_array_dff, bv_array_dff]);
             tmpidx = [tmpidx, j];
             tmpdf(j).tissue = roi.tissue;
             tmpdf(j).type = roi.type;
@@ -106,6 +112,14 @@ for i = 1:length(subbv)
             result = [result, tmpdf(tmpidx)];
         end
     end
+    
+    % plot running bout
+    for k = 1:length(rundf)
+        nexttile
+        tmpidxstart = rundf(k).startidx;
+        tmprunarray = runresult.array(tmpidxstart-prebout*runscanrate:tmpidxstart+postbout*runscanrate-1);
+        plot(tmprunarray);
+    end
     analysis_folder = [correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_folderpath];
     if not(isfolder(analysis_folder))
         mkdir(analysis_folder)
@@ -114,6 +128,9 @@ for i = 1:length(subbv)
     % save result.
     resultpath = [correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_resultpath];
     save(resultpath,'result');
+    individualfigpath = [correct_folderpath(subbv{i}), bvfilesys.bv_running_correlation_individualfigpath];
+    saveas(individualfig, individualfigpath);
+    close;
     % result2csv(resultpath,{'bvarray'});
     % plot result.
     

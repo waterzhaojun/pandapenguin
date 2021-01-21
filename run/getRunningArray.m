@@ -9,7 +9,7 @@ parse(parser,path, varargin{:});
 
 array = load(path);
 array = double(array.quad_data);
-array = diff([0,array]);%array(1:end) - [0,array(1:end-1)];
+array = gradient(array);%array(1:end) - [0,array(1:end-1)];
 
 if parser.Results.deshake
     array = deshake(array);

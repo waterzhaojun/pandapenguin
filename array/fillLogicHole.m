@@ -6,7 +6,7 @@ function result = fillLogicHole(array, gap, varargin)
 parser = inputParser;
 addRequired(parser, 'array', @isnumeric );
 addRequired(parser, 'gap', @(x) isnumeric(x) && isscalar(x) && (x>0)); % how many seconds of gap to be considered as the end of the bout.
-addParameter(parser, 'reverse', 0, @isnumeric); %If reverse, fill 1 to 0;
+addParameter(parser, 'reverse', false, @islogical); %If reverse, fill 1 to 0;
 parse(parser, array, gap, varargin{:});
 
 if parser.Results.reverse
