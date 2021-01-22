@@ -1,4 +1,4 @@
-function [result, array_sec] = get_bout(array, varargin)
+function [result, array_sec] = get_bout(array, scanrate, varargin)
 parser = inputParser;
 addRequired(parser, 'array', @isnumeric ); % This array must be deshaked.
 addOptional(parser, 'scanrate', 15, @(x) isnumeric(x) && isscalar(x) && (x>0));
@@ -7,7 +7,11 @@ addOptional(parser, 'scanrate', 15, @(x) isnumeric(x) && isscalar(x) && (x>0));
 % addParameter(parser, 'threshold', 1, @(x) isnumeric(x) && isscalar(x) && (x>0)); % The threshold of blocks ran in one sec to be considered as running.
 
 parse(parser,array, varargin{:});
-srate = parser.Results.scanrate;
+scanrate = parser.Results.scanrate;
+Nstate = 2;
+emitGuess = [0,5;2,5];
+transGuess = [0.9, 0.1; 0.5, 0.5];
+magThreshold = 0.004;
 
 config = run_config();
 direction_threshold = config.bout_direction_percent_threshold;
@@ -18,10 +22,65 @@ distance_threshold = config.bout_sec_distance_threshold;
 % recordlength = floor(length(array) / srate) * srate;
 % array_sec = reshape(abs(array(1:recordlength)), srate, []);
 % array_sec = sum(array_sec, 1);
+
+gaussWidth = 1;
+gaussSigma = 0.26;
+gaussFilt = MakeGaussFilt( gaussWidth, 0, gaussSigma, scanrate );
+array_filtered = filtfilt( gaussFilt, 1, array ); 
+array_filtered_bintAb = abs(bint1D(array_filtered, floor(scanrate)));
+array_filtered_bintAb = array_filtered_bintAb;
+array_filtered_bintAb(array_filtered_bintAb < magThreshold) = 0;
+
+array_filtered_Ab = abs(array_filtered);
+
+speedRange = 0:0.001:0.4; % <==== may need to change to a reasonable value.
+speedDiscrete = imquantize( array_filtered_bintAb, speedRange );
+
+% Need more study on this part
+% ====================================================================
+Nemit = numel(speedRange);
+emitGuessPDF = nan(Nstate, Nemit);
+for n = flip(1:Nstate)
+    tempGauss = normpdf(speedRange, emitGuess(1,n), emitGuess(2,n) );
+    emitGuessPDF(n,:) = tempGauss/sum(tempGauss);
+end
+[transEst, emitEst] = hmmtrain( speedDiscrete,  transGuess, emitGuessPDF, 'verbose',true ); 
+% ====================================================================
+
+state = hmmviterbi( speedDiscrete, transEst, emitEst )';
+state = 2 - state;
+% stateBinary = false( size(state, 1), Nstate );
+% for n = 1:Nstate
+%     stateBinary(:, n) = state == n; 
+% end       
+
+
+runBout = regionprops( state, 'Area', 'PixelIdxList' );
+Nputative = numel(runBout);
+putativeBout = repmat( struct('dur',NaN, 'scan',[], 'iso',nan(1,2) ), 1, Nputative );
+for p = 1:numel(runBout)
+    % is the run bout well-isolated from other bouts?
+    preIsoScan = find( state(1:runBout(p).PixelIdxList(1)-1), 1, 'last' );
+    if isempty(preIsoScan), preIsoScan = 1; end
+    postIsoScan = find( state(runBout(p).PixelIdxList(end)+1:end), 1, 'first' );
+    if ~isempty(postIsoScan), postIsoScan = postIsoScan + runBout(p).PixelIdxList(end); else, postIsoScan = Nscan; end
+    tempIsoScan = [runBout(p).PixelIdxList(1)-preIsoScan,  postIsoScan - runBout(p).PixelIdxList(end) ];
+    % get its basic info
+    putativeBout(p).dur = periParam.dT*runBout(p).Area;
+    putativeBout(p).iso = periParam.dT*tempIsoScan;
+    putativeBout(p).scan = runBout(p).PixelIdxList';
+    putativeBout(p).Nscan = runBout(p).Area;
+end
+
+
+
+
+
+
 array_sec = bint1D(abs(array), srate, 'method', 'sum');
 bintarray = (array_sec >= distance_threshold) *1;
 bintarray = fillLogicHole(bintarray, gap_threshold);
-bintarray = fillLogicHole(bintarray, duration_threshold, 'reverse',1);
+bintarray = fillLogicHole(bintarray, duration_threshold, 'reverse',true);
 result=struct();
 result.bout = {};
 boutstart = 1;

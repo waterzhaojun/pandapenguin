@@ -8,6 +8,6 @@ res.bout_direction_percent_threshold = 0.5; % The threshold of positive value in
 res.rest_period_length_threshold = 15; % When identify a rest period, the duration length of the period. Unit is sec.
 res.rest_period_ending_kickout = [5,3]; % When you get a rest period, you need to kick out a period at two ending. If you set it [5,3], means kickout 5sec of the beginning, and kickout 3sec of the ending.
 res.blockunit = 0.005; % every block is 20mm.
-res.acceleration_threshold = 0.000001;
+res.acceleration_threshold = 0.000001; %Not necessary if not use Drew lab method
 
 end

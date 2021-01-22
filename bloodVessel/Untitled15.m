@@ -6,7 +6,9 @@ options.showCode = false;
 %publish('nb_bv_running_corr.m',options);
 animal = 'CGRP03'
 date = '201109'
-run = 3
+run = 4
 running_analysis(animal, date, run)
-folder = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run3\bv\6to7';
+folder = 'C:\2pdata\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
 diameter_calculate_baseline(folder)
+
+diameter_running_corAnalysis(animal, date, run);

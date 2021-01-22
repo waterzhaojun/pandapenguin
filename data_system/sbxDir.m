@@ -161,6 +161,12 @@ for i = 1:length(runs)
     % This following path is add by Jun. =============================
     % ================================================================
     
+    % registration part.
+    dirs.runs{i}.registration_ref = [dirs.runs{i}.base, '_registration_ref.tif'];
+    
+    % info.
+    dirs.runs{i}.info = [dirs.runs{i}.base, '.mat'];
+    
     %_pretreated.tif is a tif file pretreated with series of steps.
     pretreatedmov = dir(sprintf('%s*_pretreated.tif', dirs.runs{i}.path));
     if ~isempty(pretreatedmov)

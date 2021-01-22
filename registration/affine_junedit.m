@@ -24,7 +24,10 @@ edgeMax = [100, 100, 120, 120]; % [left, right, top, bottom]
 infoStruct = pipe.io.sbxInfo(sbxPath, true); %<-----Jun: I added a true to force it overwrite the info
 Nchan = infoStruct.nchan;
 Nplane = size(infoStruct.otwave,2);%<------Jun: when it is single plane, here may have problem.
-Nscan = floor(infoStruct.nframes / numel(infoStruct.otwave)); %<------Jun: when it is single plane, here may have problem. And to avoid float number, I add floor here.
+if Nplane == 0
+    Nplane = 1;
+end
+Nscan = floor(infoStruct.nframes / Nplane); %<------Jun: when it is single plane, here may have problem. And to avoid float number, I add floor here.
 Nx = infoStruct.sz(1); %NxCrop = infoStruct.sz(1) - edges(3) - edges(4);
 Ny = infoStruct.sz(2); %NyCrop = infoStruct.sz(2) - edges(1) - edges(2);
 

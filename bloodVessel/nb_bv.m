@@ -19,7 +19,7 @@ input_vessel_id(folder);
 running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
 diameter_calculate_baseline(folder);
 layername = [num2str(layers(1)), 'to', num2str(layers(end))];
-diameter_running_corAnalysis(animal, date, run, 'bvfolder', layername);
+diameter_running_corAnalysis(animal, date, run, 'bvfolder', '6to7');
 %result2csv([folder, '\',bvfilesys.bv_running_correlation_resultpath], {'bvarray'});
 
 

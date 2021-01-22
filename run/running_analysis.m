@@ -15,7 +15,7 @@ end
 path = sbxPath(animal, date, run, 'quad'); 
 inf = sbxInfo(path, true);
 if inf.scanmode == 1
-    scanrate = 15;
+    scanrate = 15.5;
 elseif inf.scanmode == 2
     scanrate = 31;
 end
@@ -23,7 +23,7 @@ end
 cfg = run_config();
 
 result = struct();
-result.array = getRunningArray(path);
+result.array = getRunningArray(path) * cfg.blockunit * scanrate;
 result.scanrate = scanrate;
 [tmp, result.secarray] = get_bout(result.array, scanrate);
 

@@ -3,7 +3,7 @@
 %% Information
 %
 % Set the bv layer folder path here:
-path = 'D:\2P\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
+path = 'C:\2pdata\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
 
 % Set related parameters here: these is only realted with plot, it won't
 % effect the analysis value.
