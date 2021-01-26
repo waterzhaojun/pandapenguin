@@ -12,3 +12,10 @@ folder = 'C:\2pdata\CGRP03\201109_CGRP03\201109_CGRP03_run4\bv\6to7';
 diameter_calculate_baseline(folder)
 
 diameter_running_corAnalysis(animal, date, run);
+
+a = [1,2,3,4,5];
+for i =flip(1:length(a))
+    disp(i);
+end
+
+find(flip(a)>3)

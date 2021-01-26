@@ -25,9 +25,9 @@ cfg = run_config();
 result = struct();
 result.array = getRunningArray(path) * cfg.blockunit * scanrate;
 result.scanrate = scanrate;
-[tmp, result.secarray] = get_bout(result.array, scanrate);
+[result.bout, result.secarray, result.array] = get_bout(result.array, scanrate);
 
-result.bout = tmp.bout;
+
 result.config = cfg;
 
 result.rest={};

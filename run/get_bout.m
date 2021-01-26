@@ -1,4 +1,4 @@
-function [result, array_sec] = get_bout(array, varargin)
+function [bout, array_filtered_bintAb, array_filtered, restbout] = get_bout(array, varargin)
 parser = inputParser;
 addRequired(parser, 'array', @isnumeric ); % This array must be deshaked.
 addOptional(parser, 'scanrate', 15, @(x) isnumeric(x) && isscalar(x) && (x>0));
@@ -11,12 +11,12 @@ scanrate = parser.Results.scanrate;
 Nstate = 2;
 emitGuess = [0,5;2,5];
 transGuess = [0.9, 0.1; 0.5, 0.5];
-magThreshold = 0.01;
+magThreshold = 0.0041;
 
 config = run_config();
 direction_threshold = config.bout_direction_percent_threshold;
-duration_threshold = config.bout_duration_threshold * scanrate;
-gap_threshold = config.bout_gap_duration_threshold * scanrate;
+duration_threshold = config.bout_duration_threshold;
+gap_threshold = config.bout_gap_duration_threshold;
 distance_threshold = config.bout_sec_distance_threshold;
 
 % recordlength = floor(length(array) / srate) * srate;
@@ -26,11 +26,9 @@ distance_threshold = config.bout_sec_distance_threshold;
 gaussWidth = 1;
 gaussSigma = 0.26;
 gaussFilt = MakeGaussFilt( gaussWidth, 0, gaussSigma, scanrate );
-array_filtered = filtfilt( gaussFilt, 1, array ); 
-array_filtered_bintAb = bint1D(abs(array_filtered), floor(scanrate));
+array_filtered = abs(filtfilt( gaussFilt, 1, array ));  % I think it will be more reasonable to abs before bint
+array_filtered_bintAb = bint1D(array_filtered, floor(scanrate));
 array_filtered_bintAb(array_filtered_bintAb < magThreshold) = 0;
-
-%array_filtered_Ab = abs(array_filtered);
 
 speedRange = 0:0.001:0.4; % <==== may need to change to a reasonable value.
 speedDiscrete = imquantize( array_filtered_bintAb, speedRange );
@@ -47,7 +45,7 @@ end
 % ====================================================================
 
 state = hmmviterbi( speedDiscrete, transEst, emitEst )';
-state = 2 - state;
+state = logical(2-state);
 bout = findPosPiece(state);
 
 % set some filter =====================================
@@ -68,92 +66,59 @@ for i = 1:length(bout)
         tmpwantedIdx = [tmpwantedIdx, i];
     end
 end
-wantedIdx = 
+wantedIdx = intersect(wantedIdx, tmpwantedIdx);
 
-runBout = regionprops( state, 'Area', 'PixelIdxList' );
-Nputative = numel(runBout);
-putativeBout = repmat( struct('dur',NaN, 'scan',[], 'iso',nan(1,2) ), 1, Nputative );
-for p = 1:numel(runBout)
-    % is the run bout well-isolated from other bouts?
-    preIsoScan = find( state(1:runBout(p).PixelIdxList(1)-1), 1, 'last' );
-    if isempty(preIsoScan), preIsoScan = 1; end
-    postIsoScan = find( state(runBout(p).PixelIdxList(end)+1:end), 1, 'first' );
-    if ~isempty(postIsoScan), postIsoScan = postIsoScan + runBout(p).PixelIdxList(end); else, postIsoScan = Nscan; end
-    tempIsoScan = [runBout(p).PixelIdxList(1)-preIsoScan,  postIsoScan - runBout(p).PixelIdxList(end) ];
-    % get its basic info
-    putativeBout(p).dur = periParam.dT*runBout(p).Area;
-    putativeBout(p).iso = periParam.dT*tempIsoScan;
-    putativeBout(p).scan = runBout(p).PixelIdxList';
-    putativeBout(p).Nscan = runBout(p).Area;
+bout = bout(wantedIdx);
+
+% Now format and popular the characters ================================
+for i = 1:length(bout)
+    bout{i}.startsec = bout{i}.startidx;
+    bout{i}.endsec = bout{i}.endidx;
+    bout{i} = rmfield(bout{i},'startidx');
+    bout{i} = rmfield(bout{i},'endidx');
+end
+
+% real start and end idx. Ideally this need to be the index at 15hz, I will
+% pass this step to later.
+for i = 1:length(bout)
+    %bout{i}.startidx = get_real_idx(array_filtered, bout{i}.startsec, scanrate, magThreshold, 'start');
+    %bout{i}.endidx = get_real_idx(array_filtered, bout{i}.endsec, scanrate, magThreshold, 'end');
+    bout{i}.startidx = (bout{i}.startsec-1) * floor(scanrate) + 1;
+    bout{i}.endidx = bout{i}.endsec * floor(scanrate);
+    bout{i}.array = array_filtered(bout{i}.startidx : bout{i}.endidx);
+    bout{i}.duration = length(bout{i}.array)/scanrate;
+    bout{i}.speed = mean(bout{i}.array);   % I am using filtered data instead of original data.
+    [bout{i}.maxspeed, acceleration_delay] = max(bout{i}.array);
+    bout{i}.acceleration = bout{i}.maxspeed * scanrate / acceleration_delay; % Not sure this is accurate.
+    bout{i}.acceleration_delay = acceleration_delay / scanrate;
+    bout{i}.distance = bout{i}.speed * bout{i}.duration;
 end
 
 
-
-
-
-
-array_sec = bint1D(abs(array), srate, 'method', 'sum');
-bintarray = (array_sec >= distance_threshold) *1;
-bintarray = fillLogicHole(bintarray, gap_threshold);
-bintarray = fillLogicHole(bintarray, duration_threshold, 'reverse',true);
-result=struct();
-result.bout = {};
-boutstart = 1;
-flag = 0;
-array1 = [0, bintarray, 0];
-% I didn't let the loop start from 2 as I think the beginning bout need to
-% have enough rest time before start.
-for i = (gap_threshold+1):length(array1) 
-    if prod(array1(i-1:i) == [0 1]) && ~flag
-        result.bout{boutstart}.startsec = i-1;
-        flag = 1;
-    elseif prod(array1(i-1:i) == [1 0]) && flag
-        result.bout{boutstart}.endsec = i-1;
-        flag = 0;
-        boutstart = boutstart+1;
+% restbout=============================================================
+reststate = logical(1-state);
+restbout = findPosPiece(reststate);
+% set some filter for restbout =====================================
+% gap filter
+lastrestbout = 0;
+wantedIdx = [];
+for i = 1:length(restbout)
+    if restbout{i}.startidx - lastbout > gap_threshold
+        wantedIdx = [wantedIdx, i];
+    end
+    lastbout = bout{i}.endidx;
+end
+    
+% duration filter
+tmpwantedIdx = [];
+for i = 1:length(bout)
+    if bout{i}.endidx - bout{i}.startidx + 1>duration_threshold
+        tmpwantedIdx = [tmpwantedIdx, i];
     end
 end
+wantedIdx = intersect(wantedIdx, tmpwantedIdx);
 
-% The following part is mainly because I find still some short array are
-% defined as bout. So I add this line to exclude them.
-tmplist = [];
-for i = 1:length(result.bout)
-    if result.bout{i}.endsec - result.bout{i}.startsec >=2
-        tmplist = [tmplist,i];
-    end
-end
-result.bout = result.bout(tmplist);
-% ==================================================
+bout = bout(wantedIdx);
 
-for i = 1:length(result.bout)
-    startidx = (result.bout{i}.startsec - 1) * srate +1;
-    endidx = min(result.bout{i}.endsec * srate, length(array));
-    tmparray = array(startidx:endidx);
-
-    tmpidx = find(abs(tmparray) > 0);  % Not sure if 0 is good here. Need to edit based on threshold later.
-    result.bout{i}.startidx = startidx + min(tmpidx) - 1;
-    result.bout{i}.endidx = startidx + max(tmpidx) - 1;
-    result.bout{i}.array = array(result.bout{i}.startidx:result.bout{i}.endidx);
-    result.bout{i}.distance = sum(abs(result.bout{i}.array));
-    result.bout{i}.duration = length(result.bout{i}.array)/srate;
-    result.bout{i}.speed = result.bout{i}.distance / result.bout{i}.duration;
-%     tmp = sum(result.bout{i}.array);
-%     if tmp <= 0
-%         result.bout{i}.direction = -1;
-%     else
-%         result.bout{i}.direction = 1;
-%     end
-    result.bout{i}.direction = identify_running_direction(result.bout{i}.array, direction_threshold);
-    result.bout{i}.maxspeed = max(abs(result.bout{i}.array)) * srate / result.bout{i}.duration;
-
-    % The following part is to calculate acceleration based 1hz array. I don't sure if 1hz is better than original rate.
-    % Be careful I used absolute value here.
-    % The max acceleration is used for this bout's acceleration. The
-    % acceleration _delay is how many sec after the start of the bout to
-    % get the max acceleration moment.
-    tmparraysec = bint1D(abs(tmparray), srate, 'method', 'sum'); 
-    tmpacc = diff(tmparraysec);
-    [result.bout{i}.acceleration, result.bout{i}.acceleration_delay] = max(tmpacc); 
-end
 
 end
