@@ -98,27 +98,18 @@ end
 % restbout=============================================================
 reststate = logical(1-state);
 restbout = findPosPiece(reststate);
+
 % set some filter for restbout =====================================
 % gap filter
-lastrestbout = 0;
+% lastrestbout = 0;
 wantedIdx = [];
 for i = 1:length(restbout)
-    if restbout{i}.startidx - lastbout > gap_threshold
+    if restbout{i}.startidx - restbout{i}.endidx > sum(config.rest_period_ending_kickout)
         wantedIdx = [wantedIdx, i];
     end
     lastbout = bout{i}.endidx;
 end
-    
-% duration filter
-tmpwantedIdx = [];
-for i = 1:length(bout)
-    if bout{i}.endidx - bout{i}.startidx + 1>duration_threshold
-        tmpwantedIdx = [tmpwantedIdx, i];
-    end
-end
-wantedIdx = intersect(wantedIdx, tmpwantedIdx);
 
-bout = bout(wantedIdx);
-
+restbout = restbout(wantedIdx);
 
 end
