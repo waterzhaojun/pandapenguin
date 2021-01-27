@@ -24,6 +24,7 @@ cfg = run_config();
 
 result = struct();
 result.array = getRunningArray(path) * cfg.blockunit * scanrate;
+result.secarray = bint1D(result.array, floor(scanrate));
 result.scanrate = scanrate;
 [result.bout, result.secarray, result.array] = get_bout(result.array, scanrate);
 

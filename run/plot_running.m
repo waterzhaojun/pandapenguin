@@ -1,8 +1,5 @@
 function plot_running(result)
 
-
-
-
 hold on
 % plot speed array. it has been bint to 1hz.
 bar(result.secarray, 'black', 'EdgeColor','none');
@@ -10,7 +7,7 @@ bar(result.secarray, 'black', 'EdgeColor','none');
 % plot each bout.
 for i = 1:length(result.bout)
     boutstart = max(result.bout{i}.startsec-1, 1);
-    boutend = min(result.bout{i}.endsec+1, floor(length(result.array)/result.scanrate));
+    boutend = min(result.bout{i}.endsec+1, length(result.secarray));
 %     direction = result.bout{i}.direction;
 %     if direction == 1
     bar([boutstart:boutend], result.secarray(boutstart:boutend),'g','EdgeColor','none');
