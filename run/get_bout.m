@@ -96,20 +96,20 @@ end
 
 
 % restbout=============================================================
-reststate = logical(1-state);
-restbout = findPosPiece(reststate);
-
-% set some filter for restbout =====================================
-% gap filter
-% lastrestbout = 0;
-wantedIdx = [];
-for i = 1:length(restbout)
-    if restbout{i}.startidx - restbout{i}.endidx > sum(config.rest_period_ending_kickout)
-        wantedIdx = [wantedIdx, i];
-    end
-    lastbout = bout{i}.endidx;
-end
-
-restbout = restbout(wantedIdx);
+% reststate = logical(1-state);
+% restbout = findPosPiece(reststate);
+% 
+% % set some filter for restbout =====================================
+% % gap filter
+% % lastrestbout = 0;
+% wantedIdx = [];
+% for i = 1:length(restbout)
+%     if restbout{i}.startidx - restbout{i}.endidx > sum(config.rest_period_ending_kickout)
+%         wantedIdx = [wantedIdx, i];
+%     end
+%     lastbout = bout{i}.endidx;
+% end
+% 
+% restbout = restbout(wantedIdx);
 
 end

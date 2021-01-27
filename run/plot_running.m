@@ -11,19 +11,19 @@ bar(result.secarray, 'black', 'EdgeColor','none');
 for i = 1:length(result.bout)
     boutstart = max(result.bout{i}.startsec-1, 1);
     boutend = min(result.bout{i}.endsec+1, floor(length(result.array)/result.scanrate));
-    direction = result.bout{i}.direction;
-    if direction == 1
-        bar([boutstart:boutend], result.secarray(boutstart:boutend),'g','EdgeColor','none');
-    elseif direction == -1
-        bar([boutstart:boutend], result.secarray(boutstart:boutend),'r','EdgeColor','none');
-    end
+%     direction = result.bout{i}.direction;
+%     if direction == 1
+    bar([boutstart:boutend], result.secarray(boutstart:boutend),'g','EdgeColor','none');
+%     elseif direction == -1
+%         bar([boutstart:boutend], result.secarray(boutstart:boutend),'r','EdgeColor','none');
+%     end
 end
 
 % plot each rest period.
 for i = 1:length(result.rest.result)
     startidx = ceil(result.rest.result(i).startidx / result.scanrate);
     endidx = floor(result.rest.result(i).endidx / result.scanrate);
-    plot([startidx,endidx], [0.2,0.2], 'b');
+    plot([startidx,endidx], [0.002,0.002], 'b');
 end
 hold off
 

@@ -13,9 +13,8 @@ diameter_calculate_baseline(folder)
 
 diameter_running_corAnalysis(animal, date, run);
 
-a = [1,2,3,4,5];
-for i =flip(1:length(a))
-    disp(i);
-end
+running_analysis(animal, date, run);
+rundata = extractRunningData(animal, date, run);
+bvdata = extractBvData(animal, date, run);
 
-find(flip(a)>3)
+runningCorrelationPlot(rundata, {bvdata}, {{'diameter'}}, {'layer'})

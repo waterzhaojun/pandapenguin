@@ -31,8 +31,9 @@ for i = 1:length(corrStructDfCell)
                 corrArrayRespStartIdx = translateIdx(boutresidx(1), boutscanrate, corrScanrate);
                 corrArrayRespEndIdx = translateIdx(boutresidx(2), boutscanrate, corrScanrate);
 
-                rems = corrArrayRespEndIdx - corrArrayBaselineStartIdx + 1 - ((boutresidx(2) - boutbaselineidx(1) + 1) * corrScanrate / boutscanrate);
-                corrArray = array(corrArrayBaselineStartIdx:corrArrayRespEndIdx - rems);
+                rems = ceil(corrArrayRespEndIdx - corrArrayBaselineStartIdx + 1 - ((boutresidx(2) - boutbaselineidx(1) + 1) * corrScanrate / boutscanrate));
+                %disp(rems)
+                corrArray = array(corrArrayBaselineStartIdx:corrArrayRespEndIdx);% - rems);
                 subplot(plotr, plotc, idx);
                 plot(corrArray);
                 hold on
