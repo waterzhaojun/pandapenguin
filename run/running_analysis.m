@@ -24,16 +24,16 @@ cfg = run_config();
 
 result = struct();
 result.array = getRunningArray(path) * cfg.blockunit * scanrate;
-result.secarray = bint1D(result.array, floor(scanrate));
+result.secarray = bint1D(abs(result.array), floor(scanrate));
 result.scanrate = scanrate;
-[result.bout, result.secarray, result.array] = get_bout(result.array, scanrate);
+[result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout(result.array, scanrate);
 
 
 result.config = cfg;
-
-result.rest={};
-tmp = getRunningArray(path, 'deshake', false);
-[result.rest.binary_array, result.rest.result] = get_rest_period(tmp, cfg.rest_period_length_threshold, cfg.rest_period_ending_kickout, scanrate);
+% 
+% result.rest={};
+% tmp = getRunningArray(path, 'deshake', false);
+% [result.rest.binary_array, result.rest.result] = get_rest_period(tmp, cfg.rest_period_length_threshold, cfg.rest_period_ending_kickout, scanrate);
 
 % plot the response pdf =============================================
 % plot(result.secarray);

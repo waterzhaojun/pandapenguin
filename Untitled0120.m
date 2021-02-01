@@ -40,3 +40,17 @@ expt.Nruns = [1];
 sbxPath = 'C:\2pdata\CGRP03\201109_CGRP03\201109_CGRP03_run1\CGRP03_201109_000.sbx';
 infoStruct = pipe.io.sbxInfo(sbxPath, true);
 [a,b] = GetDeformCat3D( expt, infoStruct);
+
+
+
+animal = 'CGRP03';
+date = '201109';
+run = 3;
+running_analysis(animal, date, run);
+rundata = extractRunningData(animal, date, run);
+bvdata = extractBvData(animal, date, run);
+runningCorrelationPlot(rundata, {bvdata}, {{'diameter'}}, {'layer'});
+
+
+path = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ';
+a = load_exp(path);
