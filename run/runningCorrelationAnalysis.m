@@ -2,7 +2,7 @@ function df = runningCorrelationAnalysis(runningStructDf, corrStructDfCell, corr
 
 % Based on running struct data, get the correlation analysis result. a
 % sample is:
-% df = runningCorrelationAnalysis(rundata, {bvdata}, {'bv'}, {{'diameter'}})
+% df = runningCorrelationAnalysis(rundata, {bvdata, regdata}, {'bv', 'reg'}, {{'diameter'}, {'trans_x', 'trans_y'}})
 %
 %
 for i = 1:length(analyseCorrArrayField)

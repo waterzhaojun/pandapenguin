@@ -181,6 +181,13 @@ for i = 1:length(runs)
     else
         dirs.runs{i}.config = [];
     end
+    
+    andyRegData = dir(sprintf('%s*_affine_tforms.mat', dirs.runs{i}.path));
+    if ~isempty(andyRegData)
+        dirs.runs{i}.andyRegData = sprintf('%s%s', dirs.runs{i}.path, andyRegData.name);
+    else
+        dirs.runs{i}.andyRegData = [];
+    end
 end
 
 

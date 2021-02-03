@@ -2,7 +2,7 @@ function runningCorrelationPlot(runningStructDf, corrStructDfCell, analyseCorrAr
 
 % Based on running struct data, get the correlation analysis result. a
 % sample is:
-% runningCorrelationPlot(rundata, {bvdata, bvdata}, {{'diameter'},{'diameter'}}, {'layer','layer'})
+% runningCorrelationPlot(rundata, {bvdata, regdata}, {{'diameter'},{'trans_x', 'trans_y'}}, {'layer','layer'})
 %
 %
 
