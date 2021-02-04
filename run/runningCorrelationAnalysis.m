@@ -2,7 +2,7 @@ function df = runningCorrelationAnalysis(runningStructDf, corrStructDfCell, corr
 
 % Based on running struct data, get the correlation analysis result. a
 % sample is:
-% df = runningCorrelationAnalysis(rundata, {bvdata, regdata}, {'bv', 'reg'}, {{'diameter'}, {'trans_x', 'trans_y'}})
+% df = runningCorrelationAnalysis(rundata, {bvdata, regdata}, {'bv', 'reg'}, {{'diameter'}, {'trans_x', 'trans_y'}});
 %
 %
 for i = 1:length(analyseCorrArrayField)
@@ -10,7 +10,7 @@ for i = 1:length(analyseCorrArrayField)
 end
 
 df = correlationData([{runningStructDf}, corrStructDfCell], [{'running'}, corrHeads]);
-idx = 1
+idx = 1;
 for i = 1:length(df)
     boutbaselineidx = df(i).runningbaselineIdx;
     boutresidx = df(i).runningresponseIdx;
@@ -24,13 +24,19 @@ for i = 1:length(df)
             corrArrayScanrate = df(i).([corrHeads{j}, 'scanrate']);
             corrArrayBaselineStartIdx = translateIdx(boutbaselineidx(1), df(i).runningscanrate, corrArrayScanrate);
             corrArrayBaselineEndIdx = translateIdx(boutbaselineidx(2), df(i).runningscanrate, corrArrayScanrate);
-            df(i).([corrHeads{j}, '_bout_baseline']) = mean(array(corrArrayBaselineStartIdx:corrArrayBaselineEndIdx));
-            df(i).([corrHeads{j}, '_bout_baseline_array']) = array(corrArrayBaselineStartIdx:corrArrayBaselineEndIdx);
+            df(i).([arrayFieldName, '_bout_baseline']) = mean(array(corrArrayBaselineStartIdx:corrArrayBaselineEndIdx));
+            df(i).([arrayFieldName, '_bout_baseline_array']) = array(corrArrayBaselineStartIdx:corrArrayBaselineEndIdx);
+            
             corrArrayRespStartIdx = translateIdx(boutresidx(1), df(i).runningscanrate, corrArrayScanrate);
             corrArrayRespEndIdx = translateIdx(boutresidx(2), df(i).runningscanrate, corrArrayScanrate);
-            df(i).([corrHeads{j}, '_bout_response_array']) = array(corrArrayRespStartIdx:corrArrayRespEndIdx);
-            rems = corrArrayRespEndIdx - corrArrayBaselineStartIdx + 1 - ((boutresidx(2) - boutbaselineidx(1) + 1) * corrArrayScanrate / df(i).runningscanrate);
-            df(i).([corrHeads{j}, '_bout_timecourse']) = array(corrArrayBaselineStartIdx:corrArrayRespEndIdx - rems);
+            df(i).([arrayFieldName, '_bout_response_array']) = array(corrArrayRespStartIdx:corrArrayRespEndIdx);
+            %rems = corrArrayRespEndIdx - corrArrayBaselineStartIdx + 1 - ((boutresidx(2) - boutbaselineidx(1) + 1) * corrArrayScanrate / df(i).runningscanrate);
+            df(i).([arrayFieldName, '_bout_timecourse']) = array(corrArrayBaselineStartIdx:corrArrayRespEndIdx);% - rems);
+            
+            [tmp1, tmp2] = max(df(i).([arrayFieldName, '_bout_response_array']));
+            df(i).([arrayFieldName, '_bout_max_response']) = (tmp1 - df(i).([arrayFieldName, '_bout_baseline'])) / df(i).([arrayFieldName, '_bout_baseline']);
+            df(i).([arrayFieldName, '_bout_max_response_delay']) = tmp2 / corrArrayScanrate;
+            df(i).([arrayFieldName, '_bout_average_response']) = (mean(df(i).([arrayFieldName, '_bout_response_array'])) - df(i).([arrayFieldName, '_bout_baseline'])) / df(i).([arrayFieldName, '_bout_baseline']);
 
             idx = idx + 1;
         end
