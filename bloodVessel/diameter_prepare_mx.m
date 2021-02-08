@@ -64,7 +64,7 @@ end
 % Save mov sample. This sample is used only to check, not for future check.
 % The rate is 1hz.
 
-output_mov_fbint = check_scan_rate(inf) / check_scan_layers(inf) / output_mov_fs;
+output_mov_fbint = round(check_scan_rate(inf) / check_scan_layers(inf) / output_mov_fs);
 samplemov_f = floor(f/output_mov_fbint)*output_mov_fbint;
 mxmov = mx(:,:,:,1:samplemov_f);
 if output_mov_fbint > 1

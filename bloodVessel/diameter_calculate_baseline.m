@@ -19,7 +19,14 @@ result = result.result;
 runresultpath = sbxPath(animal, date, run, 'running');
 runresult = load(runresultpath.result);
 runresult = runresult.result;
-rest_binary = logical(bint1D(runresult.rest.binary_array, runresult.scanrate/result.scanrate, 'method','min'));
+% rest_binary = logical(bint1D(runresult.rest.binary_array, runresult.scanrate/result.scanrate, 'method','min'));
+
+restidx = runresult.restidx;
+for i = 1:length(restidx)
+    restidx(i) = translateIdx(restidx(i), runresult.scanrate, result.scanrate);
+end
+restidx = unique(restidx);
+rest_binary(restidx) = logical(1);
 
 for i = 1:length(result.roi)
     bv_value = result.roi{i}.diameter;
@@ -27,6 +34,10 @@ for i = 1:length(result.roi)
     result.roi{i}.diameter_baseline = mean(rest_diameter);
     result.roi{i}.diameter_std = std(rest_diameter);
 end
+
+
+
+
 
 save(resultpath, 'result');
 
