@@ -1,8 +1,8 @@
 % This notebook is to analyse running and related data responses
 
-animal = 'WT0118';
-date = '201123';
-run = 1;
+animal = 'CGRP03';%'WT0118';
+date = '201109';%'201123';
+run = 3;%1;
 preBoutSec = 3;  % Analyse 3s before start of the bout.
 postBoutSec = 5; % Analyse 5s after the start of the bout.
 

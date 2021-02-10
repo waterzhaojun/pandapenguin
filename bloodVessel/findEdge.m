@@ -8,20 +8,12 @@ function [diameter, upper_idx, lower_idx] = findEdge(vector, span, method)
     %vector = smooth(vector, span);
     vector = gaussfilt([1:length(vector)], vector, 3);
     
-    if strcmp(method, 'kmean')
-        % [val ind] = sort(vector,'descend');
-        % maxidxes = ind(1:6);
-        % grouped_vector = kmeans(vector, 2);
-        % vessel_group = round(mean(grouped_vector(maxidxes)));
-        % diameter = sum(grouped_vector == vessel_group);
-        disp('not a good method');
-        
-    elseif strcmp(method, 'percentage')
-        [peakvalue, peak] = max(vector);
+    if strcmp(method, 'percentage')
+        [peakvalue, peakidx] = max(vector);
         leftbaseline = min(vector(1:peakidx));
-        upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.1));
+        upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.25 + leftbaseline));
         rightbaseline = min(vector(peakidx:end));
-        lower_idx = min(find(vector(peakidx:end) > (peakvalue - rightbaseline) * 0.1)) + peakidx;
+        lower_idx = min(find(vector(peakidx:end) < (peakvalue - rightbaseline) * 0.25 + rightbaseline)) + peakidx;
         diameter = lower_idx - upper_idx;
         
     elseif strcmp(method, 'kmean_slope')
