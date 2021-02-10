@@ -9,7 +9,7 @@ layers = [9];      % <====================== File your exp info [11]
 % don't change code below ==========================================
 bvfilesys = bv_file_system();
 [mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers);
-diameter_build_refmask(folder, mx, 'rebuildRef', true, 'rebuildRoi', false);
+diameter_build_refmask(folder, mx, 'rebuildRef', true, 'rebuildRoi', true);
 set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
 set_vessel_type(folder);

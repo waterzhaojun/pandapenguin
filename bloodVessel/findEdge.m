@@ -1,7 +1,7 @@
 function [diameter, upper_idx, lower_idx] = findEdge(vector, span, method)
     
     % in case the image is dim, we need do smooth first. 
-    if nargin < 3, method = 'kmean_slope'; end
+    if nargin < 3, method = 'percentage'; end
     if nargin < 2, span = 11; end
 
     %vector = medfilt1(vector, span);
@@ -15,6 +15,14 @@ function [diameter, upper_idx, lower_idx] = findEdge(vector, span, method)
         % vessel_group = round(mean(grouped_vector(maxidxes)));
         % diameter = sum(grouped_vector == vessel_group);
         disp('not a good method');
+        
+    elseif strcmp(method, 'percentage')
+        [peakvalue, peak] = max(vector);
+        leftbaseline = min(vector(1:peakidx));
+        upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.1));
+        rightbaseline = min(vector(peakidx:end));
+        lower_idx = min(find(vector(peakidx:end) > (peakvalue - rightbaseline) * 0.1)) + peakidx;
+        diameter = lower_idx - upper_idx;
         
     elseif strcmp(method, 'kmean_slope')
         grouped_vector = kmeans(vector, 2);
