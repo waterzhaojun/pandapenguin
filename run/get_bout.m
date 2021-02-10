@@ -24,9 +24,10 @@ restbout = findPosPiece(rest_binary);
 lastidx = 1;
 wantedIdx = [];
 for i = 1:length(bout)
-    if bout{i}.startidx - lastidx > config.bout_gap_duration_threshold &&...
+    if bout{i}.startidx - lastidx > config.bout_gap_duration_threshold*scanrate &&...
             ((bout{i}.endidx - bout{i}.startidx) >= config.bout_duration_threshold*scanrate)
         wantedIdx = [wantedIdx, i];
+        lastidx = bout{i}.endidx;
     end
 end
 bout = bout(wantedIdx);
@@ -47,7 +48,7 @@ end
 %==================================================================
 % add some filter for rest bout ===================================
 %==================================================================
-lastidx = 1;
+
 wantedIdx = [];
 restidx = [];
 for i = 1:length(restbout)

@@ -29,7 +29,7 @@ for i = 1:length(result.roi)
        result.roi{i}.diameter = diameter * (result.x_ratio + result.y_ratio)/2;
        result.roi{i}.response_mov_path= ['roi_', num2str(i),'_response_mov.tif'];
        % To avoid produce super big tif, I downsample output mov to 1hz.
-       response_mov = downsamplef(response_mov, result.scanrate);
+       response_mov = downsamplef(response_mov, round(result.scanrate));
       
        if max(response_mov, [],'all') > 256
           response_mov = response_mov/256;
