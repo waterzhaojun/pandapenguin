@@ -4,8 +4,9 @@ function [diameter, upper_idx, lower_idx] = findEdge(vector, span, method)
     if nargin < 3, method = 'kmean_slope'; end
     if nargin < 2, span = 11; end
 
-    vector = medfilt1(vector, span);
+    %vector = medfilt1(vector, span);
     %vector = smooth(vector, span);
+    vector = gaussfilt([1:length(vector)], vector, 3);
     
     if strcmp(method, 'kmean')
         % [val ind] = sort(vector,'descend');
