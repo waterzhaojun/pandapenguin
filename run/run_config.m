@@ -10,6 +10,6 @@ res.rest_period_ending_kickout = [5,3]; % When you get a rest period, you need t
 res.blockunit = 0.005; % every block is 20mm.
 res.acceleration_threshold = 0.000001; %Not necessary if not use Drew lab method
 res.speed_threshold = 0.01;
-res.positiveConcentrationThreshold = 0.1;
+res.positiveConcentrationThreshold = 0.5;
 
 end

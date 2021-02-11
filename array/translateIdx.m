@@ -4,7 +4,11 @@ function newidx = translateIdx(oriIdx, oriScanrate, toScanrate)
 % slow to fast, it will point to the first timepoint of fast scan rate
 % period of time.
 
-newidx = round(oriIdx * toScanrate / oriScanrate);
+if oriScanrate > toScanrate
+    newidx = ceil(oriIdx * toScanrate / oriScanrate);
+elseif oriScanrate < toScanrate
+    newidx = round((oriIdx - 1) * toScanrate / oriScanrate + 1);
+end
 % I changed it from ceil to round. Let's see. 2/3/2021
 
 

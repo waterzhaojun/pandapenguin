@@ -6,8 +6,8 @@ bar(result.secarray_treated, 'black', 'EdgeColor','none');
 
 % plot each bout.
 for i = 1:length(result.bout)
-    boutstart = max(result.bout{i}.startsec-1, 1);
-    boutend = min(result.bout{i}.endsec+1, length(result.secarray));
+    boutstart = max(result.bout{i}.startsec, 1);
+    boutend = min(result.bout{i}.endsec, length(result.secarray));
 %     direction = result.bout{i}.direction;
 %     if direction == 1
     bar([boutstart:boutend], result.secarray_treated(boutstart:boutend),'g','EdgeColor','none');

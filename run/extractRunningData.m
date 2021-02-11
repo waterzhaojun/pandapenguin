@@ -31,7 +31,7 @@ for i = 1:length(res.bout)
         tmp.responseIdx = [tmp.startidx, tmp.startidx+postBoutSec*scanrate-1];
     end
     
-    tmp.corArray = res.secarray_treated(tmp.startsec-preBoutSec : tmp.startsec+postBoutSec-1);
+    tmp.corArray = res.array_treated(tmp.baselineIdx(1) : tmp.responseIdx(2));
     for k = 1:length(parser.Results.excludeField)
         if isfield(tmp, parser.Results.excludeField{k})
             tmp = rmfield(tmp, parser.Results.excludeField{k});

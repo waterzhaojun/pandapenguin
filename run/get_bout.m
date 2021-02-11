@@ -27,7 +27,7 @@ for i = 1:length(bout)
     if bout{i}.startidx - lastidx > config.bout_gap_duration_threshold*scanrate &&...
             ((bout{i}.endidx - bout{i}.startidx) >= config.bout_duration_threshold*scanrate)
         wantedIdx = [wantedIdx, i];
-        lastidx = bout{i}.endidx;
+        lastidx = bout{i}.endidx; % This line avoid some fake bout effect the rest period gap length.
     end
 end
 bout = bout(wantedIdx);
@@ -35,9 +35,14 @@ bout = bout(wantedIdx);
 for i = 1:length(bout)
     bout{i}.array = array(bout{i}.startidx : bout{i}.endidx);
     bout{i}.array_treat = array_treat(bout{i}.startidx : bout{i}.endidx);
-    bout{i}.startsec = translateIdx(bout{i}.startidx, floor(scanrate), 1);
-    bout{i}.endsec = translateIdx(bout{i}.endidx, floor(scanrate), 1);
+    
+    % startsec and endsec can't be used as idx for bv idx as even bv is 15
+    % layers, its scanrate is 1.03, not 1. So startsec, endsec,
+    % secarray_treat is just for view, can't for analysis.
+    bout{i}.startsec = translateIdx(bout{i}.startidx, scanrate, scanrate/floor(scanrate)); 
+    bout{i}.endsec = translateIdx(bout{i}.endidx, scanrate, scanrate/floor(scanrate));
     bout{i}.secarray_treat = secarray_treat(bout{i}.startsec : bout{i}.endsec);
+    
     bout{i}.duration = (bout{i}.endidx - bout{i}.startidx + 1) * scanrate;
     bout{i}.speed = mean(bout{i}.array_treat);
     bout{i}.distance = bout{i}.duration * bout{i}.speed;
@@ -60,9 +65,11 @@ for i = 1:length(restbout)
     end
 end
 restbout = restbout(wantedIdx);
+% Same as bout, startsec and endsec is just for plot view, can't used for
+% analysis
 for i = 1:length(restbout)
-    restbout{i}.startsec = translateIdx(restbout{i}.startidx, floor(scanrate), 1);
-    restbout{i}.endsec = translateIdx(restbout{i}.endidx, floor(scanrate), 1);
+    restbout{i}.startsec = translateIdx(restbout{i}.startidx, scanrate, scanrate/floor(scanrate));
+    restbout{i}.endsec = translateIdx(restbout{i}.endidx, scanrate, scanrate/floor(scanrate));
 end
 
 end

@@ -2,6 +2,10 @@ animal = 'WT0118';
 date = '201208';
 run = 1;
 
+animal = 'CGRP03';
+date = '201109';
+run = 3;
+
 running_analysis(animal,date,run);
 set_scanrate(animal,date,run,'running');
 set_scanrate(animal,date,run,'bv');
