@@ -8,6 +8,8 @@ if oriScanrate > toScanrate
     newidx = ceil(oriIdx * toScanrate / oriScanrate);
 elseif oriScanrate < toScanrate
     newidx = round((oriIdx - 1) * toScanrate / oriScanrate + 1);
+else
+    newidx = oriIdx;
 end
 % I changed it from ceil to round. Let's see. 2/3/2021
 

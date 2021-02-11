@@ -14,24 +14,25 @@ postBoutSec = parser.Results.postBoutSec;
 exp = sbxDir(animal, date, run);
 res = load(exp.runs{1}.running.resultpath);
 res = res.result;
-scanrate = floor(res.scanrate);
+scanrate = res.scanrate;
 % organize bout df
 for i = 1:length(res.bout)
     tmp = res.bout{i};
     tmp.scanrate = res.scanrate;
-    if tmp.startidx-preBoutSec*scanrate < 1
+    if tmp.startidx-ceil(preBoutSec*scanrate) < 1
         continue
     else
-        tmp.baselineIdx = [tmp.startidx-preBoutSec*scanrate, tmp.startidx - 1];
+        tmp.baselineIdx = [tmp.startidx-ceil(preBoutSec*scanrate), tmp.startidx - 1];
     end
     
-    if tmp.startidx+postBoutSec*scanrate-1 > length(res.array)
+    if tmp.startidx+ceil(postBoutSec*scanrate)-1 > length(res.array)
         continue
     else
-        tmp.responseIdx = [tmp.startidx, tmp.startidx+postBoutSec*scanrate-1];
+        tmp.responseIdx = [tmp.startidx, tmp.startidx+ceil(postBoutSec*scanrate)-1];
     end
     
     tmp.corArray = res.array_treated(tmp.baselineIdx(1) : tmp.responseIdx(2));
+    tmp.boutID = [animal, '_', date, '_', num2str(run), '_', num2str(i)];
     for k = 1:length(parser.Results.excludeField)
         if isfield(tmp, parser.Results.excludeField{k})
             tmp = rmfield(tmp, parser.Results.excludeField{k});
