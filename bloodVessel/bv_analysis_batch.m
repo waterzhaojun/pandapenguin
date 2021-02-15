@@ -12,7 +12,7 @@ bv_task_column = parser.Results.bv_task_column;
 % ====================================================
 explist = load_exp(googleSheetID);
 
-for i = 2:length(explist)
+for i = [110,111,113]%2:length(explist)
     animal = explist(i).animal;
     date = explist(i).date;
     run = str2num(explist(i).run);
@@ -26,7 +26,7 @@ for i = 2:length(explist)
                 [mx,folder] = diameter_prepare_mx(animal, date, run, pmt,'layer',layers{j});
                 % As this function is for batch analysis, it will not involved in
                 % identify the roi. So I just passed diameter_build_refmask step.
-                % diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', false);
+                % diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', true);
                 set_scanrate(animal, date, run, 'bv');
                 diameter_analysis(folder, mx);
                 mat2sheets(googleSheetID, sheetID, [i bv_task_column], {'Done'});
