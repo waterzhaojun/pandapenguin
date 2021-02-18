@@ -12,7 +12,7 @@ if ~exist(root, 'dir')
    mkdir(root);
 end
 
-path = sbxPath(animal, date, run, 'quad'); 
+path = sbxPath(animal, date, run, 'quad');
 inf = sbxInfo(path, true);
 if inf.scanmode == 1
     scanrate = 15.5;

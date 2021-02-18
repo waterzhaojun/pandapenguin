@@ -135,8 +135,15 @@ for i = [110,111,112,113]%length(explist)
             theboutID = boutID{i};
             subdf = df(strcmp({df.runningboutID}, theboutID));
             subbvmx = reshape([subdf.bv_diameter_bout_timecourse], timecourseLength, []);
+            figure('Position', [10 10 600 600]);
             subplot(2,1,1)
             plot(subbvmx * 100);
+            bvresponse_legend = {};
+            % format the legend text
+            for tmplegendi = 1:length(subdf)
+                bvresponse_legend{tmplegendi} = [subdf(tmplegendi).bv_id, ' (', subdf(tmplegendi).bv_tissue, ' ', subdf(tmplegendi).bv_type, ')'];
+            end
+            legend(bvresponse_legend);
             xticks(1:arate:timecourseLength);
             xticklabels([]);
             title('Diameter responses');
@@ -151,7 +158,8 @@ for i = [110,111,112,113]%length(explist)
             ylabel('speed (m/s)');
             title('Running');
 
-            saveas(gcf,[bvfolder, 'bout ', num2str(i), ' diameter response.pdf']);
+            %saveas(gcf,[bvfolder, 'bout ', num2str(i), ' diameter response.pdf']);
+            exportgraphics(gcf,[bvfolder, 'bout ', num2str(i), ' diameter response.pdf'],'ContentType','vector')
             close;
         end
         

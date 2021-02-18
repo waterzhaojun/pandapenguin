@@ -4,8 +4,10 @@ addRequired(parser, 'animal' );
 addRequired(parser, 'date');
 addRequired(parser, 'run');
 addParameter(parser, 'excludeField', {'BW', 'angle'});
+addParameter(parser, 'smooth', true);
 
 parse(parser,animal, date, run, varargin{:});
+smooth = parser.Results.smooth;
 
 exp = sbxDir(animal, date, run);
 res = [];
@@ -31,6 +33,15 @@ for i = 1:length(exp.runs{1}.bv.layer)
         else
             res = [res;tmp.roi{j}];
         end
+    end
+    
+    
+end
+
+% treat the diameter by filter. 
+if smooth
+    for i = 1:length(res)
+        res(i).diameter = gaussfilt(1:length(res(i).diameter), res(i).diameter, 3);
     end
 end
 

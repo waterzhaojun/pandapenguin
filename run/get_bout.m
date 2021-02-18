@@ -9,7 +9,13 @@ addRequired(parser, 'scanrate', @(x) isnumeric(x) && (x>0));
 parse(parser,array, scanrate, varargin{:});
 
 config = run_config();
-array_treat = abs(lowpass(array, 1, scanrate));
+array_treat = abs(gaussfilt(1:length(array), array*100, 3*std(array*100)))/100;
+array_treat1 = abs(lowpass(array, 1, scanrate)); % To make it more smooth, change 1 to 0.5
+plot(array_treat)
+hold on
+plot(array_treat1)
+hold off
+
 secarray_treat = bint1D(array_treat, floor(scanrate));
 array_treat_binary = heaviside(array_treat - config.speed_threshold);
 
