@@ -1,20 +1,24 @@
+
 % This notebook is to analyse running and related data responses
+
+googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ';
 
 explist = load_exp(googleSheetID);
 preBoutSec = 3;  % Analyse 3s before start of the bout.
 postBoutSec = 5; % Analyse 5s after the start of the bout.
 root = 'C:\Users\Levylab\jun\test\';
 
-for i = [110,111,112,113]%length(explist)
+for i = [112,113]%1:length(explist)
     animal = explist(i).animal;
     date = explist(i).date;
     run = str2num(explist(i).run);
     runtask = explist(i).running_task;
     bvtask = explist(i).bv_task;
     alignmenttask = explist(i).alignment_task;
-    if strcmp(runtask, 'Done') && strcmp(bvtask, 'Done') && strcmp(alignmenttask, 'Done')
+    
+    if strcmp(runtask, 'Done') && strcmp(bvtask, 'Done') && strcmp(alignmenttask, 'Done') && (boutNum > 0) 
         disp(['find ', animal, ' ', date, ' run', num2str(run), ' finished treatment']); 
-        report_root = [root, animal, '_', date, '_', num2str(run),'\'];
+        report_root = [root, animal, '_', date, '_run', num2str(run),'\'];
         if exist(report_root, 'dir')
            rmdir(report_root, 's');
         end
@@ -36,7 +40,7 @@ for i = [110,111,112,113]%length(explist)
             {'bv_', 'reg_'}, ...
             {{'diameter'}, {'trans_x', 'trans_y', 'scale_x', 'scale_y', 'shear_x', 'shear_y'}}...
         );
-        
+        disp('here==============================================');
         alen = length(runoridata.array_treated);
         arate = runoridata.scanrate;
         

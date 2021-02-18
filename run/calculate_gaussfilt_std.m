@@ -1,4 +1,4 @@
-function value = calculate_gaussfilt_std(googleSheetID, varargin)
+function res = calculate_gaussfilt_std(googleSheetID, varargin)
 
 parser = inputParser;
 addRequired(parser, 'googleSheetID', @ischar );
@@ -11,8 +11,10 @@ parse(parser,googleSheetID, varargin{:});
 
 
 explist = load_exp(googleSheetID);
+cfg = run_config();
 
-array = []
+array = [];
+
 for i = 2:length(explist)
     animal = explist(i).animal;
     date = explist(i).date;
@@ -26,11 +28,16 @@ for i = 2:length(explist)
     end
 
     tmp = getRunningArray(path) * cfg.blockunit * scanrate;
-    array = [array;tmp];
-    
+    array = [array,tmp];
+    note = sprintf('Finished %d/%d Loading.', i, length(explist));
+    disp(note);
 end
 
-
+res = struct();
+res.avg = mean(array);
+res.std = std(array);
+res.abs_avg = mean(abs(array));
+res.abs_std = std(abs(array));
 
 
 end

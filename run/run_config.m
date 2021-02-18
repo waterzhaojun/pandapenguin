@@ -1,4 +1,5 @@
 function res = run_config()
+
 res = struct();
 %res.block_distance = 25 % The wheel block langth. Unit is mm.
 res.bout_duration_threshold = 5; % how many seconds at least to be considered as a bout.
@@ -11,5 +12,6 @@ res.blockunit = 0.005; % every block is 20mm.
 res.acceleration_threshold = 0.000001; %Not necessary if not use Drew lab method
 res.speed_threshold = 0.01;
 res.positiveConcentrationThreshold = 0.5;
+res.gaussfilt_std = 3.6;%13.17;%3.6;
 
 end
