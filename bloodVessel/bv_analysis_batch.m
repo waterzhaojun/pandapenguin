@@ -12,7 +12,7 @@ bv_task_column = parser.Results.bv_task_column;
 % ====================================================
 explist = load_exp(googleSheetID);
 
-for i = [88,89,90,91,92,93,106,107,108,109]%2:length(explist)
+for i = 119:124%[68,69,71,72]%2:length(explist)
     animal = explist(i).animal;
     date = explist(i).date;
     run = str2num(explist(i).run);

@@ -9,12 +9,37 @@ function [diameter, upper_idx, lower_idx] = findEdge(vector, span, method)
     vector = gaussfilt([1:length(vector)], vector, 3);
     
     if strcmp(method, 'percentage')
-        [peakvalue, peakidx] = max(vector);
-        leftbaseline = min(vector(1:peakidx));
-        upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.25 + leftbaseline));
-        rightbaseline = min(vector(peakidx:end));
-        lower_idx = min(find(vector(peakidx:end) < (peakvalue - rightbaseline) * 0.25 + rightbaseline)) + peakidx;
-        diameter = lower_idx - upper_idx;
+        anastart = floor(0.25 * length(vector));
+        anaend = ceil(0.75 * length(vector));
+        [peakvalue, peakidx] = max(vector(anastart:anaend));
+        peakidx = peakidx + anastart - 1;
+        
+        [leftbaseline,leftbottomidx] = min(vector(1:peakidx));
+        upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.333 + leftbaseline))+1;
+        
+        
+        [rightbaseline,rightbottomidx] = min(vector(peakidx:end));
+        lower_idx = min(find(vector(peakidx:end) < (peakvalue - rightbaseline) * 0.333 + rightbaseline)) + peakidx - 2;
+       
+        diameter = lower_idx - upper_idx + 1;
+    
+    elseif strcmp(method, 'diff2')
+        anastart = floor(0.25 * length(vector));
+        anaend = ceil(0.75 * length(vector));
+        [peakvalue, peakidx] = max(vector(anastart:anaend));
+        peakidx = peakidx + anastart - 1;
+        
+        [leftbaseline,leftbottomidx] = min(vector(1:peakidx));
+        %upper_idx = max(find(vector(1:peakidx)<(peakvalue - leftbaseline) * 0.25 + leftbaseline));
+        [tmp,upper_idx] = max(diff(diff(vector(leftbottomidx:peakidx))));
+        upper_idx = upper_idx + leftbottomidx+1;
+        
+        [rightbaseline,rightbottomidx] = min(vector(peakidx:end));
+        rightbottomidx = rightbottomidx + peakidx - 1;
+        %lower_idx = min(find(vector(peakidx:end) < (peakvalue - rightbaseline) * 0.25 + rightbaseline)) + peakidx;
+        [tmp,lower_idx] = max(diff(diff(vector(peakidx:rightbottomidx))));
+        lower_idx = lower_idx + peakidx + 1;
+        diameter = lower_idx - upper_idx + 1;
         
     elseif strcmp(method, 'kmean_slope')
         grouped_vector = kmeans(vector, 2);

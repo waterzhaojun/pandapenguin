@@ -1,15 +1,15 @@
 %% Single trial bv analysis
-animal = 'CGRP0716';   % <====================== File your exp info
-date = '210129';     % <====================== File your exp info
-run = 6;             % <====================== File your exp info
+animal = 'CGRP02';   % <====================== File your exp info
+date = '201117';     % <====================== File your exp info
+run = 1;             % <====================== File your exp info
 pmt = 0;             % <====================== File your exp info
-layers = [1];      % <====================== File your exp info [11]
+layers = 'all';      % <====================== File your exp info [11]
 %smooth = 0;
 
 % don't change code below ==========================================
 bvfilesys = bv_file_system();
 [mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers);
-diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', true);
+diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', false);
 set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
 set_vessel_type(folder);

@@ -11,7 +11,7 @@ running_task_column = parser.Results.running_task_column;
 
 explist = load_exp(googleSheetID);
 
-for i = 2:length(explist)
+for i = 52:61% 2:length(explist)
     try
         running_analysis(explist(i).animal,explist(i).date,str2num(explist(i).run));
         mat2sheets(googleSheetID, sheetID, [i running_task_column], {'Done'});
