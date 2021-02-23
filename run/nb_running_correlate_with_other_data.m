@@ -8,13 +8,14 @@ preBoutSec = 3;  % Analyse 3s before start of the bout.
 postBoutSec = 5; % Analyse 5s after the start of the bout.
 root = 'C:\Users\Levylab\jun\test\';
 
-for i = [112,113]%1:length(explist)
+for i = [44]%1:length(explist)
     animal = explist(i).animal;
     date = explist(i).date;
     run = str2num(explist(i).run);
     runtask = explist(i).running_task;
     bvtask = explist(i).bv_task;
     alignmenttask = explist(i).alignment_task;
+    boutNum = explist(i).bouts_num
     
     if strcmp(runtask, 'Done') && strcmp(bvtask, 'Done') && strcmp(alignmenttask, 'Done') && (boutNum > 0) 
         disp(['find ', animal, ' ', date, ' run', num2str(run), ' finished treatment']); 
@@ -38,7 +39,7 @@ for i = [112,113]%1:length(explist)
         df = runningCorrelationAnalysis(...
             rundata, {bvdata, regdata}, ...
             {'bv_', 'reg_'}, ...
-            {{'diameter'}, {'trans_x', 'trans_y', 'scale_x', 'scale_y', 'shear_x', 'shear_y'}}...
+            {{'diameter','diameterRaw'}, {'trans_x', 'trans_y', 'scale_x', 'scale_y', 'shear_x', 'shear_y'}}...
         );
         disp('here==============================================');
         alen = length(runoridata.array_treated);
@@ -237,69 +238,3 @@ for i = [112,113]%1:length(explist)
 end
 
 
-
-
-% This part is to should some interested plot
-x_columns = {'runningmaxspeed', 'runningmaxspeed_delay', 'runningduration', 'runningdistance', 'runningacceleration',...
-    'runningspeed'...
-};
-y_columns = {'bv_diameter_bout_max_response', 'bv_diameter_bout_max_response_delay', 'bv_diameter_bout_average_response',...
-    'reg_trans_x_bout_max_response', 'reg_trans_x_bout_max_response_delay', 'reg_trans_x_bout_average_response',...
-    'reg_trans_y_bout_max_response', 'reg_trans_y_bout_max_response_delay', 'reg_trans_y_bout_average_response',...
-    'reg_scale_x_bout_max_response', 'reg_scale_x_bout_max_response_delay', 'reg_scale_x_bout_average_response',...
-    'reg_scale_y_bout_max_response', 'reg_scale_y_bout_max_response_delay', 'reg_scale_y_bout_average_response',...
-    'reg_shear_x_bout_max_response', 'reg_shear_x_bout_max_response_delay', 'reg_shear_x_bout_average_response',...
-    'reg_shear_y_bout_max_response', 'reg_shear_y_bout_max_response_delay', 'reg_shear_y_bout_average_response',...
-};
-idx = 1;
-res = {};
-for i = 1:length(x_columns)
-    for j = 1:length(y_columns)
-        subplot(length(y_columns), length(x_columns), idx);
-        corr = analysis_correlation(df, x_columns{i}, y_columns{j}, false);
-        res{j,i} = corr{2,4};
-        idx = idx + 1;
-    end
-end
-% res = cell2table(res);
-% res.Properties.VariableNames = x_columns;
-% res.Properties.RowNames = y_columns;
-% heatmap(res, 'runningmaxspeed', 'bv_diameter_bout_max_response');
-coefdata = cell2mat(res);
-coefplot = heatmap(coefdata);
-coefplot.XDisplayLabels=x_columns;
-coefplot.YDisplayLabels=y_columns;
-
-
-
-
-% 
-% xticks(1:arate:timecourseLength);
-% xticklabels(-preBoutSec:1:floor(timecourseLength/arate)-preBoutSec);
-% xlabel('time course (sec)');
-% ylabel('pixel movement');
-% title(anaField);
-% 
-% % Plot of the average timecourse.
-% anaField = 'reg_trans_x_bout_timecourse'
-% mx = reshape([df.(anaField)], timecourseLength, []);
-% avg = mean(mx,2);
-% stderr = std(mx,0,2)/sqrt(size(mx,2));
-% errorbar([1:length(avg)], avg, stderr);
-% xticks(0:15:timecourseLength);
-% xticklabels(-preBoutSec:postBoutSec);
-% xlabel('time course (sec)');
-% ylabel('pixel movement');
-% title(anaField);
-
-
-
-
-
-
-
-runningCorrelationPlot(...
-    rundata, {bvdata, regdata}, ...
-    {{'diameter'},{'trans_x', 'trans_y', 'scale_x', 'scale_y', 'shear_x', 'shear_y'}}, ...
-    {'layer','layer'}...
-)

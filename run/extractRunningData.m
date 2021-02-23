@@ -43,6 +43,9 @@ for i = 1:length(res.bout)
     tmp.corArray = res.array_treated(tmp.baselineIdx(1) : tmp.responseIdx(2));
     tmp.baselineArray = res.array_treated(tmp.baselineIdx(1) : tmp.baselineIdx(2));
     tmp.responseArray = res.array_treated(tmp.responseIdx(1) : tmp.responseIdx(2));
+    tmp.preBoutSec = preBoutSec;
+    tmp.postBoutSec = postBoutSec;
+    tmp.corRawArray = res.array(tmp.baselineIdx(1) : tmp.responseIdx(2));
     
     tmp.boutID = [animal, '_', date, '_run', num2str(run), '_bout', num2str(i)];
     for k = 1:length(parser.Results.excludeField)

@@ -1,3 +1,10 @@
+2/22/2021
+To analyze running induced a series responses, I build several functions and notebooks.
+extractRunningData: In each experiment, when use running_analysis, the analyzed data will be stored in "running" folder in trial's root folder. In this "running" folder there are a response pdf and a struct data containing each analysis parameters and bout results. This extractRunningData function is to produce a struct array (like a dataframe). In this struct array it has the info about each bout's start and end idx. We can use this info to correlate with other kind of data.
+extractBvData: each experiment trial has a "bv" folder containing analyzed blood vessel data. This extractBvData function is to transfer the bv data to a struct array (dataframe).
+extractAndyRegData: If use Andy's registration method, it will produce related files in trial's root folder. This extractAndyRegData will convert the deformation data to a struct array. 
+runningCorrelationAnalysis: This function is to based on runningdata, correlate with other data like bvdata and regdata. And finally build a big struct array.
+
 12/20/2020
 The main function in this folder is :
 running_analysis: the main function to get running data.

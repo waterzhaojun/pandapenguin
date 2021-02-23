@@ -33,6 +33,7 @@ for i = 1:length(df)
             %rems = corrArrayRespEndIdx - corrArrayBaselineStartIdx + 1 - ((boutresidx(2) - boutbaselineidx(1) + 1) * corrArrayScanrate / df(i).runningscanrate);
             df(i).([arrayFieldName, '_bout_timecourse']) = array(corrArrayBaselineStartIdx:corrArrayRespEndIdx);% - rems);
             if contains(arrayFieldName, 'diameter') % only change diameter to rff
+                df(i).([arrayFieldName, '_bout_timecourse_realvalue']) = df(i).([arrayFieldName, '_bout_timecourse']);
                 df(i).([arrayFieldName, '_bout_timecourse']) = (df(i).([arrayFieldName, '_bout_timecourse']) - df(i).([arrayFieldName, '_bout_baseline'])) / df(i).([arrayFieldName, '_bout_baseline'])
             end
             

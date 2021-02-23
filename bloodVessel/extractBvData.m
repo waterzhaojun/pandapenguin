@@ -41,6 +41,7 @@ end
 % treat the diameter by filter. 
 if smooth
     for i = 1:length(res)
+        res(i).diameterRaw = res(i).diameter;
         res(i).diameter = gaussfilt(1:length(res(i).diameter), res(i).diameter, 3);
     end
 end
