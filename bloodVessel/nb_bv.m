@@ -1,7 +1,7 @@
 %% Single trial bv analysis
 animal = 'CGRP0720';   % <====================== File your exp info
-date = '210222';     % <====================== File your exp info
-run = 6;             % <====================== File your exp info
+date = '210224';     % <====================== File your exp info
+run = 10;             % <====================== File your exp info
 pmt = 0;             % <====================== File your exp info
 layers = 'all';      % <====================== File your exp info [11]
 %smooth = 0;
@@ -14,6 +14,12 @@ set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
 set_vessel_type(folder);
 input_vessel_id(folder);
+
+%% If you want to edit some roi, run code here ======================
+roiid = '4.0'  % <======== Need to set a roi id.
+editRoi(folder, mx, roiid);
+diameter_analysis(folder, mx); % <======When editted all rois, run this function again to update the pdf.
+
 
 %% correlation with running.
 running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
