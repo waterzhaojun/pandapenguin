@@ -54,10 +54,15 @@ for i = 1:length(res.bout)
         end
     end
     
-    if i == 1
-        df = [tmp];
-    else
+%     if i == 1
+%         df = [tmp];
+%     else
+%         df = [df;tmp];
+%     end
+    if exist('df','var')
         df = [df;tmp];
+    else
+        df = [tmp];
     end
 end
 

@@ -6,8 +6,8 @@
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
 preBoutSec = 3;  %<=========== Analyse 3s before start of the bout.
 postBoutSec = 5; %<=========== Analyse 5s after the start of the bout.
-root = 'C:\Users\Levylab\jun\markov_bout\';  %<=============  Where you want to save the analyzed data
-lists = [189]%110,128,189];  %<============== which data sheet lines do you want to analyze.
+root = 'C:\Users\Levylab\jun\Drew_bout\';  %<=============  Where you want to save the analyzed data
+lists = [110]%110,128,189];  %<============== which data sheet lines do you want to analyze.
 
 plotIndividual = false;
 
