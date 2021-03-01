@@ -26,7 +26,7 @@ result = struct();
 result.array = getRunningArray(path) * cfg.blockunit * scanrate;
 result.secarray = bint1D(abs(result.array), floor(scanrate));
 result.scanrate = scanrate;
-[result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout(result.array, scanrate);
+[result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_markov(result.array, scanrate);
 
 
 result.config = cfg;

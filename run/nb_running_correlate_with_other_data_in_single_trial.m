@@ -6,9 +6,10 @@
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
 preBoutSec = 3;  %<=========== Analyse 3s before start of the bout.
 postBoutSec = 5; %<=========== Analyse 5s after the start of the bout.
-root = 'C:\Users\Levylab\jun\test\';  %<=============  Where you want to save the analyzed data
-lists = 180:189;  %<============== which data sheet lines do you want to analyze.
+root = 'C:\Users\Levylab\jun\markov_bout\';  %<=============  Where you want to save the analyzed data
+lists = [189]%110,128,189];  %<============== which data sheet lines do you want to analyze.
 
+plotIndividual = false;
 
 %% Code part. Don't change code below =======================
 explist = load_exp(googleSheetID);
@@ -69,43 +70,49 @@ for expi = lists
         [~,boutIDsortIdx] = sort(boutIDnumpart);
         boutID = {boutID{boutIDsortIdx}};
             
-        c = 4;
-        r = ceil(length(boutID)/c) + 2 + 1;
-        %c = length(boutID);
-        figure('Position', [10 10 400*c 600*1.2*r]);
-        tiledlayout(r,c)
-        % Plot multiple timecourse. =====================
-        for i = 1:length(boutID)
-            theboutID = boutID{i};
-            subdf = df(strcmp({df.runningboutID}, theboutID));
-            subbvmx = reshape([subdf.bv_diameter_bout_timecourse_realvalue], timecourseLength, []);
+        if plotIndividual
+            c = 4;
+            r = ceil(length(boutID)/c) + 2 + 1;
+            %c = length(boutID);
+            figure('Position', [10 10 400*c 600*1.2*r]);
+            tiledlayout(r,c)
+            % Plot multiple timecourse. =====================
+            for i = 1:length(boutID)
+                theboutID = boutID{i};
+                subdf = df(strcmp({df.runningboutID}, theboutID));
+                subbvmx = reshape([subdf.bv_diameter_bout_timecourse_realvalue], timecourseLength, []);
 
-            nexttile %vFor treated data=====================================
-            yyaxis left
-            plot(subbvmx);
-%             bvresponse_legend = {};
-%             % format the legend text
-%             for tmplegendi = 1:length(subdf)
-%                 bvresponse_legend{tmplegendi} = [subdf(tmplegendi).bv_id, ' (', subdf(tmplegendi).bv_tissue, ' ', subdf(tmplegendi).bv_type,')'];
-%             end
-%             bvresponse_legend{length(bvresponse_legend)+1} = ['running'];
-            ylabel('diameter (um)');
-            ylim([min(10, min(subbvmx, [], 'all')), max(40, max(subbvmx, [], 'all'))]);
+                nexttile %vFor treated data=====================================
+                yyaxis left
+                plot(subbvmx);
+    %             bvresponse_legend = {};
+    %             % format the legend text
+    %             for tmplegendi = 1:length(subdf)
+    %                 bvresponse_legend{tmplegendi} = [subdf(tmplegendi).bv_id, ' (', subdf(tmplegendi).bv_tissue, ' ', subdf(tmplegendi).bv_type,')'];
+    %             end
+    %             bvresponse_legend{length(bvresponse_legend)+1} = ['running'];
+                ylabel('diameter (um)');
+                ylim([min(10, min(subbvmx, [], 'all')), max(40, max(subbvmx, [], 'all'))]);
 
-            yyaxis right
-            bar(subdf(1).runningcorArray, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
-            xticks(1:arate:timecourseLength);
-            xticklabels(-preBoutSec:1:postBoutSec);
-            xlabel('time course (sec)');
-            ylabel('speed (m/s)');
-            ylim([0, max(0.1, max(subdf(1).runningcorArray))]);
-            title(strrep(subdf(1).runningboutID, '_', '\_'));
-%             legend(bvresponse_legend, 'location', 'southoutside', 'orientation', 'horizontal');
+                yyaxis right
+                bar(subdf(1).runningcorArray, 'FaceAlpha', 0.2, 'EdgeColor', 'none');
+                xticks(1:arate:timecourseLength);
+                xticklabels(-preBoutSec:1:postBoutSec);
+                xlabel('time course (sec)');
+                ylabel('speed (m/s)');
+                ylim([0, max(0.1, max(subdf(1).runningcorArray))]);
+                title(strrep(subdf(1).runningboutID, '_', '\_'));
+    %             legend(bvresponse_legend, 'location', 'southoutside', 'orientation', 'horizontal');
 
+            end
         end
         
         % plot whole time course ==================================
-        nexttile([2,c]);
+        if plotIndividual
+            nexttile([2,c]);
+        else
+            figure('Position', [10 10 2000 1500]);
+        end
         yyaxis left
         bvWholeTimeCourseMx = reshape([bvdata.diameter], [], length(bvdata));
 %         newcolors = [0.83 0.14 0.14
@@ -123,7 +130,7 @@ for expi = lists
         xticks(1:arate*60:longtimecourseLength);
         xticklabels(0:1:floor(longtimecourseLength/arate/60));
         xlabel('time course (min)');
-        ylabel('speed (m/s)');
+        ylabel('speed (cm/s)');
         
         bvlong_legend = {};
         % format the legend text
@@ -147,9 +154,9 @@ for expi = lists
 %         %T = table(Age,Height,Weight,'RowNames',LastName);
 %         uitable('Data',T{:,:}, 'ColumnName',T.Properties.VariableNames,...
 %             'RowName',T.Properties.RowNames,'Position',[0, 0, 1,1/r]);
-        exportgraphics(gcf,[report_root, 'correlation response.pdf'],'ContentType','vector')
+        exportgraphics(gcf,[report_root, 'correlation response.pdf']);%,'ContentType','vector')
         save([report_root, 'corr_data.mat'], 'df');
-        close;
+        %close;
     end
     
     
