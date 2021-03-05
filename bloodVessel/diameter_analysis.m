@@ -60,7 +60,7 @@ for i = 1:length(result.roi)
     end
 
     nexttile([2,2])
-    ref_with_this_mask = addroi(ref, result.roi{1}.BW);
+    ref_with_this_mask = addroi(ref, result.roi{i}.BW);
     imshow(imresize(ref_with_this_mask, [NaN, 600]));
 
     nexttile([1,3])

@@ -1,7 +1,7 @@
 %% Single trial bv analysis
-animal = 'CGRP0720';   % <====================== File your exp info
-date = '210226';     % <====================== File your exp info
-run = 1;             % <====================== File your exp info
+animal = 'CGRP0722';   % <====================== File your exp info
+date = '210301';     % <====================== File your exp info
+run = 10;             % <====================== File your exp info
 pmt = 0;             % <====================== File your exp info
 layers = 'all';      % <====================== File your exp info [11]
 %smooth = 0;
