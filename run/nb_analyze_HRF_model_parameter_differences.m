@@ -2,8 +2,8 @@
 % parameters. 
 
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
-root = 'C:\Users\Levylab\jun\HRF\';  %<=============  Where you want to save the analyzed data
-lists = [109,110,111];%110,128,189];  %<============== which data sheet lines do you want to analyze.
+root = 'D:\test1\';  %<=============  Where you want to save the analyzed data
+lists = 110:112;%110,128,189];  %<============== which data sheet lines do you want to analyze.
 
 df = struct();
 %% Code part. Don't change code below =======================
@@ -40,7 +40,7 @@ for expidx = 1:length(lists)
     for i = 1:length(bvresult)
         corrArrayori = bvresult(i).diameter;
         if length(restidx) == 0
-            baseline = mean(baseline);
+            baseline = mean(corrArrayori);
         else
             baseline = mean(corrArrayori(restidx));
         end

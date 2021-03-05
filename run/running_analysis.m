@@ -26,8 +26,11 @@ result = struct();
 result.array = getRunningArray(path) * cfg.blockunit * scanrate;
 result.secarray = bint1D(abs(result.array), floor(scanrate));
 result.scanrate = scanrate;
-[result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_drewlab(result.array, scanrate);
-
+% If use Markov, use below code.
+markov_para_path = [fileparts(which('get_bout_markov')), '\', 'LocoHMM_2state.mat'];
+[result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_markov(result.array, scanrate, markov_para_path);
+% If use Drewlab, use below code.
+% [result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_drewlab(result.array, scanrate);
 
 result.config = cfg;
 % 

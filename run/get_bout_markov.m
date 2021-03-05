@@ -1,4 +1,4 @@
-function [bout, secarray_treat, array_treat, restbout, restidx] = get_bout_markov(array, scanrate)
+function [bout, secarray_treat, array_treat, restbout, restidx] = get_bout_markov(array, scanrate, parafilepath)
 
 
 config = run_config();
@@ -12,8 +12,8 @@ secarray_treat = bint1D(array_treat, floor(scanrate));
 
 Nstate = 2;
 
-loadPath = 'C:\Users\Levylab\jun\pandapenguin\run\LocoHMM_2state.mat';
-load(loadPath, 'speedRange', 'transEst', 'transGuess', 'emitEst', 'emitGuessPDF', 'Nemit', 'stateName') 
+%loadPath = 'C:\Users\Levylab\jun\pandapenguin\run\LocoHMM_2state.mat';
+load(parafilepath, 'speedRange', 'transEst', 'transGuess', 'emitEst', 'emitGuessPDF', 'Nemit', 'stateName') 
 
 %speedDiscrete = imquantize( vertcat( array ), speedRange );
 state = hmmviterbi( imquantize( vertcat( 100 * array_treat ), speedRange )', transEst, emitEst )';
