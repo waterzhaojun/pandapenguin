@@ -12,7 +12,7 @@ running_task_column = parser.Results.running_task_column;
 
 explist = load_exp(googleSheetID);
 if length(rows) == 0
-    rows = 2:length(explist)
+    rows = 2:length(explist);
 end
 
 for i = rows

@@ -61,7 +61,8 @@ Trunning_binary = [ones(size(Trunning_binary, 1),1), Trunning_binary]; % This is
 HRF = @(x) [0,x(1)*exp(-([1:n] - x(2)) / x(3))] .*[0, floor(heaviside([1:n]-x(2)))];
 fun = @(x) immse(TS * HRF(x)', TX);
 
-options = optimset('PlotFcns',@optimplotfval, 'MaxIter', 10000000000, 'TolFun', 1e-8, 'TolX', 1e-8);
+%'PlotFcns',@optimplotfval, ...
+options = optimset('MaxIter', 10000000000, 'TolFun', 1e-8, 'TolX', 1e-8);
 
 flag = true;
 coeff_list = [1,1];
