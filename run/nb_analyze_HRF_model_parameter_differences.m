@@ -107,6 +107,8 @@ for i = 1:length(files)
         elseif contains(tmp(1).animal, 'WT')
             tmp(1).group = 'WT';
         end
+        tmp(1).Atao = tmp(1).A * tmp(1).tao;
+        
         if dfidx == 1
             df = [tmp];
         else
@@ -127,11 +129,29 @@ save([total_report_root, 'result.mat'], 'df');
 
 %save to google sheet.
 outputGoogleSheetId = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ';
-outputGoogleSheetTab = 'HRF_value_analysis';
-for i = 1:length(df)
-    
-mat2sheets(googleSheetID, sheetID, [expi HRFcolumn], {'Done'});
+outputGoogleSheetTab = '185196530';%'HRF_value_analysis';
+excludeFields = {'oridiameter', 'diameter'};
 
+outputdf = rmfield(df, excludeFields);
+
+animals = get_animal_info(); % It is too slow to check it multiple times. So I get the whole table then get gender locally.
+
+for i = 1:length(outputdf)
+    outputdf(i).bvid = [outputdf(i).animal, '_', outputdf(i).bvid];
+    outputdf(i).gender =  animals(strcmp({animals.animal}, outputdf(i).animal)).gender;
+end
+
+outputdf_fields = fieldnames(outputdf);
+mat2sheets(outputGoogleSheetId, outputGoogleSheetTab, [1 1], outputdf_fields');
+
+outputdf_data = {};
+for i = 1:length(outputdf)
+    tmp = struct2cell(outputdf(i))';
+    outputdf_data = [outputdf_data;tmp];
+end
+mat2sheets(outputGoogleSheetId, outputGoogleSheetTab, [2 1],outputdf_data);
+
+% copy jpg files to report folder ======================
 for i = 1:length(df)
     targetpath = strrep(df(i).jpgpath, root, total_report_root);
     copyfile(df(i).jpgpath, targetpath);
