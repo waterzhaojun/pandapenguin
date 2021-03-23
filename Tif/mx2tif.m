@@ -24,7 +24,7 @@ color = parser.Results.color;
 filetype = parser.Results.filetype;
 
 if ndims(mx) == 2, mx = reshape(mx, size(mx,1),size(mx,2),1); end
-if ndims(mx) == 3, mx = reshape(mx, size(mx,1),size(mx,2),1,size(mx,4)); end
+if ndims(mx) == 3, mx = reshape(mx, size(mx,1),size(mx,2),1,size(mx,3)); end
 [r,c,ch,f] = size(mx);
     
 % pretreat the mx based on the color
