@@ -13,17 +13,11 @@ function mx = mxFromSbxPath(path)
 
     % ---------------------------------------
     x = fread(inf.fid, inf.nsamples/2*N, 'uint16=>uint16');
-    if inf.area_line
-        x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer N]);
-        x = permute(x, [3,2,1,4]);
+    
+    x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer N]);
+    x = permute(x, [3,2,1,4]);
 
-        
-    else
-        x = reshape(x, [inf.nchan inf.sz(2) inf.recordsPerBuffer*N]);
-        x = squeeze(permute(x, [3,2,1]));
-    end
-
-    mx = 65535-x;
+    mx = uint16(65535-x);
 
 
 end

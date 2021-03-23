@@ -15,13 +15,16 @@ addOptional(parser, 'pmt', 0, @(x) isnumeric(x) && isscalar(x) && (x>=0) && (x<=
 addParameter(parser, 'loadAll', 0, @islogical);
 addParameter(parser, 'bintSize', 1, @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'linescanSampleSize', 0.05); % line scan T size. Unit is sec.
-parse(parser,animal,date,run,pmt,varargin{:});
+parse(parser,animal,date,run,varargin{:});
 
 %pmt = parser.Results.pmt;
-disp(['load from pmt', num2str(pmt)]);
+
+pmt = parser.Results.pmt;
 loadAll = parser.Results.loadAll;
 bintSize = parser.Results.bintSize;
 linescanSampleSize = parser.Results.linescanSampleSize;
+
+disp(['load from pmt', num2str(pmt)]);
 
 path = sbxPath(animal, date, run, 'sbx'); 
 inf = sbxInfo(path, true);
@@ -34,19 +37,28 @@ end
 
 mx = mxFromSbxPath(path);
 
-if inf.area_line
-    if inf.nchan==1
-        pmt = 1;
-    else
-        pmt = pmt + 1;
-    end 
+if inf.nchan==1
+    pmt = 1;
+else
+    pmt = pmt + 1;
+end 
 
+if inf.area_line
     if ~loadAll, mx = mx(:,:,pmt,:); end
 
     % [r,c,ch,f] = size(mx);
     if bintSize > 1, mx = bintf(mx, bintSize); end
 else
-    [f,c] = size(mx);
-    r = round(linescanSampleSize * scanrate * inf.recordsPerBuffer / 4) * 4;
+    % line scan. Right now I don't think it is useful to load all pmt data.
+    % So just use one pmt data.
+    mx = squeeze(mx(:,:,pmt,:));
+    [r,c,f] = size(mx);
+    mx = permute(mx, [2,1,3]);
+    mx = reshape(mx, c,r*f)';
+    Tr = round(linescanSampleSize * scanrate * inf.recordsPerBuffer / 4) * 4;
+    mx = linescanTransform(mx, Tr);
+end
+
+mx = uint16(mx);
 
 end
