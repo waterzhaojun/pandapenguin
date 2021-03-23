@@ -1,4 +1,14 @@
 function result = running_analysis(animal, date, run, varargin)
+% 3/23/2021
+% In this result struct includes following data:
+% 'array' is the original array from quad, the only treat is calculate the
+% diff. Without any unit.
+% 'secarray': deprecated. I used to bint the ori array to 1hz, but I don't think it is necessary now.
+% 'array_treated': the original array may have some treatment, including pretreat like deshake, and treatment in different bout method.
+% 'secarray_treated': after the bout method treatment, it will also create
+% a 1hz binted data. It should have the same treatment as 'array_treated'.
+
+
 parser = inputParser;
 addRequired(parser, 'animal', @ischar );
 addRequired(parser, 'date', @ischar);
@@ -30,24 +40,25 @@ end
 cfg = run_config();
 
 result = struct();
-result.array = getRunningArray(path, 'deshake', true) * cfg.blockunit * scanrate;
-result.secarray = bint1D(abs(result.array), floor(scanrate));
+result.array = getRunningArray(path);
+signalarray =  deshake(result.array) * cfg.blockunit * scanrate;
+% result.secarray = bint1D(abs(result.array), floor(scanrate)); % Deprecated.
 result.scanrate = scanrate;
 
 result.boutMethod = boutMethod;
 if strcmp(boutMethod, 'markov')
     % If use Markov, use below code.
     markov_para_path = [fileparts(which('get_bout_markov')), '\', 'LocoHMM_2state.mat'];
-    [result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_markov(result.array, scanrate, markov_para_path);
+    [result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_markov(signalarray, scanrate, markov_para_path);
 elseif strcmp(boutMethod, 'drewlab')
     % If use Drewlab, use below code.
-    [result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_drewlab(result.array, scanrate);
+    [result.bout, result.secarray_treated, result.array_treated, result.restbout, result.restidx] = get_bout_drewlab(signalarray, scanrate);
 end
 
 result.config = cfg;
 
 
-plot_running_realfs(result);
+plot_running(result, 'detail', true);
 
 if saveresult
     % save plot ========================================================
