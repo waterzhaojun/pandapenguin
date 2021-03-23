@@ -2,3 +2,7 @@
 packages/
 test/
 html/
+*.mat
+.gitignore
+nb_.m
+google_tokens.mat

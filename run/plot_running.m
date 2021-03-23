@@ -1,5 +1,8 @@
 function plot_running(result)
 
+% deprecated. use plot_running_realfs.
+
+config = run_config();
 hold on
 % plot speed array. it has been bint to 1hz.
 bar(result.secarray_treated, 'black', 'EdgeColor','none');
@@ -17,8 +20,10 @@ for i = 1:length(result.bout)
 end
 
 % plot each rest period.
-for i = 1:length(result.restbout)
-    plot([result.restbout{i}.startsec,result.restbout{i}.endsec], [0.01,0.01], 'b');
+if strcmp(result.boutMethod, 'drewlab')
+    for i = 1:length(result.restbout)
+        plot([result.restbout{i}.startsec,result.restbout{i}.endsec], [config.acceleration_threshold,config.acceleration_threshold], 'b');
+    end
 end
 hold off
 

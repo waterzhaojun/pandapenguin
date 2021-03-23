@@ -8,8 +8,11 @@ parser = inputParser;
 addRequired(parser, 'folder', @ischar );
 addRequired(parser, 'mx');
 addParameter(parser, 'rebuildRef', false, @islogical);
+addParameter(parser, 'refMethod', 'brightVessel');
 addParameter(parser, 'rebuildRoi', false, @islogical);
 parse(parser,folder, mx, varargin{:});
+
+refMethod = parser.Results.refMethod;
 
 filesys = bv_file_system();
 
@@ -17,7 +20,11 @@ folder = correct_folderpath(folder);
 
 refpath = [folder, filesys.refpath];
 if ~isfile(refpath) || parser.Results.rebuildRef
-    ref = imadjust(uint16(squeeze(max(mx,[],4))));
+    if strcmp(refMethod, 'brightVessel')
+        ref = imadjust(uint16(squeeze(max(mx,[],4))));
+    elseif strcmp(refMethod, 'blackVessel')
+        ref = imadjust(uint16(squeeze(max(65535-mx,[],4))));
+    end
     imwrite(ref, refpath);
 else
     ref = imread(refpath); 

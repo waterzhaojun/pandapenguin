@@ -16,6 +16,7 @@ addParameter(parser, 'beginningTruncateSec', 10); % truncate the beginning sever
 addParameter(parser, 'bound', {[-20,0,0.5],[120,20,150]}); %A, Td, tao
 addParameter(parser, 'initValue', [0.1, 0.1, 0.1]);
 addParameter(parser, 'showResultPlot', true);
+addParameter(parser, 'runresult', nan);
 
 parse(parser,running_binary, corrArray, scanrate, varargin{:});
 
@@ -28,6 +29,7 @@ bound{2}(2) = bound{2}(2)*scanrate;
 bound{2}(3) = bound{2}(3)*scanrate;
 initValue = parser.Results.initValue;
 showResultPlot = parser.Results.showResultPlot;
+runresult = parser.Results.runresult; % give the run result here. If yes, plot running in the output fig.
 
 % Training part ========================================================
 % truncate the data
@@ -83,13 +85,20 @@ while flag
     
 end
 
+H(2) = H(2)/scanrate;
+H(3) = H(3)/scanrate;
+
 if showResultPlot
     runidx = find(running_binary == 1);
     bottomValue = min(corrArray) - (max(corrArray) - min(corrArray))*0.1;
     plot(corrArray);
     hold on
     plot(est, 'LineWidth',2);
-    scatter(runidx, repmat(bottomValue,length(runidx),1),'filled');
+    if strcmp(class(runresult), 'struct')
+        plot_running_realfs(runresult);
+    else
+        scatter(runidx, repmat(bottomValue,length(runidx),1),'filled');
+    end
     hold off
 end
 

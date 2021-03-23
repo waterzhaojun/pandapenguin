@@ -4,7 +4,7 @@ parser = inputParser;
 addRequired(parser, 'path', @ischar );
 addParameter(parser, 'bint', 1, @(x) isnumeric(x) && isscalar(x) && (x>0));
 addParameter(parser, 'deshake', false, @islogical); % Deprecated
-addParameter(parser, 'absvalue', 0, @islogical); %Usually I think keep negative value is necessary. If you want just abs value, set it to 1;
+addParameter(parser, 'absvalue', false, @islogical); %Usually I think keep negative value is necessary. If you want just abs value, set it to 1;
 parse(parser,path, varargin{:});
 
 array = load(path);

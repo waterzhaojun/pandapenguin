@@ -1,29 +1,32 @@
 %% Single trial bv analysis
-animal = 'CGRP0722';   % <====================== File your exp info
-date = '210301';     % <====================== File your exp info
-run = 10;             % <====================== File your exp info
+animal = 'WT0120';   % <====================== File your exp info
+date = '201209';     % <====================== File your exp info
+run = 1;             % <====================== File your exp info
 pmt = 0;             % <====================== File your exp info
 layers = 'all';      % <====================== File your exp info [11]
 %smooth = 0;
 
 % don't change code below ==========================================
 bvfilesys = bv_file_system();
-[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers);
-diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', false);
+[mx,folder] = diameter_prepare_mx(animal, date, run, pmt, 'layer',layers, 'smooth', 0, 'output_mov',false);
+diameter_build_refmask(folder, mx, 'rebuildRef', false, 'rebuildRoi', true);
 set_scanrate(animal, date, run, 'bv');
 diameter_analysis(folder, mx);
 set_vessel_type(folder);
 input_vessel_id(folder);
 
 %% If you want to edit some roi, run code here ======================
-roiid = '4.0'  % <======== Need to set a roi id.
+roiid = '2.2'  % <======== Need to set a roi id.
 editRoi(folder, mx, roiid);
 diameter_analysis(folder, mx); % <======When editted all rois, run this function again to update the pdf.
 
+%% If the output response file is pdf, use this function to change it to jpg and run diameter_analysis again
+change_pdf_2_jpg(folder)
+diameter_analysis(folder, mx);
 
 %% correlation with running.
 running_analysis(animal, date, run); % If you didn't do running analysis, do it here!!!
-diameter_calculate_baseline(folder);
+%diameter_calculate_baseline(folder);
 %layername = [num2str(layers(1)), 'to', num2str(layers(end))];
 %diameter_running_corAnalysis(animal, date, run, 'bvfolder', '6to7');
 %result2csv([folder, '\',bvfilesys.bv_running_correlation_resultpath], {'bvarray'});

@@ -2,14 +2,14 @@
 % parameters. 
 
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
-root = 'C:\Users\Levylab\jun\HRF\';  %<=============  Where you want to save the analyzed data
+root = 'C:\2pdata\WT0120\201209_WT0120\HRF\';  %<=============  Where you want to save the analyzed data
 
 
 %% Code part. Don't change code below =======================
 explist = load_exp(googleSheetID);
 sheetID = '0';
 HRFcolumn = 13;
-lists = [43:51,62:69,82:83,109:114,127:135,171:178,180:189,191:196,198:201,208:211,213:215,217:226];%2:length(explist);%110,128,189];  %<============== which data sheet lines do you want to analyze.
+lists = [157:160]%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
 
 for expidx = 1:length(lists)
     expi = lists(expidx);
@@ -50,7 +50,7 @@ for expidx = 1:length(lists)
             baseline = mean(corrArrayori(restidx));
 
             corrArray = (corrArrayori - baseline)/baseline;
-            [H,coeff] = train_HRF_model(running_binary, corrArray, runresult.scanrate);
+            [H,coeff] = train_HRF_model(running_binary, corrArray * 100, runresult.scanrate);
             df = struct();
             df.restidxLength = length(restidx);
             df.oridiameter = corrArrayori;
@@ -62,6 +62,7 @@ for expidx = 1:length(lists)
             df.A = H(1);
             df.td = H(2);
             df.tao = H(3);
+            df.Atao = df.A * df.tao;
             df.coeff = coeff;
             df.bvposition = bvresult(i).position;
             df.bvid = bvresult(i).id;
@@ -82,9 +83,10 @@ end
 % df = struct();
 
 total_report_root = [root, 'report\'];
-if ~exist(total_report_root)
-    mkdir(total_report_root);
+if exist(total_report_root)
+    rmdir(total_report_root)
 end
+mkdir(total_report_root);
 
 dfidx = 1;
 files = dir(root);
@@ -107,7 +109,6 @@ for i = 1:length(files)
         elseif contains(tmp(1).animal, 'WT')
             tmp(1).group = 'WT';
         end
-        tmp(1).Atao = tmp(1).A * tmp(1).tao;
         
         if dfidx == 1
             df = [tmp];
@@ -122,14 +123,15 @@ end
 df = df(strcmp({df.bvtissue}, 'pia'));
 df = df(strcmp({df.bvtype}, 'artery'));
 df = df(strcmp({df.bvposition}, 'horizontal'));
-df = df([df.coeff] > 0.55);
+df = df([df.coeff] > 0.50);
+df = df([df.A] > 0);
 
 % save to local .mat file.
 save([total_report_root, 'result.mat'], 'df');
 
 %save to google sheet.
 outputGoogleSheetId = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ';
-outputGoogleSheetTab = '185196530';%'HRF_value_analysis';
+outputGoogleSheetTab = '1805849516';%'HRF_value_analysis';1805849516 for drew. 185196530 for markov
 excludeFields = {'oridiameter', 'diameter'};
 
 outputdf = rmfield(df, excludeFields);
@@ -166,9 +168,9 @@ nexttile;
 plot_boxplot([dfwt.A], [dfcgrp.A], {'WT', 'CGRP'}, 'title', 'HRF model argument value comparison');
 
 nexttile;
-plot_boxplot(log10([dfwt.td]), log10([dfcgrp.td]), {'WT', 'CGRP'}, 'ylabel', 'log sec', 'title', 'HRF model td value comparison');
+plot_boxplot([dfwt.td], [dfcgrp.td], {'WT', 'CGRP'}, 'ylabel', 'sec', 'title', 'HRF model td value comparison');
 
 nexttile;
-plot_boxplot(log10([dfwt.tao]), log10([dfcgrp.td]), {'WT', 'CGRP'}, 'ylabel', 'log sec', 'title', 'HRF model tao value comparison');
+plot_boxplot([dfwt.tao], [dfcgrp.td], {'WT', 'CGRP'}, 'ylabel', 'sec', 'title', 'HRF model tao value comparison');
 
 exportgraphics(gcf,[total_report_root, 'HRF model comparison.jpg']);
