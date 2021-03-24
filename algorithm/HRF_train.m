@@ -1,4 +1,4 @@
-function [H, coeff] = train_HRF_model(running_binary, corrArray, scanrate, varargin)
+function [H, coeff] = HRF_train(stimulate_binary_array, response_array, scanrate, varargin)
 
 % S is the binary signal array. Like the binarized running signal. S shape should
 % be m x 1;
@@ -7,20 +7,21 @@ function [H, coeff] = train_HRF_model(running_binary, corrArray, scanrate, varar
 % This two singal should have the same scanrate.
 % This function refenced to https://pubmed.ncbi.nlm.nih.gov/25467301/
 
-% I am planning deprecate this function, and use HRF_train.m instead.
+% This function is a replacement of train_HRF_model.m. It uses a HRF.m as
+% the model function.
 
 parser = inputParser;
-addRequired(parser, 'running_binary', @isnumeric ); % running bout signal array
-addRequired(parser, 'corrArray', @isnumeric ); % response signal array
+addRequired(parser, 'stimulate_binary_array', @isnumeric ); % Like binarized running array
+addRequired(parser, 'response_array', @isnumeric ); % Like the diameter response signal array
 addRequired(parser, 'scanrate');
-addParameter(parser, 'modelLength', 200); % the HRF model length. Unit is sec
-addParameter(parser, 'beginningTruncateSec', 10); % truncate the beginning several seconds.
-addParameter(parser, 'bound', {[-20,0,0.5],[120,20,150]}); %A, Td, tao
-addParameter(parser, 'initValue', [0.1, 0.1, 0.1]); %A, Td, tao
-addParameter(parser, 'showResultPlot', true);
-addParameter(parser, 'runresult', nan);
+addParameter(parser, 'modelLength', 200); % the HRF model length. Unit is sec. Means this stimulation effect can't more than this long seconds.
+addParameter(parser, 'beginningTruncateSec', 10); % truncate the beginning several seconds of the arrays, As the beginning of the recording always noisy.
+addParameter(parser, 'bound', {[-20,0,0.5],[120,20,150]}); % Define A, Td, tao can't be trained out of these ranges.
+addParameter(parser, 'initValue', [0.1, 0.1, 0.1]); % Initial A, Td, tao values.
+addParameter(parser, 'showResultPlot', true); % Whether show the trained result.
+addParameter(parser, 'runresult', nan); % This variable is specific for running data. It is to ask if we want to plot the running result in the result.
 
-parse(parser,running_binary, corrArray, scanrate, varargin{:});
+parse(parser,stimulate_binary_array, response_array, scanrate, varargin{:});
 
 n = parser.Results.modelLength * scanrate;
 beginningTruncateSec = parser.Results.beginningTruncateSec;
@@ -35,8 +36,8 @@ runresult = parser.Results.runresult; % give the run result here. If yes, plot r
 
 % Training part ========================================================
 % truncate the data
-S = running_binary(beginningTruncateSec * scanrate + 1 : end);
-X = corrArray(beginningTruncateSec * scanrate + 1 : end);
+S = stimulate_binary_array(beginningTruncateSec * scanrate + 1 : end);
+X = response_array(beginningTruncateSec * scanrate + 1 : end);
 
 % confirm direction
 if size(S, 1) == 1 && size(S, 2) > size(S, 1)
@@ -58,12 +59,12 @@ TS = [S; zeros(n,1)];
 TS = toeplitz(TS,zeros(n,1));
 TS = [ones(length(TS),1), TS];
 
-Trunning_binary = toeplitz(running_binary, zeros(n,1));
+Trunning_binary = toeplitz(stimulate_binary_array, zeros(n,1));
 Trunning_binary = [ones(size(Trunning_binary, 1),1), Trunning_binary]; % This is for validate.
 
 % HRF model
-HRF = @(x) [0,x(1)*exp(-([1:n] - x(2)) / x(3))] .*[0, floor(heaviside([1:n]-x(2)))];
-fun = @(x) immse(TS * HRF(x)', TX);
+%HRF = @(x) [0,x(1)*exp(-([1:n] - x(2)) / x(3))] .*[0, floor(heaviside([1:n]-x(2)))];
+fun = @(x) immse(TS * HRF(x, n)', TX);
 
 %'PlotFcns',@optimplotfval, ...
 options = optimset('MaxIter', 10000000000, 'TolFun', 1e-8, 'TolX', 1e-8);
@@ -73,8 +74,8 @@ coeff_list = [1,1];
 
 while flag
     [H,fval] = fminsearchbnd(fun, initValue, bound{1}, bound{2}, options);
-    est = Trunning_binary * HRF(H)';
-    coeff = corrcoef(est, corrArray);
+    est = Trunning_binary * HRF(H, n)';
+    coeff = corrcoef(est, response_array);
     coeff = coeff(1,2);
     disp(sprintf('Corrcoef: %d', coeff));
     coeff_list = [coeff_list, coeff];
@@ -91,9 +92,9 @@ H(2) = H(2)/scanrate;
 H(3) = H(3)/scanrate;
 
 if showResultPlot
-    runidx = find(running_binary == 1);
-    bottomValue = min(corrArray) - (max(corrArray) - min(corrArray))*0.1;
-    plot(corrArray);
+    runidx = find(stimulate_binary_array == 1);
+    bottomValue = min(response_array) - (max(response_array) - min(response_array))*0.1;
+    plot(response_array);
     hold on
     plot(est, 'LineWidth',2);
     if strcmp(class(runresult), 'struct')

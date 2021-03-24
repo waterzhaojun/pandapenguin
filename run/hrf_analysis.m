@@ -33,7 +33,8 @@ running_binary = array_binary(result);
 bvresult = extractBvData(animal, date, run);
 result.HRF = struct();
 
-tiledlayout(ceil(length(bvresult)/2),2);
+figure('Position', [10 10 1000 500*length(bvresult)])
+tiledlayout(length(bvresult),4);
 
 for i = 1:length(bvresult)
     corrArrayori = bvresult(i).diameter;
@@ -41,9 +42,14 @@ for i = 1:length(bvresult)
     baseline = mean(corrArrayori(restidx));
 
     corrArray = (corrArrayori - baseline)/baseline;
-    nexttile;
-    [H,coeff] = train_HRF_model(running_binary, corrArray, result.scanrate);
+    nexttile([1,3]);
+    [H,coeff] = HRF_train(running_binary, corrArray, result.scanrate);
+    
     title([bvresult(i).id, ' (', bvresult(i).tissue, ' ', bvresult(i).type, ')'])
+    
+    nexttile;
+    % This figure is a sample of the trained HRF model by appling -0.5 sec to 3 sec.
+    HRF_plot(H,ceil(3*scanrate), floor(0.5*scanrate), result.scanrate);
     
     result.HRF(i).restidxLength = length(restidx);
     result.HRF(i).oridiameter = corrArrayori;
