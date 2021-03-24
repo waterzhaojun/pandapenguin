@@ -1,4 +1,4 @@
-function stripmx = choose_linescan_strip(mx)
+function [stripmx, startidx, endidx] = choose_linescan_strip(mx)
 
 B = imgaussfilt3(mx);
 ref = min(B, [], 3);
