@@ -3,17 +3,17 @@ function array = getRunningArray(path, varargin)
 parser = inputParser;
 addRequired(parser, 'path', @ischar );
 addParameter(parser, 'bint', 1, @(x) isnumeric(x) && isscalar(x) && (x>0));
-addParameter(parser, 'deshake', false, @islogical); % Deprecated
-addParameter(parser, 'absvalue', 0, @islogical); %Usually I think keep negative value is necessary. If you want just abs value, set it to 1;
+%addParameter(parser, 'deshake', false, @islogical); % Deprecated
+addParameter(parser, 'absvalue', false, @islogical); %Usually I think keep negative value is necessary. If you want just abs value, set it to 1;
 parse(parser,path, varargin{:});
 
 array = load(path);
 array = double(array.quad_data);
 array = diff([0,array]);%gradient(array);%array(1:end) - [0,array(1:end-1)];
 
-if parser.Results.deshake
-    array = deshake(array);
-end
+% if parser.Results.deshake
+%     array = deshake(array);
+% end
 
 if parser.Results.absvalue
     array = abs(array);

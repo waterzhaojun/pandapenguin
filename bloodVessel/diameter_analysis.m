@@ -6,7 +6,12 @@ parser = inputParser;
 addRequired(parser, 'folder', @ischar );
 addRequired(parser, 'mx' );
 addParameter(parser, 'rebuild', false); % Not using yet
+addParameter(parser, 'preset_ratio', false);
+addParameter(parser, 'smooth', false);
 parse(parser,folder,mx,varargin{:});
+
+preset_ratio = parser.Results.preset_ratio;
+smooth_result = parser.Results.smooth;
 
 folder = correct_folderpath(folder);
 bvfilesys = bv_file_system();
@@ -18,7 +23,13 @@ ref = imread([folder, result.refpath]);
 
 % add diameter length pixel ratio.
 [animal, date, run] = pathTranslate(folder);
-[result.x_ratio, result.y_ratio] = diameter_pixel_ratio(animal, date, run);
+
+if ~preset_ratio
+    [result.x_ratio, result.y_ratio] = diameter_pixel_ratio(animal, date, run);
+else
+    result.x_ratio = preset_ratio(1);
+    result.y_ratio = preset_ratio(2);
+end
 
 
 % figure('Position', [10 10 2500, 600 * 2 * length(result.roi)]);
@@ -44,6 +55,9 @@ for i = 1:length(result.roi)
        [diameter, response_fig] = calculate_diameter(mx, tmpbw, tmpangle);
        result.roi{i}.diameter = diameter * ...
            sqrt(cos(abs(tmpangle)*pi/180)^2*result.x_ratio^2 + sin(abs(tmpangle)*pi/180)^2*result.y_ratio^2);
+       if smooth_result
+           result.roi{i}.diameter = smooth(result.roi{i}.diameter);
+       end
 
     end
 
