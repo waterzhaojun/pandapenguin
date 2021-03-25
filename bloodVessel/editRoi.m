@@ -19,6 +19,10 @@ result = result.result;
 rois = result.roi;
 ref = read(Tiff([folder, result.refpath],'r'));
 
+if strcmp(class(roiid),'double')
+    roiid = rois{roiid}.id;
+end
+
 for i = 1:length(rois)
     tmpposition = rois{i}.position;
     if strcmp(rois{i}.id, roiid)

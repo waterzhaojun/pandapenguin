@@ -15,8 +15,10 @@ addRequired(parser, 'date', @ischar);
 addRequired(parser, 'run', @isnumeric); 
 addParameter(parser, 'boutMethod', 'drewlab', @ischar);
 addParameter(parser, 'saveresult', true, @islogical);
+addParameter(parser, 'deshake', true, @islogical);
 parse(parser, animal, date, run, varargin{:});
 
+deshakeflag = parser.Results.deshake;
 boutMethod = parser.Results.boutMethod;
 saveresult = parser.Results.saveresult;
 
@@ -41,7 +43,11 @@ cfg = run_config();
 
 result = struct();
 result.array = getRunningArray(path);
-signalarray =  deshake(result.array) * cfg.blockunit * scanrate;
+signalarray =  result.array;
+if deshakeflag
+    signalarray = deshake(signalarray);
+end
+signalarray =  signalarray * cfg.blockunit * scanrate;
 % result.secarray = bint1D(abs(result.array), floor(scanrate)); % Deprecated.
 result.scanrate = scanrate;
 

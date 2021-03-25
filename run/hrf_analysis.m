@@ -45,11 +45,11 @@ for i = 1:length(bvresult)
     nexttile([1,3]);
     [H,coeff] = HRF_train(running_binary, corrArray, result.scanrate);
     
-    title([bvresult(i).id, ' (', bvresult(i).tissue, ' ', bvresult(i).type, ')'])
+    title([bvresult(i).id, ' (', bvresult(i).tissue, ' ', bvresult(i).type, '), Coeff = ', num2str(coeff)])
     
     nexttile;
     % This figure is a sample of the trained HRF model by appling -0.5 sec to 3 sec.
-    HRF_plot(H,ceil(3*scanrate), floor(0.5*scanrate), result.scanrate);
+    HRF_plot(H,ceil(3*result.scanrate), floor(0.5*result.scanrate), result.scanrate);
     
     result.HRF(i).restidxLength = length(restidx);
     result.HRF(i).oridiameter = corrArrayori;
