@@ -77,9 +77,13 @@ disp('Done');
 
 if ~strcmp(extra_output_folder, '')
     df = result.HRF;
-    save([correct_folderpath(extra_output_folder), HRF_outputpath], 'df');
-    exportgraphics(gcf,[correct_folderpath(extra_output_folder), result.HRF_pic]);
+    save([correct_folderpath(extra_output_folder), animal, '_', date, '_', num2str(run), '_', HRF_outputpath], 'df');
+    copyfile([correct_folderpath(runresultpath.folder), result.HRF_pic], ...
+        [correct_folderpath(extra_output_folder), animal, '_', date, '_', num2str(run), '_', result.HRF_pic]);
+    %exportgraphics(gcf,[correct_folderpath(extra_output_folder), animal, '_', date, '_', num2str(run), '_', result.HRF_pic]);
 end
+
+close;
 
 meanCoeff = mean([result.HRF.coeff]);
 

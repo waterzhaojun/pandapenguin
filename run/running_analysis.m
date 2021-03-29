@@ -16,11 +16,13 @@ addRequired(parser, 'run', @isnumeric);
 addParameter(parser, 'boutMethod', 'drewlab', @ischar);
 addParameter(parser, 'saveresult', true, @islogical);
 addParameter(parser, 'deshake', true, @islogical);
+addParameter(parser, 'filename_prewords', '');
 parse(parser, animal, date, run, varargin{:});
 
 deshakeflag = parser.Results.deshake;
 boutMethod = parser.Results.boutMethod;
 saveresult = parser.Results.saveresult;
+filename_prewords = parser.Results.filename_prewords;
 
 filesys = run_file_system();
 
@@ -68,11 +70,11 @@ plot_running(result, 'detail', true);
 
 if saveresult
     % save plot ========================================================
-    saveas(gcf,[root, filesys.responsePath]);
+    saveas(gcf,[root, filename_prewords, filesys.responsePath]);
     close;
 
     % save result ========================================================
-    save([root, filesys.resultPath], 'result');
+    save([root, filename_prewords, filesys.resultPath], 'result');
 end
 
 end
