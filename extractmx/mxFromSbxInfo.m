@@ -14,7 +14,9 @@ addRequired(parser, 'run', @(x) isnumeric(x) && isscalar(x) && (x>0));
 addOptional(parser, 'pmt', 0, @(x) isnumeric(x) && isscalar(x) && (x>=0) && (x<=2));
 addParameter(parser, 'loadAll', 0, @islogical);
 addParameter(parser, 'bintSize', 1, @(x) isnumeric(x) && isscalar(x) && (x>0));
-addParameter(parser, 'linescanSampleSize', 0.05); % line scan T size. Unit is sec.
+addParameter(parser, 'linescanSampleSize', 0.05); % line scan T size. Means each frame represent how many seconds. Unit is sec.
+addParameter(parser, 'linescanBlocksPerFrame', 4); % Seperate to how many blocks per frame.
+addParameter(parser, 'excludeBeginningSec', 0); % remove the beginning several seconds.
 parse(parser,animal,date,run,varargin{:});
 
 %pmt = parser.Results.pmt;
@@ -23,6 +25,8 @@ pmt = parser.Results.pmt;
 loadAll = parser.Results.loadAll;
 bintSize = parser.Results.bintSize;
 linescanSampleSize = parser.Results.linescanSampleSize;
+linescanBlocksPerFrame = parser.Results.linescanBlocksPerFrame;
+excludeBeginningSec = parser.Results.excludeBeginningSec;
 
 disp(['load from pmt', num2str(pmt)]);
 
@@ -43,6 +47,8 @@ else
     pmt = pmt + 1;
 end 
 
+if excludeBeginningSec > 0, mx = mx(:,:,:,excludeBeginningSec*scanrate+1:end); end
+
 if inf.area_line
     if ~loadAll, mx = mx(:,:,pmt,:); end
 
@@ -55,7 +61,7 @@ else
     [r,c,f] = size(mx);
     mx = permute(mx, [2,1,3]);
     mx = reshape(mx, c,r*f)';
-    Tr = round(linescanSampleSize * scanrate * inf.recordsPerBuffer / 4) * 4;
+    Tr = round(linescanSampleSize * scanrate * inf.recordsPerBuffer / linescanBlocksPerFrame) * linescanBlocksPerFrame;
     mx = linescanTransform(mx, Tr);
 end
 
