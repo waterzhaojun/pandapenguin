@@ -3,7 +3,7 @@ function [maxangle, snr, var_list, radon_map] = radon_transformation(m, varargin
 % transform the image to let it have maxium variance.
 % The output's first dimension is each pixel's value sum at specific angle. 
 % The second dimension is specific angle.
-% If the maxangle is negative number, means the image rotate anti clockwise. 
+% If the maxangle is negative number, means the image rotate clockwise. 
 parser = inputParser;
 addRequired(parser, 'm'); % m is a 2D array
 addOptional(parser, 'angle_range', [-90:90]); % The image rotate around the center.
