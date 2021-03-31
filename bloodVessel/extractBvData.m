@@ -38,6 +38,13 @@ for i = 1:length(exp.runs{1}.bv.layer)
     
 end
 
+% add some extra column. 
+for i = 1:length(res)
+    res(i).diameterRaw = res(i).diameter;
+    res(i).diameter = gaussfilt(1:length(res(i).diameter), res(i).diameter, 3);
+    res(i).drr = (res(i).diameter - res(i).diameter_baseline) / res(i).diameter_baseline;
+end
+
 % treat the diameter by filter. 
 if smooth
     for i = 1:length(res)

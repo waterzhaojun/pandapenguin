@@ -7,7 +7,7 @@ function [H, coeff] = train_HRF_model(running_binary, corrArray, scanrate, varar
 % This two singal should have the same scanrate.
 % This function refenced to https://pubmed.ncbi.nlm.nih.gov/25467301/
 
-% I am planning deprecate this function, and use HRF_train.m instead.
+% Deprecated, and use HRF_train.m instead.
 
 parser = inputParser;
 addRequired(parser, 'running_binary', @isnumeric ); % running bout signal array
