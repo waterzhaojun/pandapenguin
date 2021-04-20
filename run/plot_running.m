@@ -37,8 +37,10 @@ elseif strcmp(datatype, 'all')
 end
     
 if detail
-    tiledlayout(3,1);
-    nexttile([2,1]);
+    fig = tiledlayout(3,1);
+    ax1 = nexttile([2,1]);
+else
+    fig = figure();
 end
 
 hold on
@@ -76,8 +78,9 @@ end
 set(gca,'TickDir','out');
 
 if detail
-    nexttile;
+    ax2 = nexttile;
     bar(1:length(result.array), result.array);
+    linkaxes([ax1 ax2],'x');
 end
 
 end

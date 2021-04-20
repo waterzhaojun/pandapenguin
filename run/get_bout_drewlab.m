@@ -33,12 +33,13 @@ for i = 1:length(bout)
     bout{i}.endsec = min(length(secarray_treat), translateIdx(bout{i}.endidx, scanrate, scanrate/floor(scanrate)));
     bout{i}.secarray_treat = secarray_treat(bout{i}.startsec : bout{i}.endsec);
     
-    bout{i}.duration = (bout{i}.endidx - bout{i}.startidx + 1) * scanrate;
+    bout{i}.duration = (bout{i}.endidx - bout{i}.startidx + 1) / scanrate;
     bout{i}.speed = mean(bout{i}.array_treat);
     bout{i}.distance = bout{i}.duration * bout{i}.speed;
     [bout{i}.maxspeed, tmp] = max(bout{i}.array_treat);
     bout{i}.maxspeed_delay = tmp/scanrate;
     bout{i}.acceleration = bout{i}.maxspeed / bout{i}.maxspeed_delay;
+    
 end
 
 %==================================================================

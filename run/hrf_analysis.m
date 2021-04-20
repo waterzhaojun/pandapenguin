@@ -39,7 +39,7 @@ tiledlayout(length(bvresult),4);
 for i = 1:length(bvresult)
     corrArrayori = bvresult(i).diameter;
 
-    baseline = mean(corrArrayori(restidx));
+    baseline = median(corrArrayori(restidx));
 
     corrArray = (corrArrayori - baseline)/baseline;
     nexttile([1,3]);

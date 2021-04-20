@@ -3,7 +3,7 @@ parser = inputParser;
 addRequired(parser, 'animal' );
 addRequired(parser, 'date');
 addRequired(parser, 'run');
-addParameter(parser, 'excludeField', {'BW', 'angle'});
+addParameter(parser, 'excludeField', {'BW', 'angle', 'response_mov_path'});
 addParameter(parser, 'smooth', true);
 
 parse(parser,animal, date, run, varargin{:});

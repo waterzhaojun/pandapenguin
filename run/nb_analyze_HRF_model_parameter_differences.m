@@ -2,14 +2,14 @@
 % parameters. 
 
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
-root = 'C:\2pdata\WT0120\201209_WT0120\HRF\';  %<=============  Where you want to save the analyzed data
+root = 'C:\2pdata\HRF\';  %<=============  Where you want to save the analyzed data
 
 
 %% Code part. Don't change code below =======================
 explist = load_exp(googleSheetID);
 sheetID = '0';
 HRFcolumn = 13;
-lists = [157:160]%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
+lists = [100]%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
 
 for expidx = 1:length(lists)
     expi = lists(expidx);
@@ -19,13 +19,14 @@ for expidx = 1:length(lists)
     runtask = explist(expi).running_task;
     bvtask = explist(expi).bv_task;
     alignmenttask = explist(expi).alignment_task;
-    group = explist(expi).situation;
+    group = explist(expi).treatment;
     boutNum = str2num(explist(expi).bouts_num);
     scanmode = explist(expi).scanmode;
+    hrfdone = explist(expi).HRF;
     
     %running_analysis(animal, date, run);
     
-    if ~strcmp(runtask, 'Done') || ~strcmp(bvtask, 'Done') || ~strcmp(group, 'baseline') || ~strcmp(scanmode, '2D')%&& strcmp(alignmenttask, 'Done') 
+    if ~strcmp(runtask, 'Done') || ~strcmp(bvtask, 'Done') || ~strcmp(group, 'baseline') || ~strcmp(scanmode, '2D') || strcmp(hrfdone, 'Done') || strcmp(hrfdone, 'Failed')
         continue;
     end
     disp(['find ', animal, ' ', date, ' run', num2str(run), ' finished treatment']); 
@@ -82,7 +83,7 @@ end
 %% This part is to organize all mat files and build a big struct array.
 % df = struct();
 
-total_report_root = [root, 'report\'];
+total_report_root = [root, 'report2\'];
 if exist(total_report_root)
     rmdir(total_report_root)
 end
@@ -123,15 +124,19 @@ end
 df = df(strcmp({df.bvtissue}, 'pia'));
 df = df(strcmp({df.bvtype}, 'artery'));
 df = df(strcmp({df.bvposition}, 'horizontal'));
-df = df([df.coeff] > 0.50);
+df = df([df.coeff] > 0.60);
 df = df([df.A] > 0);
+df = df([df.baseline] < 40);
+df = df([df.td] < 5);
 
 % save to local .mat file.
 save([total_report_root, 'result.mat'], 'df');
 
+
+
 %save to google sheet.
 outputGoogleSheetId = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ';
-outputGoogleSheetTab = '1805849516';%'HRF_value_analysis';1805849516 for drew. 185196530 for markov
+outputGoogleSheetTab = '904542698';%'HRF_value_analysis';1805849516 for drew. 185196530 for markov
 excludeFields = {'oridiameter', 'diameter'};
 
 outputdf = rmfield(df, excludeFields);
@@ -171,6 +176,61 @@ nexttile;
 plot_boxplot([dfwt.td], [dfcgrp.td], {'WT', 'CGRP'}, 'ylabel', 'sec', 'title', 'HRF model td value comparison');
 
 nexttile;
-plot_boxplot([dfwt.tao], [dfcgrp.td], {'WT', 'CGRP'}, 'ylabel', 'sec', 'title', 'HRF model tao value comparison');
+plot_boxplot([dfwt.tao], [dfcgrp.tao], {'WT', 'CGRP'}, 'ylabel', 'sec', 'title', 'HRF model tao value comparison');
 
 exportgraphics(gcf,[total_report_root, 'HRF model comparison.jpg']);
+
+
+%% save unqualitied files to another folder.============================
+
+unqualified_root = [root, 'unqualified\'];
+if exist(unqualified_root)
+    rmdir(unqualified_root)
+end
+mkdir(unqualified_root);
+
+dfidx = 1;
+files = dir(root);
+keepidx = [];
+for i = 1:length(files)
+    if length(files(i).name) > 2
+        keepidx = [keepidx, i];
+    end
+end
+files = files(keepidx);
+
+for i = 1:length(files)
+    if strcmp(files(i).name(end-3:end), '.mat')
+        tmp = load([files(i).folder,'\',files(i).name]); 
+        tmp = tmp.df;
+        jpgpath = [files(i).folder,'\',files(i).name];
+        tmp(1).jpgpath = [jpgpath(1:end-7), '.jpg'];
+        if contains(tmp(1).animal, 'CGRP')
+            tmp(1).group = 'CGRP';
+        elseif contains(tmp(1).animal, 'WT')
+            tmp(1).group = 'WT';
+        end
+        
+        if dfidx == 1
+            df = [tmp];
+        else
+            df = [df,tmp];
+        end
+        dfidx = dfidx + 1;
+    end
+end
+
+% add filter here =========
+df = df(strcmp({df.bvtissue}, 'pia'));
+df = df(strcmp({df.bvtype}, 'artery'));
+df = df(strcmp({df.bvposition}, 'horizontal'));
+df = df([df.coeff] <= 0.50);
+df = df([df.A] > 0);
+
+save([unqualified_root, 'result.mat'], 'df');
+
+% copy jpg files to report folder ======================
+for i = 1:length(df)
+    targetpath = strrep(df(i).jpgpath, root, unqualified_root);
+    copyfile(df(i).jpgpath, targetpath);
+end

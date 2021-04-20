@@ -1,4 +1,7 @@
 function df = extractRunningData(animal, date, run, varargin)
+% This function is to preset a baseline period and a response period around
+% the start of the bout, then get all data related with it to a struct dataframe.
+
 parser = inputParser;
 addRequired(parser, 'animal' );
 addRequired(parser, 'date');
@@ -54,11 +57,6 @@ for i = 1:length(res.bout)
         end
     end
     
-%     if i == 1
-%         df = [tmp];
-%     else
-%         df = [df;tmp];
-%     end
     if exist('df','var')
         df = [df;tmp];
     else
@@ -66,6 +64,8 @@ for i = 1:length(res.bout)
     end
 end
 
+% filter the bout by rest period value. There are multiple choices. You can
+% use more than one method. The default is not filtered.
 for i = 1:length(boutFilter)
    if strcmp(boutFilter{i}, 'cleanPreBoutPeriodByMedian')
        keepbout = [];

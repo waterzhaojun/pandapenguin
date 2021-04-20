@@ -1,3 +1,17 @@
+4/15/2021
+Let me explain more detail about the output arrays. 
+In result.mat root struct, array is the original array that each time point is how many blocks passed.
+array_treated is the data transfered from array with the unit change to m/s, may be deshaked, and filtered in get_bout_xxx function, totally like treated by all methods.
+
+For each bout, array is extracted by start and end index from the array inputed to get_bout_xxx. This array may treated by deshake. And it is already translated to mm unit.
+array_treat is processed in get_bout_xxx with some filter like gaussianfilter, abs etc..
+
+When we use extractRunningData, we will get a series of new arrays. These arrays relay on how long we need before and after the start of the bout.
+baselineArray and responseArray are from array_treat based on the pre set duration. corArray is the combine of these two arrays.
+corRawArray is from array that has same idx as corArray.
+
+
+
 2/22/2021
 To analyze running induced a series responses, I build several functions and notebooks.
 extractRunningData: In each experiment, when use running_analysis, the analyzed data will be stored in "running" folder in trial's root folder. In this "running" folder there are a response pdf and a struct data containing each analysis parameters and bout results. This extractRunningData function is to produce a struct array (like a dataframe). In this struct array it has the info about each bout's start and end idx. We can use this info to correlate with other kind of data.
