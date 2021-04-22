@@ -26,17 +26,25 @@ res(1).scanrate = scanrate;
 res(1).layer = layer;
 res(1).trans_x = [];
 res(1).trans_y = [];
+res(1).trans = [];
 res(1).scale_x = [];
 res(1).scale_y = [];
+res(1).scale = [];
 res(1).shear_x = [];
 res(1).shear_y = [];
+res(1).shear = [];
 for f = 1:length(data) % 1:Nplane
     res(1).trans_x = [res(1).trans_x, data{f}.T(3,1)];
     res(1).trans_y = [res(1).trans_y, data{f}.T(3,2)];
+    res(1).trans = [res(1).trans, sqrt(data{f}.T(3,1)^2 + data{f}.T(3,2)^2)]; 
+    
     res(1).scale_x = [res(1).scale_x, data{f}.T(1,1)];
     res(1).scale_y = [res(1).scale_y, data{f}.T(2,2)];
+    res(1).scale = [res(1).scale, sqrt(data{f}.T(1,1)^2 + data{f}.T(2,2)^2)];
+    
     res(1).shear_x = [res(1).shear_x, data{f}.T(1,2)];
     res(1).shear_y = [res(1).shear_y, data{f}.T(2,1)];
+    res(1).shear = [res(1).shear, sqrt(data{f}.T(1,2)^2 + data{f}.T(2,1)^2)];
 end
 
 if absdata

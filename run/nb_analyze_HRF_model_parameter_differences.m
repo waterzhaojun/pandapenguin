@@ -2,14 +2,14 @@
 % parameters. 
 
 googleSheetID = '19teR3WvTd_yE2m-cNahoUNnIvrzK6--tCTM4YZ6pwbQ'; % <== This is where the data sheet is.
-root = 'C:\2pdata\HRF\';  %<=============  Where you want to save the analyzed data
+root = 'C:\2pdata\HRF_dura\';  %<=============  Where you want to save the analyzed data
 
 
 %% Code part. Don't change code below =======================
-explist = load_exp(googleSheetID);
+explist = load_exp(googleSheetID, '0');
 sheetID = '0';
-HRFcolumn = 13;
-lists = [100]%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
+HRFcolumn = 14;
+lists = 1:length%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
 
 for expidx = 1:length(lists)
     expi = lists(expidx);
@@ -121,7 +121,7 @@ for i = 1:length(files)
 end
 
 % add filter here =========
-df = df(strcmp({df.bvtissue}, 'pia'));
+df = df(strcmp({df.bvtissue}, 'dura'));
 df = df(strcmp({df.bvtype}, 'artery'));
 df = df(strcmp({df.bvposition}, 'horizontal'));
 df = df([df.coeff] > 0.60);
