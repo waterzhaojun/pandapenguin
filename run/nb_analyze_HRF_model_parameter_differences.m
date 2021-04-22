@@ -11,7 +11,7 @@ sheetID = '0';
 HRFcolumn = 14;
 lists = 1:length%[43:51,62:69,82:83,109:114,127:135,171:202,213:231]; %<============== which data sheet lines do you want to analyze.
 
-for expidx = 1:length(lists)
+for expidx = 298:length(lists)
     expi = lists(expidx);
     animal = explist(expi).animal;
     date = explist(expi).date;

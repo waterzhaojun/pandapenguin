@@ -33,7 +33,7 @@ explist = load_exp(googleSheetID, dataGid);
 df = struct();
 dfidx = 1;
 
-for expi = 1:length(explist)
+for expi = 298:length(explist)
     
     animal = explist(expi).animal;
     date = explist(expi).date;

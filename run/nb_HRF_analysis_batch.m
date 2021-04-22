@@ -8,7 +8,7 @@ explist = load_exp(googleSheetID, '0');
 sheetID = '0';
 HRFcolumn = 14;
 
-for expi = 121:length(explist) % <============= Or you set you wanted range. Be careful the range should be from google sheet row +1
+for expi = 298:length(explist) % <============= Or you set you wanted range. Be careful the range should be from google sheet row +1
     animal = explist(expi).animal;
     date = explist(expi).date;
     run = str2num(explist(expi).run);
