@@ -4,7 +4,7 @@ function df = extractMultiBoutData(exp, varargin)
 % date, run, we extract bout data and combine it to a big dataframe struct.
 
 % So far I prefer the exp is from google sheet that has animal, date, run,
-% treatment. May need edit to from more source.
+% treatment. May need edit to fit more source.
 
 
 parser = inputParser;
@@ -17,13 +17,11 @@ extraCols = parser.Results.extraCols;
 for i = 1:length(exp)
     animal = exp(i).animal;
     date = exp(i).date;
-    run = exp(i).run;
+    run = str2num(exp(i).run);
     path = sbxDir(animal, date, run);
     res = load(path.runs{1}.running.resultpath);
     res = res.result;
     scanrate = res.scanrate;
-
-    
 
     % add some information to bout df
     for j = 1:length(res.bout)

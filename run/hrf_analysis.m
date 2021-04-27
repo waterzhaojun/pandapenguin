@@ -11,8 +11,16 @@ addRequired(parser, 'animal');
 addRequired(parser, 'date');
 addRequired(parser, 'run');
 addParameter(parser, 'extra_output_folder', '');
+addParameter(parser, 'duration_range', nan); 
+% To use 'duration_range' to remove some period don't want to train, define the variable 
+% like [0, 5, 20, 30]. The first two elements is to tell I want the
+% locomotion that last from 0 to 5 sec. If the bout not qualified, remove
+% the bout and pre 20 timepoints (3rd element) and post 30 timepoints (4th
+% element).
+
 parse(parser, animal, date, run, varargin{:});
 
+duration_range = parser.Results.duration_range;
 extra_output_folder = parser.Results.extra_output_folder;
 
 runresultpath = sbxPath(animal, date, run, 'running');
@@ -30,8 +38,25 @@ running_binary = array_binary(result);
 %     end
 %     disp('This trial has enough length baseline period');
 
+% This part is to build an state binary array that define the period wanted
+% to be used to training.
+training_binary = ones(1, length(running_binary));
+if ~isnan(duration_range)
+    for i = 1:length(result.bout)
+        tmpbout = result.bout{i};
+%         max(tmpbout.startidx - duration_range(3),0)
+%         min(tmpbout.endidx + duration_range(4), length(running_binary))
+        if tmpbout.duration < duration_range(1) || tmpbout.duration > duration_range(2)
+            disp(['Bout ', num2str(i), ' duration is ', num2str(tmpbout.duration), '. Exclude it from training']);
+            training_binary(max(tmpbout.startidx - duration_range(3),1) : min(tmpbout.endidx + duration_range(4), length(running_binary))) = 0;
+        end
+    end
+end
+training_idx = find(training_binary == 1);
+
 bvresult = extractBvData(animal, date, run);
 result.HRF = struct();
+
 
 figure('Position', [10 10 1000 500*length(bvresult)])
 tiledlayout(length(bvresult),4);
@@ -43,7 +68,7 @@ for i = 1:length(bvresult)
 
     corrArray = (corrArrayori - baseline)/baseline;
     nexttile([1,3]);
-    [H,coeff] = HRF_train(running_binary, corrArray, result.scanrate);
+    [H,coeff] = HRF_train(running_binary(training_idx), corrArray(training_idx), result.scanrate);
     
     title([bvresult(i).id, ' (', bvresult(i).tissue, ' ', bvresult(i).type, '), Coeff = ', num2str(coeff)])
     
